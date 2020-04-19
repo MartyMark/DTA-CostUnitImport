@@ -5,7 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import costunitimport.controller.CostUnitController;
+import costunitimport.controller.ImportCostUnitFilesController;
 import costunitimport.model.CostUnit;
 
 @Component
@@ -18,7 +18,7 @@ public class CostUnitResourceAssembler implements RepresentationModelAssembler<C
 	@Override
 	public EntityModel<CostUnit> toModel(final CostUnit entity) {
 		return new EntityModel<>(entity,
-			      linkTo(methodOn(CostUnitController.class).findCostUnitById(entity.getId())).withSelfRel());
+			      linkTo(methodOn(ImportCostUnitFilesController.class).findCostUnitById(entity.getId())).withSelfRel());
 	}
 
 }
