@@ -18,15 +18,13 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import costunitimport.assembler.AssemblerTools;
 import costunitimport.costunitImport.CostUnitFileImport;
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.model.CostUnit;
 import costunitimport.model.CostUnitFile;
+import costunitimport.model.CostUnitInstitution;
 import costunitimport.rssfeed.CostUnitRSSFeed;
 import costunitimport.rssfeed.CostUnitRSSFeedItem;
 import costunitimport.rssfeed.RSSFeedParser;
-import costunitimport.service.CostUnitService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -34,18 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ImportCostUnitFilesController {
 	
 	@Autowired
-	private CostUnitService service;
-	
-	@Autowired
-	private AssemblerTools tools;
-	
-	@Autowired
 	private RepositoryFactory repositoryFactory;
 	
     @Value("${rssfeeds.url}")
     private String rssfeedUrl;
 	
-	public EntityModel<CostUnit> findCostUnitById(@RequestParam Integer id) {
+	public EntityModel<CostUnitInstitution> findCostUnitById(@RequestParam Integer id) {
 		try {
 			RSSFeedParser rssFeedParser = new RSSFeedParser(rssfeedUrl);
 			CostUnitRSSFeed rssFeed = rssFeedParser.readFeed();

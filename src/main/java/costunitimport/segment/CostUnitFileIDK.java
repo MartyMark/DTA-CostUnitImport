@@ -16,11 +16,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import costunitimport.model.AccountingCode;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAddress;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
-import costunitimport.model.DTAAccountingCode;
 
 public class CostUnitFileIDK extends CostUnitFileAbstract{
 	
@@ -159,7 +159,7 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 		this.costUnitFileVDT = Optional.ofNullable(costUnitFileVDT);
 	}
 	
-	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions, Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
+	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions, Map<String, AccountingCode> mapAccountingCodesCareProviderMethod){
 		int[] specialACs = new int[] {0,99,10,20,30,40};
 		List<CostUnitAssignment> allKotrAssignments = new ArrayList<CostUnitAssignment>();
 		Map<Integer, List<CostUnitFileVKG>> mapByKindOfAssignment = costUnitFileVKGs.stream().collect(Collectors.groupingBy(CostUnitFileVKG::getKindOfAssignment));
@@ -186,12 +186,12 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
         		 CostUnitAssignment kotrAssignment = costUnitFileVKG.getCostUnitAssignment(validityFrom, kotrInstitutions);
 				if(!listVKGsWithCorrectACs.contains(costUnitFileVKG)) {
 					if(costUnitFileVKG.getAccountingCode()== null) {
-						kotrAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+						kotrAssignment.setAccountingCodes(new ArrayList<AccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 						kotrAssignmentsByKindOfAssignment.add(kotrAssignment);
 					} else {
 						switch ( costUnitFileVKG.getAccountingCode()) {
 							case 0://00-Sammelschlüssel für alle Leistungsarten
-								kotrAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+								kotrAssignment.setAccountingCodes(new ArrayList<AccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 								break;
 							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
 								kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {"11","12","13","14","15","16","17","19"}));
@@ -206,8 +206,8 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 								kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {"41","42","43","44","45","46","47","48","49"}));
 								break;
 							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-								List<DTAAccountingCode> listAllocatedACs = kotrAssignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(KotrAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-								List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac)).collect(Collectors.toList());
+								List<AccountingCode> listAllocatedACs = kotrAssignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+								List<AccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac)).collect(Collectors.toList());
 								kotrAssignment.setAccountingCodes(listRemainingdACs);
 								break;
 							default:
@@ -241,11 +241,11 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 				mapGroupedKotrAssignments.put(keyBuilder.toString(), currentAssignment);
 			} else if(existingAssignment.getAccountingCodes()!=null){
 				if(currentAssignment.getAccountingCodes()==null) {
-					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
 				}
 				boolean exist = existingAssignment.getAccountingCodes().stream().anyMatch(a -> currentAssignment.getAccountingCodes().contains(a));
 				if(exist) {
-					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
 				}
 				
 				existingAssignment.getAccountingCodes().addAll(currentAssignment.getAccountingCodes());
@@ -260,15 +260,15 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
         return mapGroupedKotrAssignments.values().stream().collect(Collectors.toList());
 	}
 	
-	private List<DTAAccountingCode> getDtaAccountCodes(Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
+	private List<AccountingCode> getDtaAccountCodes(Map<String, AccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
 		if (searchACs == null || searchACs.length <= 0) {
-			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Keine ACs übergeben!");
+//			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Keine ACs übergeben!");
 		}
-		List<DTAAccountingCode> listAccountingCodes = new ArrayList<>();
+		List<AccountingCode> listAccountingCodes = new ArrayList<>();
 		for (String currentAC : searchACs) {
-			DTAAccountingCode accountingCode = mapAccountingCodesCareProviderMethod.get(currentAC);
+			AccountingCode accountingCode = mapAccountingCodesCareProviderMethod.get(currentAC);
 			if (accountingCode == null) {
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Kein korrekter Abrechnungscode! " + currentAC);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Kein korrekter Abrechnungscode! " + currentAC);
 			}
 			listAccountingCodes.add(accountingCode);
 		}
@@ -324,7 +324,7 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 		}
 		institution.setInstitutionNumber(institutionCode);
 		institution.setVknr(vKNR);
-		institution.setCurrentODAContactAddress(getODAContactAddress());
+		institution.setCurrentODAContactAddress(getCostUnitAddress());
 		institution.setShortDescription(shortDescription);
 		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
 		institution.setODAContactType(contactType);

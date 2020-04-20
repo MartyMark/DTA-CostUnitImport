@@ -2,10 +2,18 @@ package costunitimport.segment;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 
+import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CostUnitAssignment;
+import costunitimport.model.CostUnitDataSupplyType;
 import costunitimport.model.CostUnitInstitution;
+import costunitimport.model.CostUnitMediumType;
 
+/**
+ * 
+ * VKG+02+100295017+5++07++01++00
+ */
 public class CostUnitFileVKG extends CostUnitFileAbstract {
 
 	private Integer kindOfAssignment;
@@ -18,9 +26,12 @@ public class CostUnitFileVKG extends CostUnitFileAbstract {
 	private Integer regionCareProvider;
 	private Integer accountingCode;
 	private Integer rateCode;
+	
+	private final RepositoryFactory rFactory;
 
-	public CostUnitFileVKG(String[] data) {
+	public CostUnitFileVKG(String[] data, RepositoryFactory rFactory) {
 		super(data);
+		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -41,40 +52,40 @@ public class CostUnitFileVKG extends CostUnitFileAbstract {
 	public CostUnitAssignment getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
 		//*** Art der Verknüpfung
-		KotrTypeAssignment typeAssignment = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeAssignmentById(kindOfAssignment);
-		if(typeAssignment==null) {
-			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Verknuepfung! Id: " + kindOfAssignment);
+		Optional<CostUnitAssignment> typeAssignment = rFactory.getCostUnitAssignmentRepository().findById(kindOfAssignment);
+		if(typeAssignment.isEmpty()) {
+//			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Verknuepfung! Id: " + kindOfAssignment);
 		}
-		assignment.setTypeAssignment(typeAssignment);
+		assignment.setTypeAssignment(typeAssignment.get());
 		//*** Art der Datenlieferung
 		if(kindOfDataSupply!=null) {
-			KotrTypeDataSupply typeDataSupply = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeDataSupplyById(kindOfDataSupply);
+			CostUnitDataSupplyType typeDataSupply = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeDataSupplyById(kindOfDataSupply);
 			if(typeDataSupply==null) {
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Datenlieferung! Id: " + typeDataSupply);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Datenlieferung! Id: " + typeDataSupply);
 			}
 			assignment.setTypeDataSupply(typeDataSupply);
 		}
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
-			KotrTypeMedium typeMedium = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeMediumById(kindOfDataMedium);
+			CostUnitMediumType typeMedium = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeMediumById(kindOfDataMedium);
 			if(typeMedium==null) {
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art des Mediums! Id: " + kindOfDataMedium);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art des Mediums! Id: " + kindOfDataMedium);
 			}
 			assignment.setTypeMedium(typeMedium);
 		}
 		//*** Institut des Verknüpfungspartners
 		if(institutionCodeAssignmentPartner!=null) {
-			KotrInstitution institutionToSet = kotrInstitutions.get(institutionCodeAssignmentPartner);
+			CostUnitInstitution institutionToSet = kotrInstitutions.get(institutionCodeAssignmentPartner);
 			if(institutionToSet==null) {
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAssignmentPartner);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAssignmentPartner);
 			}
 			assignment.setInstitutionIdAssignment(institutionToSet.getId());
 		}
 		//*** Institut der Abrechnungsstelle
 		if(institutionCodeAccounting!=null) {
-			KotrInstitution institutionToSet = kotrInstitutions.get(institutionCodeAccounting);
+			CostUnitInstitution institutionToSet = kotrInstitutions.get(institutionCodeAccounting);
 			if(institutionToSet==null) {
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAccounting);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAccounting);
 			}
 			assignment.setInstitutionIdAccounting(institutionToSet.getId());
 		}

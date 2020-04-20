@@ -3,18 +3,22 @@ package costunitimport.segment;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.Optional;
 
+import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitFile;
-import costunitimport.model.DTACostUnitSeparation;
+import costunitimport.model.CostUnitSeparation;
 
 public class CostUnitFileUNB extends CostUnitFileAbstract {
 
 	private String fileName;
 	private LocalDateTime creationTime;
+	private RepositoryFactory rFactory;
 
-	public CostUnitFileUNB(String[] data) {
+	public CostUnitFileUNB(String[] data, RepositoryFactory rFactory) {
 		super(data);
+		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -69,45 +73,49 @@ public class CostUnitFileUNB extends CostUnitFileAbstract {
 		CostUnitFile file = new CostUnitFile();
 		file.setCreationTime(creationTime);
 		file.setFileName(fileName);
-		file.setDtaCostUnitSeparation(getDtaCostUnitSeparationByToken(fileName.substring(0, 2)));
-		file.setCareProviderMethod(getCareProviderMethodByToken(fileName.substring(2, 4)));
+		
+		getDtaCostUnitSeparationByToken(fileName.substring(0, 2)).ifPresent(x -> file.setDtaCostUnitSeparation(x));
+		
+		getCareProviderMethodByToken(fileName.substring(2, 4)).ifPresent(x -> file.setCareProviderMethod(x));
+		
+		
 		file.setValidityFrom(getValidityFrom(fileName.substring(4, 6), fileName.substring(6, 8)));
 		file.setVersion(Integer.valueOf(fileName.substring(10, 11)));
 		return file;
 	}
 
-	private static DTACostUnitSeparation getDtaCostUnitSeparationByToken(String dtaCostUnitSeparationToken) throws ApplicationException {
+	private Optional<CostUnitSeparation> getDtaCostUnitSeparationByToken(String dtaCostUnitSeparationToken) {
 		Integer  dtaCostUnitSeparationId = null;
 		switch (dtaCostUnitSeparationToken) {
 			case "AO"://AOK
-				dtaCostUnitSeparationId = DTACostUnitSeparation.AOK;
+				dtaCostUnitSeparationId = CostUnitSeparation.AOK;
 			break;
 			case "EK"://Ersatzkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = CostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
 			break;
 			case "BK"://Betriebskrankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.COMPANY_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = CostUnitSeparation.COMPANY_HEALTH_INSURANCE;
 			break;
 			case "IK"://Innungskrankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.GUILD_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = CostUnitSeparation.GUILD_HEALTH_INSURANCE;
 			break;
 			case "BN"://Knappschaft-Bahn-See
-				dtaCostUnitSeparationId = DTACostUnitSeparation.FEDERAL_MINERS_UNION;
+				dtaCostUnitSeparationId = CostUnitSeparation.FEDERAL_MINERS_UNION;
 			break;
 			case "LK"://Landwirtschaftliche Krankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = CostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
 			break;
 			case "GK"://Gesetzliche Krankenversicherung
-				dtaCostUnitSeparationId = DTACostUnitSeparation.OTHER;
+				dtaCostUnitSeparationId = CostUnitSeparation.OTHER;
 			break;
 
 			default:
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Kassenart: " + dtaCostUnitSeparationToken);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Kassenart: " + dtaCostUnitSeparationToken);
 		}
-		return FacadeHandler.getMasterDataInfFacadeLocal().findDTACostUnitSeparationById(dtaCostUnitSeparationId.intValue());
+		return rFactory.getCostUnitSeparationRepository().findById(dtaCostUnitSeparationId.intValue());
 	}
 	
-	private static CareProviderMethod getCareProviderMethodByToken(String careProviderMethodToken) throws ApplicationException {
+	private Optional<CareProviderMethod> getCareProviderMethodByToken(String careProviderMethodToken) {
 		Integer  careProviderMethodId = null;
 		switch (careProviderMethodToken) {
 			case "03"://Datenaustausch Teilprojekt Apotheken
@@ -121,9 +129,9 @@ public class CostUnitFileUNB extends CostUnitFileAbstract {
 			break;
 			
 			default:
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekanntes Verfahren: " + careProviderMethodToken);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekanntes Verfahren: " + careProviderMethodToken);
 		}
-		return FacadeHandler.getMasterDataInfFacadeLocal().findCareProviderMethodById(careProviderMethodId.intValue());
+		return rFactory.getCareProviderMethodRepository().findById(careProviderMethodId.intValue());
 	}
 	
 	private static LocalDate getValidityFrom(String validityFromMonthQuarter, String validityFromYear) throws ApplicationException {
@@ -142,7 +150,7 @@ public class CostUnitFileUNB extends CostUnitFileAbstract {
 			case "Q4":
 				return LocalDate.of(year, Month.OCTOBER, 1);
 			default:
-				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler bei der Ermittlung des Datei Gültigkeitsdatums!");
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler bei der Ermittlung des Datei Gültigkeitsdatums!");
 		}
 	}
 }

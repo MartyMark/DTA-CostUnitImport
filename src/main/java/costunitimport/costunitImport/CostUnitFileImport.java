@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.model.AccountingCode;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAddress;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
-import costunitimport.model.DTAAccountingCode;
 import costunitimport.segment.CostUnitFileANS;
 import costunitimport.segment.CostUnitFileASP;
 import costunitimport.segment.CostUnitFileDFU;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CostUnitFileImport {
 	
-	private final RepositoryFactory repositoryFactory;
+	private final RepositoryFactory rFactory;
 	
 	private final Path path;
 	private final List<CostUnitFileIDK> listIDKs;
@@ -45,7 +45,7 @@ public class CostUnitFileImport {
 	
 	public CostUnitFileImport(final Path path, final RepositoryFactory repositoryFactory) {
 		this.path = Objects.requireNonNull(path);
-		this.repositoryFactory = Objects.requireNonNull(repositoryFactory);
+		this.rFactory = Objects.requireNonNull(repositoryFactory);
 		
 		listIDKs =  new ArrayList<>();
 	}
@@ -71,7 +71,7 @@ public class CostUnitFileImport {
 			case "FKT":
 				getLastIDK().setCostUnitFileFKT(new CostUnitFileFKT(data));
 			case "VKG":
-				getLastIDK().getCostUnitFileVKGs().add(new CostUnitFileVKG(data));
+				getLastIDK().getCostUnitFileVKGs().add(new CostUnitFileVKG(data, rFactory));
 			case "NAM":
 				getLastIDK().setCostUnitFileNAM(new CostUnitFileNAM(data));
 			case "ANS":
@@ -86,7 +86,7 @@ public class CostUnitFileImport {
 			case "KTO":
 				getLastIDK().getCostUnitFileKTOs().add(new CostUnitFileKTO(data));
 			case "UNB":
-				this.unb = new CostUnitFileUNB(data);
+				this.unb = new CostUnitFileUNB(data, rFactory);
 			default:
 				//keine Verarbeitung
 		}
@@ -111,18 +111,44 @@ public class CostUnitFileImport {
 	private void insertCostUnitFile() {
 		Objects.requireNonNull(unb);
 		
-		//TODO Repos hinzufügen
 		CostUnitFile newFile = unb.getCostUnitFile();
 		
-		repositoryFactory.getCostUnitFileRepository().save(newFile);
+		rFactory.getCostUnitFileRepository().save(newFile);
 		
 		LocalDate importFileValidityFrom = newFile.getValidityFrom();
 		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		
 		//*** Institution abschliessen, anlegen, updaten
-		List<CostUnitInstitution> existingInstitutions = repositoryFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
+		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
 	
 		//*** Institutionen werden nur auf deren Gültigkeit gefiltert
+		List<CostUnitFileIDK> filteredIDKs = filterIDKsByValidityUtil(importFileValidityFrom);
+		
+		closeExistingInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom);
+		updateAndInsertCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
+		
+		//*** Verknüpfungen
+		existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
+		
+		Map<Integer, CostUnitInstitution> institutionNumberToInstitut = existingInstitutions.stream()
+				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
+		
+		List<AccountingCode> dtaAccountingCodes = rFactory.getAccountingCodeRepository()
+				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
+		
+		Map<String, AccountingCode> mapAccountingCodesCareProviderMethod = dtaAccountingCodes.stream().distinct()
+				.collect(Collectors.toMap(AccountingCode::getAccountingCode, Function.identity()));
+		
+		for (CostUnitFileIDK costUnitFileIDK : filteredIDKs) {
+			List<CostUnitAssignment> kotrAssignments = costUnitFileIDK.getCostUnitAssignment(newFile.getValidityFrom(),
+					institutionNumberToInstitut, mapAccountingCodesCareProviderMethod);
+			CostUnitInstitution currentKotrInstitution = institutionNumberToInstitut
+					.get(costUnitFileIDK.getInstitutionCode());
+			updateAndInsertCostUnitAssignments(currentKotrInstitution.getId(), kotrAssignments, importFileValidityFrom);
+		} // ***
+	}
+	
+	private List<CostUnitFileIDK> filterIDKsByValidityUtil(LocalDate importFileValidityFrom) {
 		List<CostUnitFileIDK> filteredIDKs = new ArrayList<>();
 		for (CostUnitFileIDK currentIDK : listIDKs) {
 			if (currentIDK.getCostUnitFileVDT().isPresent()) {
@@ -134,27 +160,9 @@ public class CostUnitFileImport {
 			}
 			filteredIDKs.add(currentIDK);
 		} // ***
-		
-		closeExistingInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom);
-		updateAndInsertCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
-		
-		//*** Verknüpfungen
-		existingInstitutions = repositoryFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
-		Map<Integer, CostUnitInstitution> mapKotrInstitutionByInstitutionNumber = existingInstitutions.stream()
-				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
-		List<DTAAccountingCode> dtaAccountingCodes = repositoryFactory.getAccountingCodeRepository()
-				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
-		Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod = dtaAccountingCodes.stream().distinct()
-				.collect(Collectors.toMap(DTAAccountingCode::getAccountingCode, Function.identity()));
-		for (CostUnitFileIDK costUnitFileIDK : filteredIDKs) {
-			List<CostUnitAssignment> kotrAssignments = costUnitFileIDK.getCostUnitAssignment(newFile.getValidityFrom(),
-					mapKotrInstitutionByInstitutionNumber, mapAccountingCodesCareProviderMethod);
-			CostUnitInstitution currentKotrInstitution = mapKotrInstitutionByInstitutionNumber
-					.get(costUnitFileIDK.getInstitutionCode());
-			updateAndInsertCostUnitAssignments(currentKotrInstitution.getId(), kotrAssignments, importFileValidityFrom);
-		} // ***
+		return filteredIDKs;
 	}
-	
+
 	/**
 	 * Schließt die existierenden Institutionen aufgrund der neuen Import-Datei
 	 */
@@ -165,7 +173,7 @@ public class CostUnitFileImport {
 		for (CostUnitInstitution kotrInstitution : institutionsToClose) {
 			kotrInstitution.setValidityUntil(validityUntil);
 		}
-		repositoryFactory.getCostUnitInstitutionRepository().saveAll(institutionsToClose);
+		rFactory.getCostUnitInstitutionRepository().saveAll(institutionsToClose);
 	}
 	
 	private void updateAndInsertCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
@@ -184,26 +192,26 @@ public class CostUnitFileImport {
 				CostUnitAddress contactAddress = costUnitFileIDK.getCostUnitAddress();
 				if (contactAddress != null) {
 //					contactAddress.setODAId(newInstitution.getId()); TODO
-					repositoryFactory.getCostUnitAddressRepository().save(contactAddress);
+					rFactory.getCostUnitAddressRepository().save(contactAddress);
 				}
 			} else {
 				kotrInstitutionFromFile.setId(existingKotrInstitution.getId());
 				if (kotrInstitutionFromFile.getValidityFrom() == null) {
 					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);
 				}
-				repositoryFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
+				rFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
 				CostUnitAddress contactAddress = costUnitFileIDK.getCostUnitAddress();
 				if (contactAddress != null) {
 					CostUnitAddress currentAddress = kotrInstitutionFromFile.getCurrentODAContactAddress();
 					if (currentAddress == null) {//es gibt keine, also kann die importierte geschrieben werden
-						repositoryFactory.getCostUnitAddressRepository().save(contactAddress);
+						rFactory.getCostUnitAddressRepository().save(contactAddress);
 					} else {//es existiert eine Adresse, abgleich auf Änderungen
 						String oldAddressString = currentAddress.getZip().getId() + "|" + currentAddress.getStreet() + "|" + currentAddress.getPostBox();
 						String newAddressString = contactAddress.getZip().getId() + "|" + contactAddress.getStreet() + "|" + contactAddress.getPostBox();
 						if (!oldAddressString.equals(newAddressString)) {
 							currentAddress.setValidityUntil(validityUntil);
-							repositoryFactory.getCostUnitAddressRepository().save(currentAddress); //update
-							repositoryFactory.getCostUnitAddressRepository().save(contactAddress);
+							rFactory.getCostUnitAddressRepository().save(currentAddress); //update
+							rFactory.getCostUnitAddressRepository().save(contactAddress);
 						}
 					}
 				}
@@ -212,7 +220,7 @@ public class CostUnitFileImport {
 	}
 	
 	private void updateAndInsertCostUnitAssignments(int kotrInstitutionId, List<CostUnitAssignment> kotrAssignmentsFile, LocalDate importFileValidityFrom) {
-		List<CostUnitAssignment> kotrAssignmentsDB = repositoryFactory.getCostUnitAssignmentRepository().findCostUnitAssignmentsByCostUnitInstitutionIdAndValidityDate(kotrInstitutionId, importFileValidityFrom);
+		List<CostUnitAssignment> kotrAssignmentsDB = rFactory.getCostUnitAssignmentRepository().findCostUnitAssignmentsByCostUnitInstitutionIdAndValidityDate(kotrInstitutionId, importFileValidityFrom);
 		if (!kotrAssignmentsDB.isEmpty() && kotrAssignmentsDB.stream().filter(assignment -> assignment.getValidityFrom().equals(importFileValidityFrom)).count() > 0) {
 			//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
 			//Der Fall kann entstehen, 
@@ -234,8 +242,8 @@ public class CostUnitFileImport {
 				kotrAssignment.setValidityUntil(validityUntil);
 			}
 		}
-		repositoryFactory.getCostUnitAssignmentRepository().saveAll(kotrAssignmentsToClose); //update
-		repositoryFactory.getCostUnitAssignmentRepository().saveAll(kotrAssignmentsToInsert);
+		rFactory.getCostUnitAssignmentRepository().saveAll(kotrAssignmentsToClose); //update
+		rFactory.getCostUnitAssignmentRepository().saveAll(kotrAssignmentsToInsert);
 
 	}
 	
@@ -274,7 +282,7 @@ public class CostUnitFileImport {
 		builder.append("districtId:").append(assignment.getDistrictId()).append("|");
 		builder.append("rateCode:").append(assignment.getRateCode()).append("|");
 		builder.append("accountingCodes:").append(
-				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(DTAAccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
+				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(AccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
 		return builder.toString();
 	}
 }

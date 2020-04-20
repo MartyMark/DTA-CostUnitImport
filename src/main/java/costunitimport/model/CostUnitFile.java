@@ -21,7 +21,7 @@ public class CostUnitFile {
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
-    private DTACostUnitSeparation dtaCostUnitSeparation;
+    private CostUnitSeparation dtaCostUnitSeparation;
     
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")

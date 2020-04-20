@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "DTA_KASSENTRENNUNG")
-public class DTACostUnitSeparation {
+public class CostUnitSeparation {
 	public static final int AOK = 1; //AOK
 	public static final int SUBSTITUTE_HEALTH_INSURANCE = 2; //Ersatzkassen
 	public static final int COMPANY_HEALTH_INSURANCE = 3; //Betriebskrankenkassen

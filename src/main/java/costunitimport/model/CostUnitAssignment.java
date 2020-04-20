@@ -19,5 +19,5 @@ public class CostUnitAssignment {
 	private String rateCode;
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
-	private List<DTAAccountingCode> accountingCodes;
+	private List<AccountingCode> accountingCodes;
 }
