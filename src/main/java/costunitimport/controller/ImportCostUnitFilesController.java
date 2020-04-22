@@ -9,17 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-
 import javax.xml.bind.JAXBException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import costunitimport.costunitImport.CostUnitFileImport;
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.logger.Logger;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.rssfeed.CostUnitRSSFeed;
@@ -37,7 +35,7 @@ public class ImportCostUnitFilesController {
     @Value("${rssfeeds.url}")
     private String rssfeedUrl;
 	
-	public EntityModel<CostUnitInstitution> findCostUnitById(@RequestParam Integer id) {
+	public EntityModel<CostUnitInstitution> findCostUnitInstitutionById(@RequestParam Integer id) {
 		try {
 			RSSFeedParser rssFeedParser = new RSSFeedParser(rssfeedUrl);
 			CostUnitRSSFeed rssFeed = rssFeedParser.readFeed();
@@ -46,20 +44,20 @@ public class ImportCostUnitFilesController {
 				String filename = new File(feedItem.getLink()).getName().replace(".", "");
 				List<CostUnitFile> costUnitFile = repositoryFactory.getCostUnitFileRepository().findByFileName(filename);
 				if(costUnitFile.isEmpty()) {
-					log.info("Started import of CostUnitFile {}", filename);
+					Logger.info("Started import of CostUnitFile " + filename);
 					String httpsLink = feedItem.getLink().replaceFirst("http:", "https:");
 					Path path = downloadAndSaveTempFile(httpsLink, filename);
 					
 					CostUnitFileImport costUnitImport = new CostUnitFileImport(path, repositoryFactory);
 					costUnitImport.start();
 					
-					log.info("Finished import of CostUnitFile {}", filename);
+					Logger.info("Finished import of CostUnitFile " + filename);
 					deleteFiles(path);
 				}
 			}
 			
 		} catch (JAXBException | IOException e) {
-			log.error("Error!", e);
+			Logger.error(e);
 		}
 		return null;
 	}
@@ -68,7 +66,7 @@ public class ImportCostUnitFilesController {
 		try {
 			Files.deleteIfExists(path);
 		} catch (IOException e) {
-			log.info("File {} konte nicht gelöscht werden!", path.getFileName());
+			Logger.info("File " + path.getFileName() + " konte nicht gelöscht werden!");
 		}
 	}
 

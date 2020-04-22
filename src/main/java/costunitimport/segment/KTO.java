@@ -1,8 +1,8 @@
 package costunitimport.segment;
 
-public class CostUnitFileDFU extends CostUnitFileAbstract {
+public class KTO extends Segment {
 
-	public CostUnitFileDFU(String[] data) {
+	public KTO(String[] data) {
 		super(data);
 	}
 

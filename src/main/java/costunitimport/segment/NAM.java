@@ -3,7 +3,7 @@ package costunitimport.segment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CostUnitFileNAM extends CostUnitFileAbstract {
+public class NAM extends Segment {
 
 	private Integer sequentialNumber;
 	private String name1;
@@ -11,9 +11,9 @@ public class CostUnitFileNAM extends CostUnitFileAbstract {
 	private String name3;
 	private String name4;
 	
-	private List<CostUnitFileANS> costUnitFileANSs = new ArrayList<>();
+	private List<ANS> costUnitFileANSs = new ArrayList<>();
 
-	public CostUnitFileNAM(String[] data) {
+	public NAM(String[] data) {
 		super(data);
 	}
 
@@ -69,7 +69,7 @@ public class CostUnitFileNAM extends CostUnitFileAbstract {
 	}
 
 	
-	public List<CostUnitFileANS> getCostUnitFileANSs() {
+	public List<ANS> getCostUnitFileANSs() {
 		return costUnitFileANSs;
 	}
 

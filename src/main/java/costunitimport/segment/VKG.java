@@ -3,7 +3,6 @@ package costunitimport.segment;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitDataSupplyType;
@@ -14,7 +13,7 @@ import costunitimport.model.CostUnitMediumType;
  * 
  * VKG+02+100295017+5++07++01++00
  */
-public class CostUnitFileVKG extends CostUnitFileAbstract {
+public class VKG extends Segment {
 
 	private Integer kindOfAssignment;
 	private Integer institutionCodeAssignmentPartner;
@@ -29,7 +28,7 @@ public class CostUnitFileVKG extends CostUnitFileAbstract {
 	
 	private final RepositoryFactory rFactory;
 
-	public CostUnitFileVKG(String[] data, RepositoryFactory rFactory) {
+	public VKG(String[] data, RepositoryFactory rFactory) {
 		super(data);
 		this.rFactory = rFactory;
 	}
@@ -190,7 +189,15 @@ public class CostUnitFileVKG extends CostUnitFileAbstract {
 	 * Abrechnungscode (Leistungserbringerart)<br>
 	 * Schlüssel Abrechnungscode
 	 * 
-	 * @return Abrechnungscode (Leistungserbringerart)
+	 * @return Abrechnungscode (Leistungserbringerart)<br>
+	 * 00 - Sammelschlüssel für alle Leistungsarten<br>
+	 * 99 - Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel<br><br>
+	 * 
+	 * 10- Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)<br>
+	 * 		11 - Apotheke (mit gesonderter Zulassung nach § 126 SGB V)<br>
+	 * 		12 - Augenoptiker<br>
+	 * 		13 - Augenarzt<br>
+	 * 		etc....
 	 */
 	public Integer getAccountingCode() {
 		return accountingCode;

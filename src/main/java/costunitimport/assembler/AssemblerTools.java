@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 public class AssemblerTools {
 	
 	@Autowired
-	private CostUnitResourceAssembler costUnitAssembler;
+	private CostUnitInstitutionResourceAssembler costUnitInstitutionAssembler;
 	
-	public CostUnitResourceAssembler getCostUnitAssembler() {
-		return costUnitAssembler;
+	public CostUnitInstitutionResourceAssembler getCostUnitInstitutionAssembler() {
+		return costUnitInstitutionAssembler;
 	}
 }

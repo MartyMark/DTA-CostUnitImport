@@ -1,8 +1,8 @@
 package costunitimport.segment;
 
-public class CostUnitFileANS extends CostUnitFileAbstract {
+public class DFU extends Segment {
 
-	public CostUnitFileANS(String[] data) {
+	public DFU(String[] data) {
 		super(data);
 	}
 

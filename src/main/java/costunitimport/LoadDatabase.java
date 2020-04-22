@@ -3,6 +3,7 @@ package costunitimport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import costunitimport.logger.Logger;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
@@ -11,9 +12,9 @@ public class LoadDatabase {
 	@Bean
 	CommandLineRunner initDatabase() {
 		return args -> {
-			log.info("Preloading started");
+			Logger.info("Preloading started");
 			
-			log.info("Preloading finished");
+			Logger.info("Preloading finished");
 		};
 	}
 }

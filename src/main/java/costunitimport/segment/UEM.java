@@ -3,16 +3,16 @@ package costunitimport.segment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CostUnitFileUEM extends CostUnitFileAbstract {
+public class UEM extends Segment {
 
 	private Integer kindOfDataMedium;
 	private Integer parameter;
 	private String charSet;
 	private String typeOfCompression;
 	
-	private List<CostUnitFileDFU> costUnitFileDFUs= new ArrayList<>();
+	private List<DFU> costUnitFileDFUs= new ArrayList<>();
 
-	public CostUnitFileUEM(String[] data) {
+	public UEM(String[] data) {
 		super(data);
 	}
 
@@ -66,11 +66,11 @@ public class CostUnitFileUEM extends CostUnitFileAbstract {
 		return typeOfCompression;
 	}
 	
-	public List<CostUnitFileDFU> getCostUnitFileDFUs() {
+	public List<DFU> getCostUnitFileDFUs() {
 		return costUnitFileDFUs;
 	}
 	
-	public void setCostUnitFileDFUs(List<CostUnitFileDFU> costUnitFileDFUs) {
+	public void setCostUnitFileDFUs(List<DFU> costUnitFileDFUs) {
 		this.costUnitFileDFUs = costUnitFileDFUs;
 	}
 

@@ -1,5 +1,7 @@
 package costunitimport.model;
 
+import javax.persistence.Id;
+
 public class FederalState {
 	public static final int UNKNOWN_FEDERAL_STATE_ID = 0;
 	//Germany
@@ -30,6 +32,25 @@ public class FederalState {
 	
 	public static final int UPPER_AUSTRIA = 104;
 	
+	@Id
+	private Integer id;
+	
     private Country country;
     private Integer membershipId;
+	
+	public Country getCountry() {
+		return country;
+	}
+	
+	public void setCountry(Country country) {
+		this.country = country;
+	}
+	
+	public Integer getMembershipId() {
+		return membershipId;
+	}
+	
+	public void setMembershipId(Integer membershipId) {
+		this.membershipId = membershipId;
+	}
 }

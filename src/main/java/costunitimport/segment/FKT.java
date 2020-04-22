@@ -1,10 +1,10 @@
 package costunitimport.segment;
 
-public class CostUnitFileFKT extends CostUnitFileAbstract {
+public class FKT extends Segment {
 
 	private String processingIndicator;
 
-	public CostUnitFileFKT(String[] data) {
+	public FKT(String[] data) {
 		super(data);
 	}
 

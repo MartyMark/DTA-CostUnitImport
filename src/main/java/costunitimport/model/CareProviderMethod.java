@@ -3,9 +3,7 @@ package costunitimport.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import lombok.Data;
 
-@Data
 @Entity
 @Table(name = "DTA_LEISTUNGSVERFAHREN")
 public class CareProviderMethod {
@@ -25,4 +23,28 @@ public class CareProviderMethod {
 	private String description;
     private String fullDescription;
     private Boolean accountIndicator;
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getFullDescription() {
+		return fullDescription;
+	}
+	
+	public void setFullDescription(String fullDescription) {
+		this.fullDescription = fullDescription;
+	}
+	
+	public Boolean getAccountIndicator() {
+		return accountIndicator;
+	}
+	
+	public void setAccountIndicator(Boolean accountIndicator) {
+		this.accountIndicator = accountIndicator;
+	}
 }

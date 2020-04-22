@@ -6,14 +6,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public abstract class CostUnitFileAbstract {
+public abstract class Segment {
 		private String[] data = new String[0];
 	
 	private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd:HHmm");
 	private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
 
-	public CostUnitFileAbstract(String[] data) {
+	public Segment(String[] data) {
 		this.data = data;
 		assignData();
 	}

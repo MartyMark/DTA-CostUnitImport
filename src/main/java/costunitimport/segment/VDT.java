@@ -2,12 +2,12 @@ package costunitimport.segment;
 
 import java.time.LocalDate;
 
-public class CostUnitFileVDT extends CostUnitFileAbstract{
+public class VDT extends Segment{
 
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
 
-	public CostUnitFileVDT(String[] data) {
+	public VDT(String[] data) {
 		super(data);
 	}
 

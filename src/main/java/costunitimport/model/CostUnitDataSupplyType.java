@@ -1,9 +1,23 @@
 package costunitimport.model;
 
-import lombok.Data;
+import javax.persistence.Id;
 
-@Data
 public class CostUnitDataSupplyType {
+	
+	@Id
 	private Integer id;
+	
 	private String description;
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Integer getId() {
+		return id;
+	}
 }

@@ -1,8 +1,8 @@
 package costunitimport.segment;
 
-public class CostUnitFileASP extends CostUnitFileAbstract {
+public class ASP extends Segment {
 
-	public CostUnitFileASP(String[] data) {
+	public ASP(String[] data) {
 		super(data);
 		// TODO Auto-generated constructor stub
 	}

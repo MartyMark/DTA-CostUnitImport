@@ -4,19 +4,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Optional;
-
+import java.util.regex.Pattern;
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitSeparation;
 
-public class CostUnitFileUNB extends CostUnitFileAbstract {
+public class UNB extends Segment {
 
 	private String fileName;
 	private LocalDateTime creationTime;
 	private RepositoryFactory rFactory;
 
-	public CostUnitFileUNB(String[] data, RepositoryFactory rFactory) {
+	public UNB(String[] data, RepositoryFactory rFactory) {
 		super(data);
 		this.rFactory = rFactory;
 	}
@@ -134,9 +134,9 @@ public class CostUnitFileUNB extends CostUnitFileAbstract {
 		return rFactory.getCareProviderMethodRepository().findById(careProviderMethodId.intValue());
 	}
 	
-	private static LocalDate getValidityFrom(String validityFromMonthQuarter, String validityFromYear) throws ApplicationException {
+	private static LocalDate getValidityFrom(String validityFromMonthQuarter, String validityFromYear) {
 		int year = 2000 + Integer.parseInt(validityFromYear);
-		if(FormatVerifier.isNumber(validityFromMonthQuarter)) {//Monate
+		if(isNumber(validityFromMonthQuarter)) {//Monate
 			int month = Integer.parseInt(validityFromMonthQuarter);
 			return LocalDate.of(year, month, 1);
 		}
@@ -152,5 +152,16 @@ public class CostUnitFileUNB extends CostUnitFileAbstract {
 			default:
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler bei der Ermittlung des Datei Gültigkeitsdatums!");
 		}
+		return null;
+	}
+	
+	/**
+	 * Prüft, ob sich um eine Zahl handelt
+	 */
+	public static boolean isNumber(String input) {
+		if (input == null) {
+			return false;
+		}
+		return Pattern.matches("\\d+", input);
 	}
 }

@@ -1,8 +1,6 @@
 package costunitimport.segment;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,30 +13,29 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import costunitimport.model.AccountingCode;
+import costunitimport.model.Address;
 import costunitimport.model.CareProviderMethod;
-import costunitimport.model.CostUnitAddress;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 
-public class CostUnitFileIDK extends CostUnitFileAbstract{
+public class IDK extends Segment{
 	
 	private Integer institutionCode;
 	private Integer kindOfInstitution;
 	private String shortDescription;
 	private Integer vKNR;
 
-	private Optional<CostUnitFileVDT> costUnitFileVDT = Optional.empty();
+	private Optional<VDT> costUnitFileVDT = Optional.empty();
 	
-	private List<CostUnitFileVKG> costUnitFileVKGs = new ArrayList<>();
-	private CostUnitFileFKT costUnitFileFKT = null;
-	private List<CostUnitFileKTO> costUnitFileKTOs = new ArrayList<>();
-	private CostUnitFileNAM costUnitFileNAM = null;
-	private List<CostUnitFileASP> costUnitFileASPs = new ArrayList<>();
-	private List<CostUnitFileUEM> costUnitFileUEMs = new ArrayList<>();
+	private List<VKG> costUnitFileVKGs = new ArrayList<>();
+	private FKT costUnitFileFKT = null;
+	private List<KTO> costUnitFileKTOs = new ArrayList<>();
+	private NAM costUnitFileNAM = null;
+	private List<ASP> costUnitFileASPs = new ArrayList<>();
+	private List<UEM> costUnitFileUEMs = new ArrayList<>();
 	
-	public CostUnitFileIDK(String[] data) {
+	public IDK(String[] data) {
 		super(data);
 	}
 
@@ -90,104 +87,107 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 	}
 
 
-	public List<CostUnitFileVKG> getCostUnitFileVKGs() {
+	public List<VKG> getCostUnitFileVKGs() {
 		return costUnitFileVKGs;
 	}
 
 
-	public void setCostUnitFileVKGs(List<CostUnitFileVKG> costUnitFileVKGs) {
+	public void setCostUnitFileVKGs(List<VKG> costUnitFileVKGs) {
 		this.costUnitFileVKGs = costUnitFileVKGs;
 	}
 
 
-	public CostUnitFileFKT getCostUnitFileFKT() {
+	public FKT getCostUnitFileFKT() {
 		return costUnitFileFKT;
 	}
 
 
-	public void setCostUnitFileFKT(CostUnitFileFKT costUnitFileFKT) {
+	public void setCostUnitFileFKT(FKT costUnitFileFKT) {
 		this.costUnitFileFKT = costUnitFileFKT;
 	}
 
 
-	public List<CostUnitFileKTO> getCostUnitFileKTOs() {
+	public List<KTO> getCostUnitFileKTOs() {
 		return costUnitFileKTOs;
 	}
 
 
-	public void setCostUnitFileKTOs(List<CostUnitFileKTO> costUnitFileKTOs) {
+	public void setCostUnitFileKTOs(List<KTO> costUnitFileKTOs) {
 		this.costUnitFileKTOs = costUnitFileKTOs;
 	}
 
 
-	public CostUnitFileNAM getCostUnitFileNAM() {
+	public NAM getCostUnitFileNAM() {
 		return costUnitFileNAM;
 	}
 
 
-	public void setCostUnitFileNAM(CostUnitFileNAM costUnitFileNAM) {
+	public void setCostUnitFileNAM(NAM costUnitFileNAM) {
 		this.costUnitFileNAM = costUnitFileNAM;
 	}
 
 
-	public List<CostUnitFileASP> getCostUnitFileASPs() {
+	public List<ASP> getCostUnitFileASPs() {
 		return costUnitFileASPs;
 	}
 
 
-	public void setCostUnitFileASPs(List<CostUnitFileASP> costUnitFileASPs) {
+	public void setCostUnitFileASPs(List<ASP> costUnitFileASPs) {
 		this.costUnitFileASPs = costUnitFileASPs;
 	}
 
 
-	public List<CostUnitFileUEM> getCostUnitFileUEMs() {
+	public List<UEM> getCostUnitFileUEMs() {
 		return costUnitFileUEMs;
 	}
 
 
-	public void setCostUnitFileUEMs(List<CostUnitFileUEM> costUnitFileUEMs) {
+	public void setCostUnitFileUEMs(List<UEM> costUnitFileUEMs) {
 		this.costUnitFileUEMs = costUnitFileUEMs;
 	}
 
 
-	public Optional<CostUnitFileVDT> getCostUnitFileVDT() {
+	public Optional<VDT> getCostUnitFileVDT() {
 		return costUnitFileVDT;
 	}
 
 
-	public void setCostUnitFileVDT(CostUnitFileVDT costUnitFileVDT) {
+	public void setCostUnitFileVDT(VDT costUnitFileVDT) {
 		this.costUnitFileVDT = Optional.ofNullable(costUnitFileVDT);
 	}
 	
 	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions, Map<String, AccountingCode> mapAccountingCodesCareProviderMethod){
-		int[] specialACs = new int[] {0,99,10,20,30,40};
-		List<CostUnitAssignment> allKotrAssignments = new ArrayList<CostUnitAssignment>();
-		Map<Integer, List<CostUnitFileVKG>> mapByKindOfAssignment = costUnitFileVKGs.stream().collect(Collectors.groupingBy(CostUnitFileVKG::getKindOfAssignment));
-        for (Entry<Integer, List<CostUnitFileVKG>> entry : mapByKindOfAssignment.entrySet()) {
-        	List<CostUnitAssignment> kotrAssignmentsByKindOfAssignment = new ArrayList<CostUnitAssignment>();
-        	List<CostUnitFileVKG> fileVKGs = entry.getValue().stream().sorted(Comparator.comparing(CostUnitFileVKG::getAccountingCode)).collect(Collectors.toList());
+		//Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
+		//00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
+		int[] specialACs = new int[] {0,99,10,20,30,40}; 
+		
+		List<CostUnitAssignment> allAssignments = new ArrayList<>();
+		Map<Integer, List<VKG>> mapByKindOfAssignment = costUnitFileVKGs.stream().collect(Collectors.groupingBy(VKG::getKindOfAssignment));
+        for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
+        	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
+        	List<VKG> fileVKGs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
         	
         	//*** Alle Datensätze mit korrekten Abrechnungscodes
-        	List<CostUnitFileVKG> listVKGsWithCorrectACs =fileVKGs.stream().filter(v -> v.getAccountingCode()!=null).filter(v -> IntStream.of(specialACs).noneMatch(any -> any == v.getAccountingCode().intValue())).collect(Collectors.toList());
-        	 for (CostUnitFileVKG costUnitFileVKG : listVKGsWithCorrectACs) {
-        		 if(costUnitFileVKG.getAccountingCode()==18 || costUnitFileVKG.getAccountingCode()==60) {
+        	List<VKG> listVKGsWithCorrectACs =fileVKGs.stream().filter(v -> v.getAccountingCode()!=null).filter(v -> IntStream.of(specialACs).noneMatch(any -> any == v.getAccountingCode().intValue())).collect(Collectors.toList());
+        	 for (VKG vkg : listVKGsWithCorrectACs) {
+        		 if(vkg.getAccountingCode()==18 || vkg.getAccountingCode()==60) {
         			 /* 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15 
         			  * vorzunehmen. Der Abrechnungscode 18 wird für Sanitätshäuser zum 31.12.2005 aufgehoben.)
         			  * Betriebshilfe 60 ist keinem SAGS zugeordnet!
         			  */
         			 continue;
         		 }
-        		 CostUnitAssignment kotrAssignment = costUnitFileVKG.getCostUnitAssignment(validityFrom, kotrInstitutions);
-        		 kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {costUnitFileVKG.getAccountingCode().toString()}));
-        		 kotrAssignmentsByKindOfAssignment.add(kotrAssignment);
+        		 CostUnitAssignment assignment = vkg.getCostUnitAssignment(validityFrom, kotrInstitutions);
+        		 assignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {vkg.getAccountingCode().toString()}));
+        		 assignmentsByKindOfAssignment.add(assignment);
 			}//***
         	         	 
-        	 for (CostUnitFileVKG costUnitFileVKG : fileVKGs) {
+        	 for (VKG costUnitFileVKG : fileVKGs) {
         		 CostUnitAssignment kotrAssignment = costUnitFileVKG.getCostUnitAssignment(validityFrom, kotrInstitutions);
 				if(!listVKGsWithCorrectACs.contains(costUnitFileVKG)) {
 					if(costUnitFileVKG.getAccountingCode()== null) {
 						kotrAssignment.setAccountingCodes(new ArrayList<AccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
-						kotrAssignmentsByKindOfAssignment.add(kotrAssignment);
+						assignmentsByKindOfAssignment.add(kotrAssignment);
 					} else {
 						switch ( costUnitFileVKG.getAccountingCode()) {
 							case 0://00-Sammelschlüssel für alle Leistungsarten
@@ -206,22 +206,22 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 								kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {"41","42","43","44","45","46","47","48","49"}));
 								break;
 							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-								List<AccountingCode> listAllocatedACs = kotrAssignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+								List<AccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
 								List<AccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac)).collect(Collectors.toList());
 								kotrAssignment.setAccountingCodes(listRemainingdACs);
 								break;
 							default:
 								break;
 						}
-						kotrAssignmentsByKindOfAssignment.add(kotrAssignment);
+						assignmentsByKindOfAssignment.add(kotrAssignment);
 					}
 				}
 			}
-        	 allKotrAssignments.addAll(kotrAssignmentsByKindOfAssignment);
+        	 allAssignments.addAll(assignmentsByKindOfAssignment);
 		}
         
         Map<String, CostUnitAssignment> mapGroupedKotrAssignments = new HashMap<>();
-        for (CostUnitAssignment currentAssignment : allKotrAssignments) {
+        for (CostUnitAssignment currentAssignment : allAssignments) {
         	StringBuilder keyBuilder = new StringBuilder();
 			keyBuilder.append("Id:").append(currentAssignment.getId());
 			keyBuilder.append("TypeAssignment:").append(currentAssignment.getTypeAssignment());
@@ -279,17 +279,16 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 	 * Ermittelt anhand den eingelesenen Daten die mögliche Anschrift
 	 * 
 	 * @return Anschrift
-	 * @throws ApplicationException
 	 * @throws IOException 
 	 */
-	public CostUnitAddress getCostUnitAddress() {
-		CostUnitAddress addressZip = null;
-		CostUnitAddress addressPostCode = null;
+	public Address getCostUnitAddress() {
+		Address addressZip = null;
+		Address addressPostCode = null;
 		if (costUnitFileNAM != null && costUnitFileNAM.getCostUnitFileANSs() != null && !costUnitFileNAM.getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
-			Date validityFrom = costUnitFileVDT.getValidityFrom() != null ? Date.valueOf(costUnitFileVDT.getValidityFrom()) : null;
-			Date validityUntil = costUnitFileVDT.getValidityUntil() != null ? Date.valueOf(costUnitFileVDT.getValidityUntil()) : null;
-			for (CostUnitFileANS currentANS : costUnitFileNAM.getCostUnitFileANSs()) {
-				CostUnitAddress addressTmp = currentANS.getODAContactAddress(validityFrom, validityUntil);
+			LocalDate validityFrom = costUnitFileVDT.get().getValidityFrom() != null ? costUnitFileVDT.get().getValidityFrom() : null;
+			LocalDate validityUntil = costUnitFileVDT.get().getValidityUntil() != null ? costUnitFileVDT.get().getValidityUntil() : null;
+			for (ANS currentANS : costUnitFileNAM.getCostUnitFileANSs()) {
+				Address addressTmp = currentANS.getODAContactAddress(validityFrom, validityUntil);
 				if (currentANS.getKindOfAddress().intValue() == 1) {
 					addressZip  = addressTmp;
 				} else if (currentANS.getKindOfAddress().intValue() == 2) {
@@ -306,17 +305,17 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 	
 	public CostUnitInstitution getCostUnitInstitution(CareProviderMethod careProviderMethod) {
 		CostUnitInstitution institution = new CostUnitInstitution();
-		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen
-		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment
-		institution.setCreationTime(Timestamp.valueOf(LocalDateTime.now()));
-		if (costUnitFileVDT != null) {
-			institution.setValidityFrom(costUnitFileVDT.getValidityFrom());
-			institution.setValidityUntil(costUnitFileVDT.getValidityUntil());
+//		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
+//		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant
+		institution.setCreationTime(LocalDateTime.now());
+		if (costUnitFileVDT.isPresent()) {
+			institution.setValidityFrom(costUnitFileVDT.get().getValidityFrom());
+			institution.setValidityUntil(costUnitFileVDT.get().getValidityUntil());
 		}
 
 		institution.setFirmName(shortDescription);
 		if (costUnitFileNAM != null) {//NAM-Segment: einmal obligatorisch
-			String[] names = new String[] {costUnitFileNAM.getName1(), costUnitFileNAM.getName2(), costUnitFileNAM.getName3(), costUnitFileNAM.getName4()};
+			String[] names = {costUnitFileNAM.getName1(), costUnitFileNAM.getName2(), costUnitFileNAM.getName3(), costUnitFileNAM.getName4()};
 			String collectedName = Arrays.stream(names).filter(s -> s!=null && !s.trim().isEmpty()).collect(Collectors.joining(" "));
 			if(collectedName!=null && !collectedName.isEmpty()) {
 				institution.setFirmName(collectedName);
@@ -324,11 +323,11 @@ public class CostUnitFileIDK extends CostUnitFileAbstract{
 		}
 		institution.setInstitutionNumber(institutionCode);
 		institution.setVknr(vKNR);
-		institution.setCurrentODAContactAddress(getCostUnitAddress());
+		institution.setAddress(getCostUnitAddress());
 		institution.setShortDescription(shortDescription);
-		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
-		institution.setODAContactType(contactType);
-		institution.setMembership(Integer.valueOf(0));
+//		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
+//		institution.setODAContactType(contactType);
+//		institution.setMembership(Integer.valueOf(0)); -> unrelevant
 		return institution;
 	}
 

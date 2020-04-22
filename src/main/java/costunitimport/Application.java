@@ -4,6 +4,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import costunitimport.logger.Logger;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,6 +17,6 @@ public class Application implements ApplicationRunner {
 
 	@Override
 	public void run(final ApplicationArguments args) throws Exception {
-		log.info("Application loaded.");
+		Logger.info("Application loaded.");
 	}
 }

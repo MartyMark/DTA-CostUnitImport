@@ -1,13 +1,30 @@
 package costunitimport.model;
 
-import lombok.Data;
+import javax.persistence.Id;
 
-@Data
 public class AccountingCode {
 	public static final int CARE_PROVIDER_PHARMACY = 8;//LEISTUNGSERBRINGER FÜR ARZNEIMITTEL UND APOTHEKENÜBLICHE WAREN
 	public static final int MIDWIFES = 50;//HEBAMMEN
 	
-	private String accountingCode;
+    @Id 
 	private Integer id;
-    private String description;
+    
+	private String accountingCode;
+	private String description;
+    
+	public String getAccountingCode() {
+		return accountingCode;
+	}
+	
+	public void setAccountingCode(String accountingCode) {
+		this.accountingCode = accountingCode;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

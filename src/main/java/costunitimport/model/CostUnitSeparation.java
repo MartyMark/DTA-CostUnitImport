@@ -3,9 +3,7 @@ package costunitimport.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import lombok.Data;
 
-@Data
 @Entity
 @Table(name = "DTA_KASSENTRENNUNG")
 public class CostUnitSeparation {
@@ -23,5 +21,11 @@ public class CostUnitSeparation {
 
 	private String description;
 	
+	public String getDescription() {
+		return description;
+	}
 	
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }
