@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.AccountingCode;
@@ -31,9 +32,7 @@ import costunitimport.segment.UEM;
 import costunitimport.segment.UNB;
 import costunitimport.segment.VDT;
 import costunitimport.segment.VKG;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class CostUnitFileImport {
 	
 	private final RepositoryFactory rFactory;

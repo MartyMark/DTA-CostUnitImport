@@ -2,6 +2,7 @@ package costunitimport.dao.factory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import costunitimport.dao.AccountingCodeRepository;
 import costunitimport.dao.CareProviderMethodRepository;
 import costunitimport.dao.CostUnitAddressRepository;
@@ -9,9 +10,12 @@ import costunitimport.dao.CostUnitAssignmentRepository;
 import costunitimport.dao.CostUnitFileRepository;
 import costunitimport.dao.CostUnitInstitutionRepository;
 import costunitimport.dao.CostUnitSeparationRepository;
+import costunitimport.dao.CostUnitTypeDataSupplyRepository;
+import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.CountryRepository;
 import costunitimport.dao.FederalStateRepository;
 import costunitimport.dao.ZipRepository;
+import costunitimport.dao.ZipTypeRepository;
 
 @Component
 public class RepositoryFactory {
@@ -40,10 +44,19 @@ public class RepositoryFactory {
 	private ZipRepository zipRepository;
 	
 	@Autowired
+	private ZipTypeRepository zipTypeRepository;
+	
+	@Autowired
 	private CountryRepository countryRepository;
 	
 	@Autowired
 	private FederalStateRepository federalStateRepository;
+	
+	@Autowired
+	private CostUnitTypeMediumRepository  costUnitTypeMediumRepository;
+	
+	@Autowired
+	private CostUnitTypeDataSupplyRepository costUnitTypeDataSupplyRepository;
 
 	public CostUnitFileRepository getCostUnitFileRepository() {
 		return costUnitFileRepository;
@@ -73,6 +86,10 @@ public class RepositoryFactory {
 	public CostUnitSeparationRepository getCostUnitSeparationRepository() {
 		return costUnitSeparationRepository;
 	}
+	
+	public CostUnitTypeDataSupplyRepository getCostUnitTypeDataSupplyRepository() {
+		return costUnitTypeDataSupplyRepository;
+	}
 
 	
 	public CareProviderMethodRepository getCareProviderMethodRepository() {
@@ -83,11 +100,19 @@ public class RepositoryFactory {
 		return zipRepository;
 	}
 	
+	public ZipTypeRepository getZipTypeRepository() {
+		return zipTypeRepository;
+	}
+	
 	public CountryRepository getCountryRepository() {
 		return countryRepository;
 	}
 	
 	public FederalStateRepository getFederalStateRepository() {
 		return federalStateRepository;
+	}
+	
+	public CostUnitTypeMediumRepository getCostUnitTypeMediumRepository() {
+		return costUnitTypeMediumRepository;
 	}
 }

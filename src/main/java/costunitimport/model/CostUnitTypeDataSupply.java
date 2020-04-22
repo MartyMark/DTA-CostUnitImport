@@ -2,7 +2,7 @@ package costunitimport.model;
 
 import javax.persistence.Id;
 
-public class CostUnitDataSupplyType {
+public class CostUnitTypeDataSupply {
 	
 	@Id
 	private Integer id;

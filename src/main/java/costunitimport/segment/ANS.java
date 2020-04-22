@@ -3,11 +3,13 @@ package costunitimport.segment;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.Address;
 import costunitimport.model.Country;
 import costunitimport.model.FederalState;
 import costunitimport.model.Zip;
+import costunitimport.model.ZipType;
 import costunitimport.util.TextFormatter;
 
 public class ANS extends Segment {
@@ -82,8 +84,8 @@ public class ANS extends Segment {
 			Optional<Country> countryGermany = rFactory.getCountryRepository().findById(Country.GERMANY);
 			newZip.setCountry(countryGermany.get());
 			newZip.setFederalState(rFactory.getFederalStateRepository().findById(FederalState.UNKNOWN_FEDERAL_STATE_ID).get());
-			newZip.setZipType(FacadeHandler.getMasterDataInfFacadeLocal().findZipTypeById(ZipType.IMPORT_INTERFACE_UNCHECKED));
-			return FacadeHandler.getMasterDataInfFacadeLocal().insertZip(newZip);
+			newZip.setZipType(rFactory.getZipTypeRepository().findById(ZipType.IMPORT_INTERFACE_UNCHECKED).get());
+			return rFactory.getZipRepository().save(newZip);
 		}
 		return zip;
 	}

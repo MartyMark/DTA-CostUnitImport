@@ -13,8 +13,8 @@ public class CostUnitAssignment {
 	private Integer institutionId;
 	private Integer institutionIdAssignment;
 	private Integer institutionIdAccounting;
-	private CostUnitDataSupplyType typeDataSupply;
-	private CostUnitMediumType typeMedium;
+	private CostUnitTypeDataSupply typeDataSupply;
+	private CostUnitTypeMedium typeMedium;
 	private Integer federalStateClassificationId;
 	private Integer districtId;
 	private String rateCode;
@@ -62,19 +62,19 @@ public class CostUnitAssignment {
 		this.institutionIdAccounting = institutionIdAccounting;
 	}
 	
-	public CostUnitDataSupplyType getTypeDataSupply() {
+	public CostUnitTypeDataSupply getTypeDataSupply() {
 		return typeDataSupply;
 	}
 	
-	public void setTypeDataSupply(CostUnitDataSupplyType typeDataSupply) {
+	public void setTypeDataSupply(CostUnitTypeDataSupply typeDataSupply) {
 		this.typeDataSupply = typeDataSupply;
 	}
 	
-	public CostUnitMediumType getTypeMedium() {
+	public CostUnitTypeMedium getTypeMedium() {
 		return typeMedium;
 	}
 	
-	public void setTypeMedium(CostUnitMediumType typeMedium) {
+	public void setTypeMedium(CostUnitTypeMedium typeMedium) {
 		this.typeMedium = typeMedium;
 	}
 	

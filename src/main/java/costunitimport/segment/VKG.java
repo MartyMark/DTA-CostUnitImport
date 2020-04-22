@@ -3,11 +3,12 @@ package costunitimport.segment;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CostUnitAssignment;
-import costunitimport.model.CostUnitDataSupplyType;
 import costunitimport.model.CostUnitInstitution;
-import costunitimport.model.CostUnitMediumType;
+import costunitimport.model.CostUnitTypeDataSupply;
+import costunitimport.model.CostUnitTypeMedium;
 
 /**
  * 
@@ -58,19 +59,19 @@ public class VKG extends Segment {
 		assignment.setTypeAssignment(typeAssignment.get());
 		//*** Art der Datenlieferung
 		if(kindOfDataSupply!=null) {
-			CostUnitDataSupplyType typeDataSupply = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeDataSupplyById(kindOfDataSupply);
-			if(typeDataSupply==null) {
+			Optional<CostUnitTypeDataSupply> typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply);
+			if(typeDataSupply.isEmpty()) {
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Datenlieferung! Id: " + typeDataSupply);
 			}
-			assignment.setTypeDataSupply(typeDataSupply);
+			assignment.setTypeDataSupply(typeDataSupply.get());
 		}
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
-			CostUnitMediumType typeMedium = FacadeHandler.getMasterDataKotrFacadeLocal().findKotrTypeMediumById(kindOfDataMedium);
-			if(typeMedium==null) {
+			Optional<CostUnitTypeMedium> typeMedium = rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium);
+			if(typeMedium.isEmpty()) {
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art des Mediums! Id: " + kindOfDataMedium);
 			}
-			assignment.setTypeMedium(typeMedium);
+			assignment.setTypeMedium(typeMedium.get());
 		}
 		//*** Institut des Verknüpfungspartners
 		if(institutionCodeAssignmentPartner!=null) {

@@ -11,7 +11,16 @@ public class Zip {
 	private Country country;
 	private FederalState federalState;
 	private String location;
+	private ZipType zipType;
 	
+	public ZipType getZipType() {
+		return zipType;
+	}
+
+	public void setZipType(ZipType zipType) {
+		this.zipType = zipType;
+	}
+
 	public String getZipCode() {
 		return zipCode;
 	}
