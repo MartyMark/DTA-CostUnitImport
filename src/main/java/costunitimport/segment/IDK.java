@@ -13,9 +13,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import costunitimport.model.AccountingCode;
+import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.Address;
-import costunitimport.model.CareProviderMethod;
+import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 
@@ -156,7 +156,7 @@ public class IDK extends Segment{
 		this.costUnitFileVDT = Optional.ofNullable(costUnitFileVDT);
 	}
 	
-	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions, Map<String, AccountingCode> mapAccountingCodesCareProviderMethod){
+	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions, Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
 		//Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
 		//00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
 		int[] specialACs = new int[] {0,99,10,20,30,40}; 
@@ -186,12 +186,12 @@ public class IDK extends Segment{
         		 CostUnitAssignment kotrAssignment = costUnitFileVKG.getCostUnitAssignment(validityFrom, kotrInstitutions);
 				if(!listVKGsWithCorrectACs.contains(costUnitFileVKG)) {
 					if(costUnitFileVKG.getAccountingCode()== null) {
-						kotrAssignment.setAccountingCodes(new ArrayList<AccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+						kotrAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 						assignmentsByKindOfAssignment.add(kotrAssignment);
 					} else {
 						switch ( costUnitFileVKG.getAccountingCode()) {
 							case 0://00-Sammelschlüssel für alle Leistungsarten
-								kotrAssignment.setAccountingCodes(new ArrayList<AccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+								kotrAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 								break;
 							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
 								kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {"11","12","13","14","15","16","17","19"}));
@@ -206,8 +206,8 @@ public class IDK extends Segment{
 								kotrAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] {"41","42","43","44","45","46","47","48","49"}));
 								break;
 							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-								List<AccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-								List<AccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac)).collect(Collectors.toList());
+								List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes()!=null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+								List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac)).collect(Collectors.toList());
 								kotrAssignment.setAccountingCodes(listRemainingdACs);
 								break;
 							default:
@@ -260,13 +260,13 @@ public class IDK extends Segment{
         return mapGroupedKotrAssignments.values().stream().collect(Collectors.toList());
 	}
 	
-	private List<AccountingCode> getDtaAccountCodes(Map<String, AccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
+	private List<DTAAccountingCode> getDtaAccountCodes(Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
 		if (searchACs == null || searchACs.length <= 0) {
 //			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Keine ACs übergeben!");
 		}
-		List<AccountingCode> listAccountingCodes = new ArrayList<>();
+		List<DTAAccountingCode> listAccountingCodes = new ArrayList<>();
 		for (String currentAC : searchACs) {
-			AccountingCode accountingCode = mapAccountingCodesCareProviderMethod.get(currentAC);
+			DTAAccountingCode accountingCode = mapAccountingCodesCareProviderMethod.get(currentAC);
 			if (accountingCode == null) {
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Kein korrekter Abrechnungscode! " + currentAC);
 			}
@@ -303,7 +303,7 @@ public class IDK extends Segment{
 		return addressZip != null ? addressZip : addressPostCode;
 	}
 	
-	public CostUnitInstitution getCostUnitInstitution(CareProviderMethod careProviderMethod) {
+	public CostUnitInstitution getCostUnitInstitution(DTACareProviderMethod careProviderMethod) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
 //		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant

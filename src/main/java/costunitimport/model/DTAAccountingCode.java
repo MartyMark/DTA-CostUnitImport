@@ -2,7 +2,10 @@ package costunitimport.model;
 
 import javax.persistence.Id;
 
-public class AccountingCode {
+/**
+ * INF.DTA_ABRECHNUNGSCODE
+ */
+public class DTAAccountingCode {
 	public static final int CARE_PROVIDER_PHARMACY = 8;//LEISTUNGSERBRINGER FÜR ARZNEIMITTEL UND APOTHEKENÜBLICHE WAREN
 	public static final int MIDWIFES = 50;//HEBAMMEN
 	

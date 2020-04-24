@@ -6,7 +6,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "DTA_LEISTUNGSVERFAHREN")
-public class CareProviderMethod {
+public class DTACareProviderMethod {
 	public static final int P_ALL_UNKNOWN = 0;//Unbekannt
     public static final int P_300 = 3;//Apotheken - Abrechnung nach §300
     public static final int P_302 = 5;//Sonstige Leistungserbringer - Abrechnung nach §302
@@ -24,6 +24,16 @@ public class CareProviderMethod {
     private String fullDescription;
     private Boolean accountIndicator;
 	
+    public DTACareProviderMethod() {}
+    
+    public DTACareProviderMethod(Integer id, String description, String fullDescription, Boolean accountIndicator) {
+    	this.id = id;
+    	this.description = description;
+    	this.fullDescription = fullDescription;
+    	this.accountIndicator = accountIndicator;
+    }
+    
+    
 	public String getDescription() {
 		return description;
 	}

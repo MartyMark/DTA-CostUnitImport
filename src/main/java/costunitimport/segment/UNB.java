@@ -6,7 +6,7 @@ import java.time.Month;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.model.CareProviderMethod;
+import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitSeparation;
 
@@ -115,17 +115,17 @@ public class UNB extends Segment {
 		return rFactory.getCostUnitSeparationRepository().findById(dtaCostUnitSeparationId.intValue());
 	}
 	
-	private Optional<CareProviderMethod> getCareProviderMethodByToken(String careProviderMethodToken) {
+	private Optional<DTACareProviderMethod> getCareProviderMethodByToken(String careProviderMethodToken) {
 		Integer  careProviderMethodId = null;
 		switch (careProviderMethodToken) {
 			case "03"://Datenaustausch Teilprojekt Apotheken
-				careProviderMethodId = CareProviderMethod.P_300;
+				careProviderMethodId = DTACareProviderMethod.P_300;
 			break;
 			case "05"://Datenaustausch Teilprojekt Sonstige Leistungserbringer
-				careProviderMethodId = CareProviderMethod.P_302;
+				careProviderMethodId = DTACareProviderMethod.P_302;
 			break;
 			case "06"://Datenaustausch Teilprojekt Leistungserbringer Pflege
-				careProviderMethodId = CareProviderMethod.P_105;
+				careProviderMethodId = DTACareProviderMethod.P_105;
 			break;
 			
 			default:

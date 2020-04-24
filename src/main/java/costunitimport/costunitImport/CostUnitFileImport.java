@@ -15,9 +15,9 @@ import java.util.stream.Stream;
 
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
-import costunitimport.model.AccountingCode;
+import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.Address;
-import costunitimport.model.CareProviderMethod;
+import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
@@ -115,7 +115,7 @@ public class CostUnitFileImport {
 		rFactory.getCostUnitFileRepository().save(newFile);
 		
 		LocalDate importFileValidityFrom = newFile.getValidityFrom();
-		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
+		DTACareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		
 		//*** Institution abschliessen, anlegen, updaten
 		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
@@ -132,11 +132,11 @@ public class CostUnitFileImport {
 		Map<Integer, CostUnitInstitution> institutionNumberToInstitut = existingInstitutions.stream()
 				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
-		List<AccountingCode> accountingCodes = rFactory.getAccountingCodeRepository()
+		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepository()
 				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
 		
-		Map<String, AccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
-				.collect(Collectors.toMap(AccountingCode::getAccountingCode, Function.identity()));
+		Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
+				.collect(Collectors.toMap(DTAAccountingCode::getAccountingCode, Function.identity()));
 		
 		for (IDK idk : filteredIDKs) {
 			List<CostUnitAssignment> assignments = idk.getCostUnitAssignment(newFile.getValidityFrom(),
@@ -176,7 +176,7 @@ public class CostUnitFileImport {
 	}
 	
 	private void updateAndInsertCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
-			List<IDK> listIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
+			List<IDK> listIDKs, LocalDate importFileValidityFrom, DTACareProviderMethod careProviderMethod) {
 		
 		Map<Integer, CostUnitInstitution> mapKotrInstitutionByInstitutionNumber = existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
@@ -282,7 +282,7 @@ public class CostUnitFileImport {
 		builder.append("districtId:").append(assignment.getDistrictId()).append("|");
 		builder.append("rateCode:").append(assignment.getRateCode()).append("|");
 		builder.append("accountingCodes:").append(
-				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(AccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
+				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(DTAAccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
 		return builder.toString();
 	}
 }

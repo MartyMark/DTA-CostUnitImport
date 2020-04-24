@@ -2,6 +2,10 @@ package costunitimport.model;
 
 import java.time.LocalDate;
 import java.util.List;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.springframework.data.annotation.Id;
 
 public class CostUnitAssignment {
@@ -9,18 +13,31 @@ public class CostUnitAssignment {
 	@Id
 	private Integer id;
 	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private CostUnitAssignment typeAssignment;
+	
 	private Integer institutionId;
 	private Integer institutionIdAssignment;
 	private Integer institutionIdAccounting;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private CostUnitTypeDataSupply typeDataSupply;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private CostUnitTypeMedium typeMedium;
+	
 	private Integer federalStateClassificationId;
 	private Integer districtId;
 	private String rateCode;
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
-	private List<AccountingCode> accountingCodes;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+	private List<DTAAccountingCode> accountingCodes;
 	
 	public Integer getId() {
 		return id;
@@ -118,11 +135,11 @@ public class CostUnitAssignment {
 		this.validityUntil = validityUntil;
 	}
 	
-	public List<AccountingCode> getAccountingCodes() {
+	public List<DTAAccountingCode> getAccountingCodes() {
 		return accountingCodes;
 	}
 	
-	public void setAccountingCodes(List<AccountingCode> accountingCodes) {
+	public void setAccountingCodes(List<DTAAccountingCode> accountingCodes) {
 		this.accountingCodes = accountingCodes;
 	}
 }

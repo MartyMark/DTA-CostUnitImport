@@ -23,7 +23,7 @@ public class CostUnitFile {
     
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
-    private CareProviderMethod careProviderMethod;
+    private DTACareProviderMethod careProviderMethod;
 
     private LocalDate validityFrom;
     private Integer version;
@@ -70,11 +70,11 @@ public class CostUnitFile {
 		this.creationTime = creationTime;
 	}
 
-	public CareProviderMethod getCareProviderMethod() {
+	public DTACareProviderMethod getCareProviderMethod() {
 		return careProviderMethod;
 	}
 
-	public void setCareProviderMethod(CareProviderMethod careProviderMethod) {
+	public void setCareProviderMethod(DTACareProviderMethod careProviderMethod) {
 		this.careProviderMethod = careProviderMethod;
 	}
 }

@@ -2,6 +2,9 @@ package costunitimport.model;
 
 import javax.persistence.Id;
 
+/**
+ * INF.STAAT_PLZ_ART
+ */
 public class ZipType {
 	
 	public static final int POSTBOX=1;
@@ -16,6 +19,13 @@ public class ZipType {
 	private Integer id;
 	
 	private String description;
+	
+	public ZipType() {}
+	
+	public ZipType(Integer id, String description) {
+		this.id = id;
+		this.description = description;
+	}
 	
 	public Integer getId() {
 		return id;

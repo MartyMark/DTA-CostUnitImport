@@ -2,6 +2,9 @@ package costunitimport.model;
 
 import javax.persistence.Id;
 
+/**
+ * STAAT
+ */
 public class Country {
 	
 	public static final int UNKNOWN = 0;
@@ -22,6 +25,7 @@ public class Country {
 	@Id
 	private Integer id;
 	
+	private String description;
 	private String token;
 	private String dtaTokenP302;
 	private String iSOA2;
@@ -111,5 +115,25 @@ public class Country {
 	
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;
+	}
+
+	
+	public Integer getId() {
+		return id;
+	}
+
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	
+	public String getDescription() {
+		return description;
+	}
+
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

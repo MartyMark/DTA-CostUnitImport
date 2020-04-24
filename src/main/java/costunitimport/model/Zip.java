@@ -1,6 +1,9 @@
 package costunitimport.model;
 
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 public class Zip {
 	
@@ -8,9 +11,18 @@ public class Zip {
 	private Integer id;
 	
 	private String zipCode;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private Country country;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private FederalState federalState;
 	private String location;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private ZipType zipType;
 	
 	public ZipType getZipType() {

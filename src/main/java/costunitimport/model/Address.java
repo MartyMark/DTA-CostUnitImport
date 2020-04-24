@@ -1,7 +1,10 @@
 package costunitimport.model;
 
 import java.time.LocalDate;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 public class Address {
 	
@@ -9,6 +12,9 @@ public class Address {
 	private Integer id;
     
 	private Integer ik;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private Zip zip;
 	private String street;
 	private String postBox;

@@ -3,7 +3,6 @@ package costunitimport.segment;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.Address;
 import costunitimport.model.Country;
@@ -66,16 +65,9 @@ public class ANS extends Segment {
 //				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace());
 			}
 		}
-		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocation(zipCodeStr, location);
-		if(zip.isEmpty()) {
-			Zip[] zips = FacadeHandler.getMasterDataInfFacadeLocal().findZipsByZipCodesAndCountryIdsLike(zipCodeStr, ""+Country.GERMANY);
-			if(zips!=null && zips.length>0) {
-				zip = zips[0];
-			}
-		}
 		
-		zip = FacadeHandler.getMasterDataInfFacadeLocal().findZipByZipCodeAndLocationIncludingUncheckedImportData(zipCodeStr, location);
-		if(zip==null) {
+		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocationn(zipCodeStr, location);
+		if(zip.isEmpty()) {
 			//Wenn kein Zip-Objekt ermittelt werden kann, dann wird einfach eine PLZ angelegt 
 			//-> ANS+2+00560+Münchberg+95205' diese Informationen wollte ich gerne behalten
 			Zip newZip = new Zip();
@@ -87,7 +79,7 @@ public class ANS extends Segment {
 			newZip.setZipType(rFactory.getZipTypeRepository().findById(ZipType.IMPORT_INTERFACE_UNCHECKED).get());
 			return rFactory.getZipRepository().save(newZip);
 		}
-		return zip;
+		return zip.get();
 	}
 
 	/**

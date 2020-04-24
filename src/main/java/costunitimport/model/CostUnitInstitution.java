@@ -3,8 +3,11 @@ package costunitimport.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -22,6 +25,10 @@ public class CostUnitInstitution {
 	private LocalDate validityUntil;
 	private String firmName;
 	private LocalDateTime creationTime;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+	private DTACareProviderMethod careProviderMethod;
 	
 	public Integer getInstitutionNumber() {
 		return institutionNumber;
