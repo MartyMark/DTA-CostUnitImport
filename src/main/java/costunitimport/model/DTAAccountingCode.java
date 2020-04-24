@@ -30,4 +30,12 @@ public class DTAAccountingCode {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	/**
+	 * Das sind die Ids der Abrechnungscodesgruppenschlüssel bspw : <br>
+	 * 00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)...
+	 */
+	public static int[] getGroupAccountingCodes() {
+		return new int[] {0, 99, 10, 20, 30, 40};
+	}
 }

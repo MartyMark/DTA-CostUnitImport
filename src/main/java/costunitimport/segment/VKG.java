@@ -3,7 +3,6 @@ package costunitimport.segment;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
@@ -49,7 +48,10 @@ public class VKG extends Segment {
 		rateCode = getData(position, Integer.class);
 	}
 	
-	public CostUnitAssignment getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
+	/**
+	 * Baut das Verknüpfungs-Objekt
+	 */
+	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
 		//*** Art der Verknüpfung
 		Optional<CostUnitAssignment> typeAssignment = rFactory.getCostUnitAssignmentRepository().findById(kindOfAssignment);
@@ -89,8 +91,6 @@ public class VKG extends Segment {
 			}
 			assignment.setInstitutionIdAccounting(institutionToSet.getId());
 		}
-		//***
-		
 		assignment.setFederalStateClassificationId(federalStateCareProvider);
 		assignment.setDistrictId(regionCareProvider);
 		String strRateCode = rateCode!=null?rateCode.toString():null;//Tarifkennzeichen ist in der Berschreibung der Kostenträgerdatei nur numerisch

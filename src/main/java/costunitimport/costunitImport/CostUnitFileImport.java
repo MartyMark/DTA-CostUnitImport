@@ -12,15 +12,14 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
-import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.Address;
-import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
+import costunitimport.model.DTAAccountingCode;
+import costunitimport.model.DTACareProviderMethod;
 import costunitimport.segment.ANS;
 import costunitimport.segment.ASP;
 import costunitimport.segment.DFU;
@@ -127,14 +126,19 @@ public class CostUnitFileImport {
 		updateAndInsertCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
 		
 		//*** Verknüpfungen
+		
+		//Alle Kasseninstitutionen (IDKs) nach Leistungserbringerschlüssel 5 suchen (Alle)
 		existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
 		
+		//IK - Kasseninstitution
 		Map<Integer, CostUnitInstitution> institutionNumberToInstitut = existingInstitutions.stream()
 				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
+		//Zu den sonsitgen Leistungserbringern 5 - alle Abrechnungscodes beschaffen (Abrechnungscode identifiziert eine Leistungserbringerart)
 		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepository()
 				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
 		
+		//Abrechnungsocde - Leistungserbingerart
 		Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
 				.collect(Collectors.toMap(DTAAccountingCode::getAccountingCode, Function.identity()));
 		
