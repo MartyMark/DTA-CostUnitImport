@@ -1,10 +1,14 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "STAAT_PLZ")
 public class Zip {
 	
 	@Id

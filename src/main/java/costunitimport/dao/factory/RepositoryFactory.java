@@ -14,8 +14,10 @@ import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.CountryRepository;
 import costunitimport.dao.FederalStateRepository;
+import costunitimport.dao.SAGSRepository;
 import costunitimport.dao.ZipRepository;
 import costunitimport.dao.ZipTypeRepository;
+import costunitimport.dao.impl.AccountingCodeRepositoryImpl;
 
 @Component
 public class RepositoryFactory {
@@ -57,31 +59,36 @@ public class RepositoryFactory {
 	
 	@Autowired
 	private CostUnitTypeDataSupplyRepository costUnitTypeDataSupplyRepository;
-
+	
+	@Autowired
+	private SAGSRepository sAGSRepository;
+	
+	@Autowired
+	private AccountingCodeRepositoryImpl accountingCodeRepositoryImpl;
+	
+	public SAGSRepository getSAGSRepository() {
+		return sAGSRepository;
+	}
+	
 	public CostUnitFileRepository getCostUnitFileRepository() {
 		return costUnitFileRepository;
 	}
-
 	
 	public CostUnitInstitutionRepository getCostUnitInstitutionRepository() {
 		return costUnitInstitutionRepository;
 	}
-
 	
 	public CostUnitAddressRepository getCostUnitAddressRepository() {
 		return costUnitAddressRepository;
 	}
-
 	
 	public AccountingCodeRepository getAccountingCodeRepository() {
 		return accountingCodeRepository;
 	}
-
 	
 	public CostUnitAssignmentRepository getCostUnitAssignmentRepository() {
 		return costUnitAssignmentRepository;
 	}
-
 	
 	public CostUnitSeparationRepository getCostUnitSeparationRepository() {
 		return costUnitSeparationRepository;
@@ -90,7 +97,6 @@ public class RepositoryFactory {
 	public CostUnitTypeDataSupplyRepository getCostUnitTypeDataSupplyRepository() {
 		return costUnitTypeDataSupplyRepository;
 	}
-
 	
 	public CareProviderMethodRepository getCareProviderMethodRepository() {
 		return careProviderMethodRepository;
@@ -114,5 +120,9 @@ public class RepositoryFactory {
 	
 	public CostUnitTypeMediumRepository getCostUnitTypeMediumRepository() {
 		return costUnitTypeMediumRepository;
+	}
+
+	public AccountingCodeRepositoryImpl getAccountingCodeRepositoryImpl() {
+		return accountingCodeRepositoryImpl;
 	}
 }

@@ -3,6 +3,7 @@ package costunitimport.segment;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.Address;
 import costunitimport.model.Country;
@@ -69,7 +70,7 @@ public class ANS extends Segment {
 		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocationn(zipCodeStr, location);
 		if(zip.isEmpty()) {
 			//Wenn kein Zip-Objekt ermittelt werden kann, dann wird einfach eine PLZ angelegt 
-			//-> ANS+2+00560+Münchberg+95205' diese Informationen wollte ich gerne behalten
+			//-> ANS+2+00560+Münchberg+95205' 
 			Zip newZip = new Zip();
 			newZip.setZipCode(zipCodeStr);
 			newZip.setLocation(location);

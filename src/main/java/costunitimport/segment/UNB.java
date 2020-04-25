@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.CostUnitFile;
-import costunitimport.model.CostUnitSeparation;
+import costunitimport.model.DTACostUnitSeparation;
 
 public class UNB extends Segment {
 
@@ -84,29 +84,29 @@ public class UNB extends Segment {
 		return file;
 	}
 
-	private Optional<CostUnitSeparation> getDtaCostUnitSeparationByToken(String dtaCostUnitSeparationToken) {
+	private Optional<DTACostUnitSeparation> getDtaCostUnitSeparationByToken(String dtaCostUnitSeparationToken) {
 		Integer  dtaCostUnitSeparationId = null;
 		switch (dtaCostUnitSeparationToken) {
 			case "AO"://AOK
-				dtaCostUnitSeparationId = CostUnitSeparation.AOK;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.AOK;
 			break;
 			case "EK"://Ersatzkassen
-				dtaCostUnitSeparationId = CostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
 			break;
 			case "BK"://Betriebskrankenkassen
-				dtaCostUnitSeparationId = CostUnitSeparation.COMPANY_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.COMPANY_HEALTH_INSURANCE;
 			break;
 			case "IK"://Innungskrankenkassen
-				dtaCostUnitSeparationId = CostUnitSeparation.GUILD_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.GUILD_HEALTH_INSURANCE;
 			break;
 			case "BN"://Knappschaft-Bahn-See
-				dtaCostUnitSeparationId = CostUnitSeparation.FEDERAL_MINERS_UNION;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.FEDERAL_MINERS_UNION;
 			break;
 			case "LK"://Landwirtschaftliche Krankenkassen
-				dtaCostUnitSeparationId = CostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
 			break;
 			case "GK"://Gesetzliche Krankenversicherung
-				dtaCostUnitSeparationId = CostUnitSeparation.OTHER;
+				dtaCostUnitSeparationId = DTACostUnitSeparation.OTHER;
 			break;
 
 			default:

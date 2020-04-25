@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.Address;
@@ -135,7 +136,7 @@ public class CostUnitFileImport {
 				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
 		//Zu den sonsitgen Leistungserbringern 5 - alle Abrechnungscodes beschaffen (Abrechnungscode identifiziert eine Leistungserbringerart)
-		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepository()
+		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepositoryImpl()
 				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
 		
 		//Abrechnungsocde - Leistungserbingerart
@@ -162,7 +163,7 @@ public class CostUnitFileImport {
 				}
 			}
 			filteredIDKs.add(currentIDK);
-		} // ***
+		}
 		return filteredIDKs;
 	}
 
@@ -187,7 +188,7 @@ public class CostUnitFileImport {
 		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
 		for (IDK costUnitFileIDK : listIDKs) {
 			CostUnitInstitution existingKotrInstitution = mapKotrInstitutionByInstitutionNumber.get(costUnitFileIDK.getInstitutionCode());
-			CostUnitInstitution kotrInstitutionFromFile = costUnitFileIDK.getCostUnitInstitution(careProviderMethod);
+			CostUnitInstitution kotrInstitutionFromFile = costUnitFileIDK.buildCostUnitInstitution(careProviderMethod);
 			if (existingKotrInstitution == null) {//Neue Institution
 				if (kotrInstitutionFromFile.getValidityFrom() == null) {
 					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);

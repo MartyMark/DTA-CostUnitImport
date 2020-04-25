@@ -1,7 +1,11 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "KASSEN_ART_DATENLIEFERUNG")
 public class CostUnitTypeDataSupply {
 	
 	@Id

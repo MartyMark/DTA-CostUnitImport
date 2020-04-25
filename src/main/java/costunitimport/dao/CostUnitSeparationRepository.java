@@ -1,9 +1,11 @@
 package costunitimport.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import costunitimport.model.CostUnitSeparation;
+import costunitimport.model.DTACostUnitSeparation;
 
-public interface CostUnitSeparationRepository extends JpaRepository<CostUnitSeparation, Integer> {
+@Repository
+public interface CostUnitSeparationRepository extends JpaRepository<DTACostUnitSeparation, Integer> {
 
 }

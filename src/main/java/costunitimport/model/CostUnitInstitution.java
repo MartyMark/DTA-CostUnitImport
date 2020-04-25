@@ -2,6 +2,7 @@ package costunitimport.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,7 +21,11 @@ public class CostUnitInstitution {
 	private Integer institutionNumber;
 	private String shortDescription;
 	private Integer vknr;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
 	private Address address;
+	
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
 	private String firmName;

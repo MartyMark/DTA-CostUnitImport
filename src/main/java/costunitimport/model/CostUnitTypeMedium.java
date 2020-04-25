@@ -1,10 +1,11 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-/**
- * INF.KASSEN_ART_MEDIUM
- */
+@Entity
+@Table(name = "KASSEN_ART_MEDIUM")
 public class CostUnitTypeMedium {
 	
 	@Id

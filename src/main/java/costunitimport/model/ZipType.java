@@ -1,10 +1,11 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-/**
- * INF.STAAT_PLZ_ART
- */
+@Entity
+@Table(name = "STAAT_PLZ_ART")
 public class ZipType {
 	
 	public static final int POSTBOX=1;

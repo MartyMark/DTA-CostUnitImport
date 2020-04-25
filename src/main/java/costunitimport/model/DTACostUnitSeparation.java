@@ -6,7 +6,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "DTA_KASSENTRENNUNG")
-public class CostUnitSeparation {
+public class DTACostUnitSeparation {
 	public static final int AOK = 1; //AOK
 	public static final int SUBSTITUTE_HEALTH_INSURANCE = 2; //Ersatzkassen
 	public static final int COMPANY_HEALTH_INSURANCE = 3; //Betriebskrankenkassen
@@ -20,6 +20,13 @@ public class CostUnitSeparation {
 	private Integer id;
 
 	private String description;
+	
+	public DTACostUnitSeparation(Integer id, String description) {
+		this.id = id;
+		this.description = description;
+	}
+	
+	public DTACostUnitSeparation() {}
 	
 	public String getDescription() {
 		return description;

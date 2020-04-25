@@ -1,8 +1,12 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-public class CostUnitAssignmentType {
+@Entity
+@Table(name = "KASSE_ART_VERKNUEPFUNG")
+public class CostUnitTypeAssignment {
 	
 	public static final int ASSIGNMENT_IK_HEALTH_INSURANCE_CARD_TO_COST_UNIT =1;
 	

@@ -1,20 +1,37 @@
 package costunitimport.model;
 
-import javax.persistence.Id;
+import java.util.List;
 
-/**
- * INF.DTA_ABRECHNUNGSCODE
- */
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "DTA_ABRECHNUNGSCODE")
 public class DTAAccountingCode {
 	public static final int CARE_PROVIDER_PHARMACY = 8;//LEISTUNGSERBRINGER FÜR ARZNEIMITTEL UND APOTHEKENÜBLICHE WAREN
 	public static final int MIDWIFES = 50;//HEBAMMEN
 	
     @Id 
-	private Integer id;
-    
 	private String accountingCode;
 	private String description;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumns({ @JoinColumn(name = "sagsId"), @JoinColumn(name = "accountingId") })
+	private List<SAGSDTAAccountingCode> sagsDTAAccountingCode;
     
+	public List<SAGSDTAAccountingCode> getSagsDTAAccountingCode() {
+		return sagsDTAAccountingCode;
+	}
+
+	public void setSagsDTAAccountingCode(List<SAGSDTAAccountingCode> sagsDTAAccountingCode) {
+		this.sagsDTAAccountingCode = sagsDTAAccountingCode;
+	}
+
 	public String getAccountingCode() {
 		return accountingCode;
 	}

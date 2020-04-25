@@ -19,7 +19,7 @@ public class CostUnitFile {
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
-    private CostUnitSeparation dtaCostUnitSeparation;
+    private DTACostUnitSeparation dtaCostUnitSeparation;
     
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
@@ -30,11 +30,11 @@ public class CostUnitFile {
     private String fileName;
     private LocalDateTime creationTime;
 	
-	public CostUnitSeparation getDtaCostUnitSeparation() {
+	public DTACostUnitSeparation getDtaCostUnitSeparation() {
 		return dtaCostUnitSeparation;
 	}
 	
-	public void setDtaCostUnitSeparation(CostUnitSeparation dtaCostUnitSeparation) {
+	public void setDtaCostUnitSeparation(DTACostUnitSeparation dtaCostUnitSeparation) {
 		this.dtaCostUnitSeparation = dtaCostUnitSeparation;
 	}
 	

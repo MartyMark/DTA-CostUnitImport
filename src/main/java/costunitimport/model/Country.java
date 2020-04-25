@@ -1,10 +1,11 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-/**
- * STAAT
- */
+@Entity
+@Table(name = "STAAT")
 public class Country {
 	
 	public static final int UNKNOWN = 0;

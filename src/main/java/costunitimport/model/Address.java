@@ -1,11 +1,16 @@
 package costunitimport.model;
 
 import java.time.LocalDate;
+
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "KASSE_VERKNUEPFUNG")
 public class Address {
 	
 	@Id 
@@ -16,6 +21,7 @@ public class Address {
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
 	private Zip zip;
+	
 	private String street;
 	private String postBox;
 	private LocalDate validityFrom;

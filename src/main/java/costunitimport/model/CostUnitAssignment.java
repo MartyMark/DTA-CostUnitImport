@@ -2,16 +2,20 @@ package costunitimport.model;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import org.springframework.data.annotation.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "KASSE_VERKNUEPFUNG")
 public class CostUnitAssignment {
 	
-	@Id
-	private Integer id;
+	private @Id Integer id;
 	
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")

@@ -3,11 +3,13 @@ package costunitimport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.CostUnitTypeMedium;
 import costunitimport.model.Country;
 import costunitimport.model.DTACareProviderMethod;
+import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.FederalState;
 import costunitimport.model.ZipType;
 
@@ -79,6 +81,23 @@ public class LoadDatabase {
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(6, "Nicht maschinenlesbarer Beleg"));
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(7, "CD-ROM"));
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(9, "Alle Datenträger (Schlüssel 2 bis 4 und 7)"));
+			
+			Logger.info("DTACostUnitSeperation - DTA_KASSENTRENNUNG");
+			
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(1, "AOK"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(2, "Ersatzkassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(3, "Ersatzkassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(4, "Betriebskassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(5, "Innungskrankenkassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(6, "Bundesknappschaft"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(6, "Landwirtschaftliche Krankenkassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(7, "Seekrankenkassen"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(8, "Bundeswehr"));
+			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(9, "Sonstige"));
+		
+			Logger.info("SAGS - SAGS");
+			
+			
 		};
 	}
 }

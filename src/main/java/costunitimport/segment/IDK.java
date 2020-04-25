@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import costunitimport.model.Address;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
@@ -171,10 +172,10 @@ public class IDK extends Segment{
     		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
     		int[] groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
         	
-        	//*** Alle Datensätze mit korrekten Abrechnungscodes -> das heißt alle Verknüpfungen mit Gruppenschlüssel
-			List<VKG> listVKGsWithCorrectACs = vkgs.stream().filter(v -> v.getAccountingCode() != null)
+        	//*** Alle Datensätze mit korrekten Abrechnungscodes -> das heißt alle Verknüpfungen ohne Gruppenschlüssel
+			List<VKG> listVKGsWithoutGroupACs = vkgs.stream().filter(v -> v.getAccountingCode() != null)
 					.filter(v -> IntStream.of(groupAccountCodes).noneMatch(any -> any == v.getAccountingCode().intValue())).collect(Collectors.toList());
-			for (VKG vkg : listVKGsWithCorrectACs) {
+			for (VKG vkg : listVKGsWithoutGroupACs) {
 				if (vkg.getAccountingCode() == 18 || vkg.getAccountingCode() == 60) {
 					/*
 					 * 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15
@@ -189,7 +190,7 @@ public class IDK extends Segment{
 			} //***
         	         	 
 			for (VKG vkg : vkgs) {
-				if (!listVKGsWithCorrectACs.contains(vkg)) {
+				if (!listVKGsWithoutGroupACs.contains(vkg)) {
 					
 					CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
 					
@@ -263,9 +264,9 @@ public class IDK extends Segment{
 		}
 
 
-		CostUnitInstitution currentKotrInstitution = costUnitInstitutions.get(getInstitutionCode());
+		CostUnitInstitution currentCostUnitInstitution = costUnitInstitutions.get(getInstitutionCode());
 		for (CostUnitAssignment currentAssignment : mapGroupedKotrAssignments.values()) {
-			currentAssignment.setInstitutionId(currentKotrInstitution.getId());
+			currentAssignment.setInstitutionId(currentCostUnitInstitution.getId());
 		}
 		return mapGroupedKotrAssignments.values().stream().collect(Collectors.toList());
 	}
@@ -313,7 +314,7 @@ public class IDK extends Segment{
 		return addressZip != null ? addressZip : addressPostCode;
 	}
 	
-	public CostUnitInstitution getCostUnitInstitution(DTACareProviderMethod careProviderMethod) {
+	public CostUnitInstitution buildCostUnitInstitution(DTACareProviderMethod careProviderMethod) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
 //		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant

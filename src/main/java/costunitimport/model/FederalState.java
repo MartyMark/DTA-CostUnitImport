@@ -1,13 +1,14 @@
 package costunitimport.model;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-/**
- * INF.STAAT_BUNDESLAND
- */
+@Entity
+@Table(name = "STAAT_BUNDESLAND")
 public class FederalState {
 	public static final int UNKNOWN_FEDERAL_STATE_ID = 0;
 	//Germany
@@ -44,7 +45,7 @@ public class FederalState {
 	private String description;
 	
 	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "accountingCode")
     private Country country;
     private Integer membershipId;
 	
