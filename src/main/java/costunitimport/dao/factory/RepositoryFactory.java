@@ -17,7 +17,7 @@ import costunitimport.dao.FederalStateRepository;
 import costunitimport.dao.SAGSRepository;
 import costunitimport.dao.ZipRepository;
 import costunitimport.dao.ZipTypeRepository;
-import costunitimport.dao.impl.AccountingCodeRepositoryCustomImpl;
+import costunitimport.dao.impl.AccountingCodeRepositoryCustom;
 
 @Component
 public class RepositoryFactory {
@@ -64,7 +64,7 @@ public class RepositoryFactory {
 	private SAGSRepository sAGSRepository;
 	
 	@Autowired
-	private AccountingCodeRepositoryCustomImpl accountingCodeRepositoryImpl;
+	private AccountingCodeRepositoryCustom accountingCodeRepositoryCustom;
 	
 	public SAGSRepository getSAGSRepository() {
 		return sAGSRepository;
@@ -122,7 +122,7 @@ public class RepositoryFactory {
 		return costUnitTypeMediumRepository;
 	}
 
-	public AccountingCodeRepositoryCustomImpl getAccountingCodeRepositoryImpl() {
-		return accountingCodeRepositoryImpl;
+	public AccountingCodeRepositoryCustom getAccountingCodeRepositoryCustom() {
+		return accountingCodeRepositoryCustom;
 	}
 }

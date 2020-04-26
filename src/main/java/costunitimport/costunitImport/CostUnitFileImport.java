@@ -65,27 +65,38 @@ public class CostUnitFileImport {
 			case "IDK":
 				IDK idk = new IDK(data);
 				listIDKs.add(idk);
+				break;
 			case "VDT":
 				getLastIDK().setCostUnitFileVDT(new VDT(data));
+				break;
 			case "FKT":
 				getLastIDK().setCostUnitFileFKT(new FKT(data));
+				break;
 			case "VKG":
 				getLastIDK().getCostUnitFileVKGs().add(new VKG(data, rFactory));
+				break;
 			case "NAM":
 				getLastIDK().setCostUnitFileNAM(new NAM(data));
+				break;
 			case "ANS":
 				getLastIDK().getCostUnitFileNAM().getCostUnitFileANSs().add(new ANS(data, rFactory));
+				break;
 			case "ASP":
 				getLastIDK().getCostUnitFileASPs().add(new ASP(data));
+				break;
 			case "UEM":
 				getLastIDK().getCostUnitFileUEMs().add(new UEM(data));
+				break;
 			case "DFU":
 				List<UEM> listUEMs = getLastIDK().getCostUnitFileUEMs();
 				listUEMs.get(listUEMs.size() - 1).getCostUnitFileDFUs().add(new DFU(data));
+				break;
 			case "KTO":
 				getLastIDK().getCostUnitFileKTOs().add(new KTO(data));
+				break;
 			case "UNB":
 				this.unb = new UNB(data, rFactory);
+				break;
 			default:
 				//keine Verarbeitung
 		}
@@ -100,11 +111,7 @@ public class CostUnitFileImport {
 		
 		line = line.replace("?:", ":").replace("?+", "%KOMMA%");
 		line = line.replace("?,", ",").replace("?'", "'");
-		String[] splitData = line.split(SEPARATOR_SIGN);
-		for (String fragm : splitData) {
-			fragm = fragm.replace("%KOMMA%", "+");
-		}
-		return splitData;
+		return line.split(SEPARATOR_SIGN);
 	}
 	
 	private void insertCostUnitFile() {
@@ -136,7 +143,7 @@ public class CostUnitFileImport {
 				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
 		//Zu den sonsitgen Leistungserbringern 5 - alle Abrechnungscodes beschaffen (Abrechnungscode identifiziert eine Leistungserbringerart)
-		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepositoryImpl()
+		List<DTAAccountingCode> accountingCodes = rFactory.getAccountingCodeRepositoryCustom()
 				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
 		
 		//Abrechnungsocde - Leistungserbingerart

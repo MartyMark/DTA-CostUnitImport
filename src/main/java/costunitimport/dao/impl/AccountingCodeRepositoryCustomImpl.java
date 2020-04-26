@@ -16,7 +16,7 @@ import costunitimport.model.sags.SAGS;
 import costunitimport.model.sags.SAGSDTAAccountingCode;
 
 @Repository
-public class AccountingCodeRepositoryCustomImpl implements AcountingCodeRepositoryCustom{
+public class AccountingCodeRepositoryCustomImpl implements AccountingCodeRepositoryCustom{
 	
 	 @Autowired
 	 SAGSRepository sagsRepository;

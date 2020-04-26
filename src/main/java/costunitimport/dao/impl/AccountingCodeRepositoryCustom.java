@@ -5,6 +5,6 @@ import java.util.List;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.DTAAccountingCode;
 
-public interface AcountingCodeRepositoryCustom {
+public interface AccountingCodeRepositoryCustom {
 	List<DTAAccountingCode> findDTAAccountingCodesByCareProviderMethod(CareProviderMethod careProviderMethod);
 }
