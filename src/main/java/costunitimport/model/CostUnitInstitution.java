@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import costunitimport.model.address.Address;
+
 @Entity
 @Table(name = "KOSTENTRÄGER_INSTITUTION")
 public class CostUnitInstitution {
@@ -33,7 +35,7 @@ public class CostUnitInstitution {
 	
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-	private DTACareProviderMethod careProviderMethod;
+	private CareProviderMethod careProviderMethod;
 	
 	public Integer getInstitutionNumber() {
 		return institutionNumber;

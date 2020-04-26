@@ -1,4 +1,4 @@
-package costunitimport.model;
+package costunitimport.model.address;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

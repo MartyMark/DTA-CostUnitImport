@@ -6,9 +6,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import costunitimport.model.sags.SAGSDTAAccountingCode;
 
 @Entity
 @Table(name = "DTA_ABRECHNUNGSCODE")
@@ -17,11 +18,11 @@ public class DTAAccountingCode {
 	public static final int MIDWIFES = 50;//HEBAMMEN
 	
     @Id 
-	private String accountingCode;
+	private Integer accountingId;
 	private String description;
 	
 	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumns({ @JoinColumn(name = "sagsId"), @JoinColumn(name = "accountingId") })
+	@JoinColumn(name = "accountingId")
 	private List<SAGSDTAAccountingCode> sagsDTAAccountingCode;
     
 	public List<SAGSDTAAccountingCode> getSagsDTAAccountingCode() {
@@ -32,12 +33,12 @@ public class DTAAccountingCode {
 		this.sagsDTAAccountingCode = sagsDTAAccountingCode;
 	}
 
-	public String getAccountingCode() {
-		return accountingCode;
+	public Integer getAccountingCode() {
+		return accountingId;
 	}
 	
-	public void setAccountingCode(String accountingCode) {
-		this.accountingCode = accountingCode;
+	public void setAccountingCode(Integer accountingId) {
+		this.accountingId = accountingId;
 	}
 	
 	public String getDescription() {

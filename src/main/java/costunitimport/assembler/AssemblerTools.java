@@ -1,6 +1,5 @@
 package costunitimport.assembler;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,10 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AssemblerTools {
 	
-	@Autowired
-	private CostUnitInstitutionResourceAssembler costUnitInstitutionAssembler;
-	
-	public CostUnitInstitutionResourceAssembler getCostUnitInstitutionAssembler() {
-		return costUnitInstitutionAssembler;
-	}
+//	@Autowired
+//	private CostUnitInstitutionResourceAssembler costUnitInstitutionAssembler;
+//	
+//	public CostUnitInstitutionResourceAssembler getCostUnitInstitutionAssembler() {
+//		return costUnitInstitutionAssembler;
+//	}
 }

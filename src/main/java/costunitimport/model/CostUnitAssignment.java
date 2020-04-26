@@ -19,7 +19,7 @@ public class CostUnitAssignment {
 	
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-	private CostUnitAssignment typeAssignment;
+	private CostUnitAssignment assignment;
 	
 	private Integer institutionId;
 	private Integer institutionIdAssignment;
@@ -52,11 +52,11 @@ public class CostUnitAssignment {
 	}
 	
 	public CostUnitAssignment getTypeAssignment() {
-		return typeAssignment;
+		return assignment;
 	}
 	
 	public void setTypeAssignment(CostUnitAssignment typeAssignment) {
-		this.typeAssignment = typeAssignment;
+		this.assignment = typeAssignment;
 	}
 	
 	public Integer getInstitutionId() {

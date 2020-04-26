@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import costunitimport.model.Address;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
-import costunitimport.model.DTACareProviderMethod;
+import costunitimport.model.address.Address;
+import costunitimport.model.CareProviderMethod;
 
 public class IDK extends Segment{
 	
@@ -157,7 +157,7 @@ public class IDK extends Segment{
 		this.costUnitFileVDT = Optional.ofNullable(costUnitFileVDT);
 	}
 	
-	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> costUnitInstitutions, Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
+	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> costUnitInstitutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
 		List<CostUnitAssignment> allAssignments = new ArrayList<>();
 		
 		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
@@ -271,7 +271,7 @@ public class IDK extends Segment{
 		return mapGroupedKotrAssignments.values().stream().collect(Collectors.toList());
 	}
 	
-	private List<DTAAccountingCode> getDtaAccountCodes(Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
+	private List<DTAAccountingCode> getDtaAccountCodes(Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
 		if (searchACs == null || searchACs.length <= 0) {
 //			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Keine ACs übergeben!");
 		}
@@ -314,7 +314,7 @@ public class IDK extends Segment{
 		return addressZip != null ? addressZip : addressPostCode;
 	}
 	
-	public CostUnitInstitution buildCostUnitInstitution(DTACareProviderMethod careProviderMethod) {
+	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
 //		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant

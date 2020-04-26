@@ -1,10 +1,12 @@
-package costunitimport.dao;
+package costunitimport.model.sags;
+
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class SAGSAccountingCodePK {
+public class SAGSAccountingCodePK implements Serializable{
 	@Column(name = "sagsId")
 	private Integer sagsId;
 

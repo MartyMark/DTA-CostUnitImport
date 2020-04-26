@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.model.Address;
-import costunitimport.model.Country;
-import costunitimport.model.FederalState;
-import costunitimport.model.Zip;
-import costunitimport.model.ZipType;
+import costunitimport.model.address.Address;
+import costunitimport.model.address.Country;
+import costunitimport.model.address.FederalState;
+import costunitimport.model.address.Zip;
+import costunitimport.model.address.ZipType;
 import costunitimport.util.TextFormatter;
 
 public class ANS extends Segment {
@@ -67,7 +67,7 @@ public class ANS extends Segment {
 			}
 		}
 		
-		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocationn(zipCodeStr, location);
+		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocation(zipCodeStr, location);
 		if(zip.isEmpty()) {
 			//Wenn kein Zip-Objekt ermittelt werden kann, dann wird einfach eine PLZ angelegt 
 			//-> ANS+2+00560+Münchberg+95205' 

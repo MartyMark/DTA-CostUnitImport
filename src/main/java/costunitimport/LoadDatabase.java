@@ -6,12 +6,12 @@ import org.springframework.context.annotation.Configuration;
 
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
+import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitTypeMedium;
-import costunitimport.model.Country;
-import costunitimport.model.DTACareProviderMethod;
 import costunitimport.model.DTACostUnitSeparation;
-import costunitimport.model.FederalState;
-import costunitimport.model.ZipType;
+import costunitimport.model.address.Country;
+import costunitimport.model.address.FederalState;
+import costunitimport.model.address.ZipType;
 
 @Configuration
 public class LoadDatabase {
@@ -33,6 +33,8 @@ public class LoadDatabase {
 			germany.setFlag("GERMANY");
 			germany.setIbanLength(22);
 			germany.setCountryCode("+49");
+			
+			rFactory.getCountryRepository().save(germany);
 			
 			Logger.info("FederalState - STAAT_BUNDESLAND");
 			rFactory.getFederalStateRepository().save(new FederalState(1, germany, "Schleswig-Holstein", null));
@@ -68,7 +70,7 @@ public class LoadDatabase {
 			
 			Logger.info("DTACareProvidermethod - DTA_LEISTUNGSVERFAHREN");
 			
-			DTACareProviderMethod p302 = new DTACareProviderMethod(5, "Sonstige Leistungserbringer", "Abrechnung nach §302", true);
+			CareProviderMethod p302 = new CareProviderMethod(5, "Sonstige Leistungserbringer", "Abrechnung nach §302", true);
 			rFactory.getCareProviderMethodRepository().save(p302);
 			
 			Logger.info("CostUnitTypeMedium - KASSEN_ART_MEDIUM");

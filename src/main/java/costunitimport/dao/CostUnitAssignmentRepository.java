@@ -10,5 +10,5 @@ import costunitimport.model.CostUnitAssignment;
 
 @Repository
 public interface CostUnitAssignmentRepository extends JpaRepository<CostUnitAssignment, Integer> {
-	List<CostUnitAssignment> findCostUnitAssignmentsByCostUnitInstitutionIdAndValidityDate(Integer institutionId, LocalDate importFileValidityFrom);
+	List<CostUnitAssignment> findByInstitutionIdAndValidityFrom(Integer institutionId, LocalDate importFileValidityFrom);
 }

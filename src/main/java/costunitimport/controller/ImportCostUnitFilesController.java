@@ -15,6 +15,7 @@ import javax.xml.bind.JAXBException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +37,8 @@ public class ImportCostUnitFilesController {
     @Value("${rssfeeds.url}")
     private String rssfeedUrl;
 	
-	public EntityModel<CostUnitInstitution> findCostUnitInstitutionById(@RequestParam Integer id) {
+    @GetMapping("/importcostunitfiles")
+	public EntityModel<CostUnitInstitution> importCostUnitFiles(@RequestParam Integer id) {
 		try {
 			RSSFeedParser rssFeedParser = new RSSFeedParser(rssfeedUrl);
 			CostUnitRSSFeed rssFeed = rssFeedParser.readFeed();

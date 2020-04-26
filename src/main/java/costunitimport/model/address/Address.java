@@ -1,4 +1,4 @@
-package costunitimport.model;
+package costunitimport.model.address;
 
 import java.time.LocalDate;
 

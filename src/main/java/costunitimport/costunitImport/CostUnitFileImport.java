@@ -15,12 +15,12 @@ import java.util.stream.Stream;
 
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
-import costunitimport.model.Address;
+import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
-import costunitimport.model.DTACareProviderMethod;
+import costunitimport.model.address.Address;
 import costunitimport.segment.ANS;
 import costunitimport.segment.ASP;
 import costunitimport.segment.DFU;
@@ -115,7 +115,7 @@ public class CostUnitFileImport {
 		rFactory.getCostUnitFileRepository().save(newFile);
 		
 		LocalDate importFileValidityFrom = newFile.getValidityFrom();
-		DTACareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
+		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		
 		//*** Institution abschliessen, anlegen, updaten
 		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
@@ -140,7 +140,7 @@ public class CostUnitFileImport {
 				.findDTAAccountingCodesByCareProviderMethod(careProviderMethod);
 		
 		//Abrechnungsocde - Leistungserbingerart
-		Map<String, DTAAccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
+		Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
 				.collect(Collectors.toMap(DTAAccountingCode::getAccountingCode, Function.identity()));
 		
 		for (IDK idk : filteredIDKs) {
@@ -181,7 +181,7 @@ public class CostUnitFileImport {
 	}
 	
 	private void updateAndInsertCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
-			List<IDK> listIDKs, LocalDate importFileValidityFrom, DTACareProviderMethod careProviderMethod) {
+			List<IDK> listIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
 		
 		Map<Integer, CostUnitInstitution> mapKotrInstitutionByInstitutionNumber = existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
@@ -225,7 +225,7 @@ public class CostUnitFileImport {
 	}
 	
 	private void updateAndInsertCostUnitAssignments(int kotrInstitutionId, List<CostUnitAssignment> kotrAssignmentsFile, LocalDate importFileValidityFrom) {
-		List<CostUnitAssignment> kotrAssignmentsDB = rFactory.getCostUnitAssignmentRepository().findCostUnitAssignmentsByCostUnitInstitutionIdAndValidityDate(kotrInstitutionId, importFileValidityFrom);
+		List<CostUnitAssignment> kotrAssignmentsDB = rFactory.getCostUnitAssignmentRepository().findByInstitutionIdAndValidityFrom(kotrInstitutionId, importFileValidityFrom);
 		if (!kotrAssignmentsDB.isEmpty() && kotrAssignmentsDB.stream().filter(assignment -> assignment.getValidityFrom().equals(importFileValidityFrom)).count() > 0) {
 			//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
 			//Der Fall kann entstehen, 
@@ -286,8 +286,9 @@ public class CostUnitFileImport {
 		builder.append("federalStateClassificationId:").append(assignment.getFederalStateClassificationId()).append("|");
 		builder.append("districtId:").append(assignment.getDistrictId()).append("|");
 		builder.append("rateCode:").append(assignment.getRateCode()).append("|");
-		builder.append("accountingCodes:").append(
-				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(DTAAccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
+//		TODO
+//		builder.append("accountingCodes:").append(
+//				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(DTAAccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
 		return builder.toString();
 	}
 }

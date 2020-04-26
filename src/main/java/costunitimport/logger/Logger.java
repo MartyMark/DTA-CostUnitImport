@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+
 import org.slf4j.LoggerFactory;
 
 public class Logger {
@@ -26,8 +27,7 @@ public class Logger {
 	}
 	
 	public static void info(final String info) {
-		String logText = buildLogText();
-		LOG.info("{}{}", info, logText);
+		LOG.info(info);
 	}
 	
 	private static String buildLogText() {
