@@ -40,11 +40,11 @@ public class ANS extends Segment {
 		switch (kindOfAddress.intValue()) {
 			case 1://Hausanschrift
 				address.setStreet(street);
-				address.setZip(getZip());
+				address.setZip(buildZip());
 				break;
 			case 2://Postfachanschrift
 				address.setPostBox(street);
-				address.setZip(getZip());
+				address.setZip(buildZip());
 				break;
 			case 3://Großkundenanschrift
 				//wird bisher nicht verarbeitet
@@ -57,7 +57,7 @@ public class ANS extends Segment {
 		return address;
 	}
 	
-	private Zip getZip() {
+	private Zip buildZip() {
 		String zipCodeStr = zipCode.toString();
 		if(zipCodeStr.length()<5) {
 			try {

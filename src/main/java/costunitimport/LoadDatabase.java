@@ -37,6 +37,7 @@ public class LoadDatabase {
 			rFactory.getCountryRepository().save(germany);
 			
 			Logger.info("FederalState - STAAT_BUNDESLAND");
+			rFactory.getFederalStateRepository().save(new FederalState(0, germany, "Unbekannt", null));
 			rFactory.getFederalStateRepository().save(new FederalState(1, germany, "Schleswig-Holstein", null));
 			rFactory.getFederalStateRepository().save(new FederalState(2, germany, "Hamburg", null));
 			rFactory.getFederalStateRepository().save(new FederalState(3, germany, "Niedersachen", null));

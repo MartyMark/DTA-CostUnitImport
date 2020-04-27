@@ -201,7 +201,7 @@ public class CostUnitFileImport {
 					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);
 				}
 //				CostUnitInstitution newInstitution = repositoryFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
-				Address contactAddress = costUnitFileIDK.getCostUnitAddress();
+				Address contactAddress = costUnitFileIDK.buildCostUnitAddress();
 				if (contactAddress != null) {
 //					contactAddress.setODAId(newInstitution.getId()); TODO
 					rFactory.getCostUnitAddressRepository().save(contactAddress);
@@ -212,7 +212,7 @@ public class CostUnitFileImport {
 					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);
 				}
 				rFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
-				Address contactAddress = costUnitFileIDK.getCostUnitAddress();
+				Address contactAddress = costUnitFileIDK.buildCostUnitAddress();
 				if (contactAddress != null) {
 					Address currentAddress = kotrInstitutionFromFile.getAddress();
 					if (currentAddress == null) {//es gibt keine, also kann die importierte geschrieben werden

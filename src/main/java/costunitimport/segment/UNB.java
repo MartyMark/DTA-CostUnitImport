@@ -5,7 +5,10 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Optional;
 import java.util.regex.Pattern;
+
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.exception.CareProviderMethodNotFoundException;
+import costunitimport.exception.CostUnitSeperationNotFoundException;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.DTACostUnitSeparation;
@@ -70,13 +73,15 @@ public class UNB extends Segment {
 	}
 
 	public CostUnitFile getCostUnitFile() {
+		Optional<DTACostUnitSeparation> costUnitSeperation = getDtaCostUnitSeparationByToken(fileName.substring(0, 2));
+		Optional<CareProviderMethod> careProviderMethod = getCareProviderMethodByToken(fileName.substring(2, 4));
+		
 		CostUnitFile file = new CostUnitFile();
 		file.setCreationTime(creationTime);
 		file.setFileName(fileName);
 		
-		getDtaCostUnitSeparationByToken(fileName.substring(0, 2)).ifPresent(x -> file.setDtaCostUnitSeparation(x));
-		
-		getCareProviderMethodByToken(fileName.substring(2, 4)).ifPresent(x -> file.setCareProviderMethod(x));
+		file.setDtaCostUnitSeparation(costUnitSeperation.orElse(null));
+		file.setCareProviderMethod(careProviderMethod.orElse(null));
 		
 		
 		file.setValidityFrom(getValidityFrom(fileName.substring(4, 6), fileName.substring(6, 8)));
@@ -84,33 +89,32 @@ public class UNB extends Segment {
 		return file;
 	}
 
-	private Optional<DTACostUnitSeparation> getDtaCostUnitSeparationByToken(String dtaCostUnitSeparationToken) {
-		Integer  dtaCostUnitSeparationId = null;
-		switch (dtaCostUnitSeparationToken) {
-			case "AO"://AOK
-				dtaCostUnitSeparationId = DTACostUnitSeparation.AOK;
+	private Optional<DTACostUnitSeparation> getDtaCostUnitSeparationByToken(String costUnitSeparationToken) {
+		Integer dtaCostUnitSeparationId = null;
+		switch (costUnitSeparationToken) {
+		case "AO":// AOK
+			dtaCostUnitSeparationId = DTACostUnitSeparation.AOK;
 			break;
-			case "EK"://Ersatzkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
+		case "EK":// Ersatzkassen
+			dtaCostUnitSeparationId = DTACostUnitSeparation.SUBSTITUTE_HEALTH_INSURANCE;
 			break;
-			case "BK"://Betriebskrankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.COMPANY_HEALTH_INSURANCE;
+		case "BK":// Betriebskrankenkassen
+			dtaCostUnitSeparationId = DTACostUnitSeparation.COMPANY_HEALTH_INSURANCE;
 			break;
-			case "IK"://Innungskrankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.GUILD_HEALTH_INSURANCE;
+		case "IK":// Innungskrankenkassen
+			dtaCostUnitSeparationId = DTACostUnitSeparation.GUILD_HEALTH_INSURANCE;
 			break;
-			case "BN"://Knappschaft-Bahn-See
-				dtaCostUnitSeparationId = DTACostUnitSeparation.FEDERAL_MINERS_UNION;
+		case "BN":// Knappschaft-Bahn-See
+			dtaCostUnitSeparationId = DTACostUnitSeparation.FEDERAL_MINERS_UNION;
 			break;
-			case "LK"://Landwirtschaftliche Krankenkassen
-				dtaCostUnitSeparationId = DTACostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
+		case "LK":// Landwirtschaftliche Krankenkassen
+			dtaCostUnitSeparationId = DTACostUnitSeparation.AGRICULTURAL_HEALTH_INSURANCE;
 			break;
-			case "GK"://Gesetzliche Krankenversicherung
-				dtaCostUnitSeparationId = DTACostUnitSeparation.OTHER;
+		case "GK":// Gesetzliche Krankenversicherung
+			dtaCostUnitSeparationId = DTACostUnitSeparation.OTHER;
 			break;
-
-			default:
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Kassenart: " + dtaCostUnitSeparationToken);
+		default:
+			throw new CostUnitSeperationNotFoundException(Integer.valueOf(costUnitSeparationToken));
 		}
 		return rFactory.getCostUnitSeparationRepository().findById(dtaCostUnitSeparationId.intValue());
 	}
@@ -129,7 +133,7 @@ public class UNB extends Segment {
 			break;
 			
 			default:
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekanntes Verfahren: " + careProviderMethodToken);
+				throw new CareProviderMethodNotFoundException(Integer.valueOf(careProviderMethodToken));
 		}
 		return rFactory.getCareProviderMethodRepository().findById(careProviderMethodId.intValue());
 	}

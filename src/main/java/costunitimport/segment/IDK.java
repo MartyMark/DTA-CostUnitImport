@@ -292,7 +292,7 @@ public class IDK extends Segment{
 	 * @return Anschrift
 	 * @throws IOException 
 	 */
-	public Address getCostUnitAddress() {
+	public Address buildCostUnitAddress() {
 		Address addressZip = null;
 		Address addressPostCode = null;
 		if (costUnitFileNAM != null && costUnitFileNAM.getCostUnitFileANSs() != null && !costUnitFileNAM.getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
@@ -334,7 +334,7 @@ public class IDK extends Segment{
 		}
 		institution.setInstitutionNumber(institutionCode);
 		institution.setVknr(vKNR);
-		institution.setAddress(getCostUnitAddress());
+		institution.setAddress(buildCostUnitAddress());
 		institution.setShortDescription(shortDescription);
 //		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
 //		institution.setODAContactType(contactType);
