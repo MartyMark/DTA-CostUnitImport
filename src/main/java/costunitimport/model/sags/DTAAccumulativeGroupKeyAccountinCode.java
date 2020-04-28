@@ -6,12 +6,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
-
 import costunitimport.model.DTAAccountingCode;
 
 @Entity
-@Table(name = "SAGS_DTA_ABRECHNUNGSCODE")
-public class SAGSDTAAccountingCode {
+@Table(name = "DTA_SAGS_ABRECHNUNGSCODE")
+public class DTAAccumulativeGroupKeyAccountinCode {
 	
 	@EmbeddedId
 	private SAGSAccountingCodePK id;
@@ -19,18 +18,18 @@ public class SAGSDTAAccountingCode {
 	@MapsId("sagsId")
     @ManyToOne
     @JoinColumn(name = "sagsId", updatable = false, nullable = false)
-	private SAGS sags;
+	private DTAAccumulativeGroupKey sags;
 	
 	@MapsId("accountingId")
     @ManyToOne
     @JoinColumn(name = "accountingId", updatable = false, nullable = false)
 	private DTAAccountingCode accountingCode;
 
-	public SAGS getSags() {
+	public DTAAccumulativeGroupKey getSags() {
 		return sags;
 	}
 
-	public void setSags(SAGS sags) {
+	public void setSags(DTAAccumulativeGroupKey sags) {
 		this.sags = sags;
 	}
 

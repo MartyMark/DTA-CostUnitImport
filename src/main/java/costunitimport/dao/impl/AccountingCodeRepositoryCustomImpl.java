@@ -9,17 +9,17 @@ import org.springframework.stereotype.Repository;
 
 import costunitimport.dao.AccountingCodeRepository;
 import costunitimport.dao.SAGSDTAAccountingRepository;
-import costunitimport.dao.SAGSRepository;
+import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.DTAAccountingCode;
-import costunitimport.model.sags.SAGS;
-import costunitimport.model.sags.SAGSDTAAccountingCode;
+import costunitimport.model.sags.DTAAccumulativeGroupKey;
+import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
 @Repository
 public class AccountingCodeRepositoryCustomImpl implements AccountingCodeRepositoryCustom{
 	
 	 @Autowired
-	 SAGSRepository sagsRepository;
+	 DTAAccumulativeGroupKeyRepository sagsRepository;
 	 
 	 @Autowired
 	 SAGSDTAAccountingRepository sagsDTAAccountingCodeRepository;
@@ -31,12 +31,12 @@ public class AccountingCodeRepositoryCustomImpl implements AccountingCodeReposit
 	public List<DTAAccountingCode> findDTAAccountingCodesByCareProviderMethod(CareProviderMethod careProviderMethod) {
 		List<DTAAccountingCode> codes = new ArrayList<>();
 
-		List<SAGS> sagsList = sagsRepository.findByCareProviderMethod(careProviderMethod);
+		List<DTAAccumulativeGroupKey> sagsList = sagsRepository.findByCareProviderMethod(careProviderMethod);
 
-		for (SAGS sags : sagsList) {
-			List<SAGSDTAAccountingCode> sagsAccountingCodes = sags.getSagsDTAAccountingCode();
+		for (DTAAccumulativeGroupKey sags : sagsList) {
+			List<DTAAccumulativeGroupKeyAccountinCode> sagsAccountingCodes = sags.getSagsDTAAccountingCode();
 
-			for (SAGSDTAAccountingCode sagsDTAAccountingCode : sagsAccountingCodes) {
+			for (DTAAccumulativeGroupKeyAccountinCode sagsDTAAccountingCode : sagsAccountingCodes) {
 				Optional<DTAAccountingCode> dtaAccountingCode = accountingCodeRepository
 						.findById(sagsDTAAccountingCode.getId().getAccountingId());
 				dtaAccountingCode.ifPresent(code -> codes.add(code));

@@ -15,6 +15,14 @@ public class CostUnitTypeAssignment {
 	
 	private String description;
 	
+	CostUnitTypeAssignment(){}
+	
+	public CostUnitTypeAssignment(Integer id, String description){
+		this.id = id;
+		this.description = description;
+	}
+	
+	
 	public String getDescription() {
 		return description;
 	}

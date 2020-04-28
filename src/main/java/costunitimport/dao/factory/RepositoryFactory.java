@@ -2,7 +2,6 @@ package costunitimport.dao.factory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import costunitimport.dao.AccountingCodeRepository;
 import costunitimport.dao.CareProviderMethodRepository;
 import costunitimport.dao.CostUnitAddressRepository;
@@ -10,11 +9,12 @@ import costunitimport.dao.CostUnitAssignmentRepository;
 import costunitimport.dao.CostUnitFileRepository;
 import costunitimport.dao.CostUnitInstitutionRepository;
 import costunitimport.dao.CostUnitSeparationRepository;
+import costunitimport.dao.CostUnitTypeAssignmentRepository;
 import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.CountryRepository;
 import costunitimport.dao.FederalStateRepository;
-import costunitimport.dao.SAGSRepository;
+import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
 import costunitimport.dao.ZipRepository;
 import costunitimport.dao.ZipTypeRepository;
 import costunitimport.dao.impl.AccountingCodeRepositoryCustom;
@@ -61,12 +61,15 @@ public class RepositoryFactory {
 	private CostUnitTypeDataSupplyRepository costUnitTypeDataSupplyRepository;
 	
 	@Autowired
-	private SAGSRepository sAGSRepository;
+	private CostUnitTypeAssignmentRepository costUnitTypeAssignmentRepository;
+	
+	@Autowired
+	private DTAAccumulativeGroupKeyRepository sAGSRepository;
 	
 	@Autowired
 	private AccountingCodeRepositoryCustom accountingCodeRepositoryCustom;
 	
-	public SAGSRepository getSAGSRepository() {
+	public DTAAccumulativeGroupKeyRepository getSAGSRepository() {
 		return sAGSRepository;
 	}
 	
@@ -124,5 +127,9 @@ public class RepositoryFactory {
 
 	public AccountingCodeRepositoryCustom getAccountingCodeRepositoryCustom() {
 		return accountingCodeRepositoryCustom;
+	}
+	
+	public CostUnitTypeAssignmentRepository getCostUnitTypeAssignmentRepository() {
+		return costUnitTypeAssignmentRepository;
 	}
 }

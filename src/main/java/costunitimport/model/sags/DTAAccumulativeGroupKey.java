@@ -1,7 +1,6 @@
 package costunitimport.model.sags;
 
 import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -9,12 +8,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import costunitimport.model.CareProviderMethod;
 
 @Entity
 @Table(name = "SAGS")
-public class SAGS {
+public class DTAAccumulativeGroupKey {
 	@Id
 	private Integer sagsId;
 	
@@ -27,7 +25,16 @@ public class SAGS {
 	
 	@OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "sagsId")
-	private List<SAGSDTAAccountingCode> sagsDTAAccountingCode;
+	private List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode;
+	
+	public DTAAccumulativeGroupKey() {}
+	
+	public DTAAccumulativeGroupKey(Integer sagsId, String desc, String groupKey, CareProviderMethod careProviderMethod) {
+		this.sagsId = sagsId;
+		this.description = desc;
+		this.accumlativeGroupkey = groupKey;
+		this.careProviderMethod = careProviderMethod;
+	}
 	
 	public String getDescription() {
 		return description;
@@ -47,10 +54,10 @@ public class SAGS {
 	public void setCareProviderMethod(CareProviderMethod careProviderMethod) {
 		this.careProviderMethod = careProviderMethod;
 	}
-	public List<SAGSDTAAccountingCode> getSagsDTAAccountingCode() {
+	public List<DTAAccumulativeGroupKeyAccountinCode> getSagsDTAAccountingCode() {
 		return sagsDTAAccountingCode;
 	}
-	public void setSagsDTAAccountingCode(List<SAGSDTAAccountingCode> sagsDTAAccountingCode) {
+	public void setSagsDTAAccountingCode(List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode) {
 		this.sagsDTAAccountingCode = sagsDTAAccountingCode;
 	}
 	public Integer getSagsId() {

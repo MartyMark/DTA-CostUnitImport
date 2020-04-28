@@ -9,7 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import costunitimport.model.sags.SAGSDTAAccountingCode;
+import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
 @Entity
 @Table(name = "DTA_ABRECHNUNGSCODE")
@@ -23,13 +23,13 @@ public class DTAAccountingCode {
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "accountingId")
-	private List<SAGSDTAAccountingCode> sagsDTAAccountingCode;
+	private List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode;
     
-	public List<SAGSDTAAccountingCode> getSagsDTAAccountingCode() {
+	public List<DTAAccumulativeGroupKeyAccountinCode> getSagsDTAAccountingCode() {
 		return sagsDTAAccountingCode;
 	}
 
-	public void setSagsDTAAccountingCode(List<SAGSDTAAccountingCode> sagsDTAAccountingCode) {
+	public void setSagsDTAAccountingCode(List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode) {
 		this.sagsDTAAccountingCode = sagsDTAAccountingCode;
 	}
 
