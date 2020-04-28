@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,7 +132,7 @@ public class CostUnitFileImport {
 		List<IDK> filteredIDKs = filterIDKsByValidityUtil(importFileValidityFrom);
 		
 		closeExistingInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom);
-		updateAndInsertCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
+		updateCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
 		
 		//*** Verknüpfungen
 		
@@ -187,43 +188,39 @@ public class CostUnitFileImport {
 		rFactory.getCostUnitInstitutionRepository().saveAll(institutionsToClose);
 	}
 	
-	private void updateAndInsertCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
+	private void updateCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
 			List<IDK> listIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
 		
-		Map<Integer, CostUnitInstitution> mapKotrInstitutionByInstitutionNumber = existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
+		/* Hier wird die IK zu der Kasse gemappt*/
+		Map<Integer, CostUnitInstitution> institutionMap = existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 		
-		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-		for (IDK costUnitFileIDK : listIDKs) {
-			CostUnitInstitution existingKotrInstitution = mapKotrInstitutionByInstitutionNumber.get(costUnitFileIDK.getInstitutionCode());
-			CostUnitInstitution kotrInstitutionFromFile = costUnitFileIDK.buildCostUnitInstitution(careProviderMethod);
-			if (existingKotrInstitution == null) {//Neue Institution
-				if (kotrInstitutionFromFile.getValidityFrom() == null) {
-					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);
+		for (IDK idk : listIDKs) {
+			CostUnitInstitution existingInstitution = institutionMap.get(idk.getInstitutionCode());
+			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod);
+			if (existingInstitution == null) {//Neue Institution
+				if (institutionFromFile.getValidityFrom() == null) {
+					institutionFromFile.setValidityFrom(importFileValidityFrom);
 				}
-//				CostUnitInstitution newInstitution = repositoryFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
-				Address contactAddress = costUnitFileIDK.buildCostUnitAddress();
-				if (contactAddress != null) {
-//					contactAddress.setODAId(newInstitution.getId()); TODO
-					rFactory.getCostUnitAddressRepository().save(contactAddress);
-				}
+				idk.buildCostUnitAddress().ifPresent(address -> rFactory.getCostUnitAddressRepository().save(address));
 			} else {
-				kotrInstitutionFromFile.setId(existingKotrInstitution.getId());
-				if (kotrInstitutionFromFile.getValidityFrom() == null) {
-					kotrInstitutionFromFile.setValidityFrom(importFileValidityFrom);
+				institutionFromFile.setId(existingInstitution.getId());
+				if (institutionFromFile.getValidityFrom() == null) {
+					institutionFromFile.setValidityFrom(importFileValidityFrom);
 				}
-				rFactory.getCostUnitInstitutionRepository().save(kotrInstitutionFromFile);
-				Address contactAddress = costUnitFileIDK.buildCostUnitAddress();
-				if (contactAddress != null) {
-					Address currentAddress = kotrInstitutionFromFile.getAddress();
+				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
+				Optional<Address> contactAddress = idk.buildCostUnitAddress();
+				if (contactAddress.isPresent()) {
+					Address currentAddress = institutionFromFile.getAddress();
 					if (currentAddress == null) {//es gibt keine, also kann die importierte geschrieben werden
-						rFactory.getCostUnitAddressRepository().save(contactAddress);
+						rFactory.getCostUnitAddressRepository().save(contactAddress.get());
 					} else {//es existiert eine Adresse, abgleich auf Änderungen
 						String oldAddressString = currentAddress.getZip().getId() + "|" + currentAddress.getStreet() + "|" + currentAddress.getPostBox();
-						String newAddressString = contactAddress.getZip().getId() + "|" + contactAddress.getStreet() + "|" + contactAddress.getPostBox();
+						String newAddressString = contactAddress.get().getZip().getId() + "|" + contactAddress.get().getStreet() + "|" + contactAddress.get().getPostBox();
 						if (!oldAddressString.equals(newAddressString)) {
+							LocalDate validityUntil = importFileValidityFrom.minusDays(1);
 							currentAddress.setValidityUntil(validityUntil);
 							rFactory.getCostUnitAddressRepository().save(currentAddress); //update
-							rFactory.getCostUnitAddressRepository().save(contactAddress);
+							rFactory.getCostUnitAddressRepository().save(contactAddress.get());
 						}
 					}
 				}

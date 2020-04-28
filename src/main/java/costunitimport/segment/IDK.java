@@ -14,25 +14,25 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.address.Address;
-import costunitimport.model.CareProviderMethod;
 
 public class IDK extends Segment{
 	
 	private Integer institutionCode;
 	private Integer kindOfInstitution;
-	private String shortDescription;
+	private String description;
 	private Integer vKNR;
 
-	private Optional<VDT> costUnitFileVDT = Optional.empty();
+	private Optional<VDT> vdt = Optional.empty();
 	
 	private List<VKG> costUnitFileVKGs = new ArrayList<>();
 	private FKT costUnitFileFKT = null;
 	private List<KTO> costUnitFileKTOs = new ArrayList<>();
-	private NAM costUnitFileNAM = null;
+	private NAM nam = null;
 	private List<ASP> costUnitFileASPs = new ArrayList<>();
 	private List<UEM> costUnitFileUEMs = new ArrayList<>();
 	
@@ -45,7 +45,7 @@ public class IDK extends Segment{
 		int position = 1;
 		institutionCode = getData(position++, Integer.class);
 		kindOfInstitution = getData(position++, Integer.class);
-		shortDescription = getData(position++, String.class);
+		description = getData(position++, String.class);
 		vKNR = getData(position, Integer.class);
 	}
 	
@@ -74,7 +74,7 @@ public class IDK extends Segment{
 	 * @return Kurzbezeichnung
 	 */
 	public String getShortDescription() {
-		return shortDescription;
+		return description;
 	}
 
 	/**
@@ -119,12 +119,12 @@ public class IDK extends Segment{
 
 
 	public NAM getCostUnitFileNAM() {
-		return costUnitFileNAM;
+		return nam;
 	}
 
 
 	public void setCostUnitFileNAM(NAM costUnitFileNAM) {
-		this.costUnitFileNAM = costUnitFileNAM;
+		this.nam = costUnitFileNAM;
 	}
 
 
@@ -149,12 +149,12 @@ public class IDK extends Segment{
 
 
 	public Optional<VDT> getCostUnitFileVDT() {
-		return costUnitFileVDT;
+		return vdt;
 	}
 
 
 	public void setCostUnitFileVDT(VDT costUnitFileVDT) {
-		this.costUnitFileVDT = Optional.ofNullable(costUnitFileVDT);
+		this.vdt = Optional.ofNullable(costUnitFileVDT);
 	}
 	
 	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> costUnitInstitutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
@@ -292,26 +292,26 @@ public class IDK extends Segment{
 	 * @return Anschrift
 	 * @throws IOException 
 	 */
-	public Address buildCostUnitAddress() {
+	public Optional<Address> buildCostUnitAddress() {
 		Address addressZip = null;
 		Address addressPostCode = null;
-		if (costUnitFileNAM != null && costUnitFileNAM.getCostUnitFileANSs() != null && !costUnitFileNAM.getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
-			LocalDate validityFrom = costUnitFileVDT.get().getValidityFrom() != null ? costUnitFileVDT.get().getValidityFrom() : null;
-			LocalDate validityUntil = costUnitFileVDT.get().getValidityUntil() != null ? costUnitFileVDT.get().getValidityUntil() : null;
-			for (ANS currentANS : costUnitFileNAM.getCostUnitFileANSs()) {
-				Address addressTmp = currentANS.getODAContactAddress(validityFrom, validityUntil);
-				if (currentANS.getKindOfAddress().intValue() == 1) {
+		if (nam != null && nam.getCostUnitFileANSs() != null && !nam.getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
+			LocalDate validityFrom = vdt.get().getValidityFrom();
+			LocalDate validityUntil = vdt.get().getValidityUntil();
+			for (ANS ans : nam.getCostUnitFileANSs()) {
+				Address addressTmp = ans.getODAContactAddress(validityFrom, validityUntil);
+				if (ans.getKindOfAddress().intValue() == 1) { //Hausanschrift
 					addressZip  = addressTmp;
-				} else if (currentANS.getKindOfAddress().intValue() == 2) {
+				} else if (ans.getKindOfAddress().intValue() == 2) { //Postfachanschrift
 					addressPostCode = addressTmp;
 				}
 			}
 			if (addressZip != null && addressPostCode != null) {
 				addressZip.setPostBox(addressPostCode.getPostBox());
-				return addressZip;
+				return Optional.of(addressZip);
 			}
 		}
-		return addressZip != null ? addressZip : addressPostCode;
+		return addressZip != null ? Optional.of(addressZip) : Optional.ofNullable(addressPostCode);
 	}
 	
 	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod) {
@@ -319,14 +319,15 @@ public class IDK extends Segment{
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
 //		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant
 		institution.setCreationTime(LocalDateTime.now());
-		if (costUnitFileVDT.isPresent()) {
-			institution.setValidityFrom(costUnitFileVDT.get().getValidityFrom());
-			institution.setValidityUntil(costUnitFileVDT.get().getValidityUntil());
+		
+		if (vdt.isPresent()) {
+			institution.setValidityFrom(vdt.get().getValidityFrom());
+			institution.setValidityUntil(vdt.get().getValidityUntil());
 		}
 
-		institution.setFirmName(shortDescription);
-		if (costUnitFileNAM != null) {//NAM-Segment: einmal obligatorisch
-			String[] names = {costUnitFileNAM.getName1(), costUnitFileNAM.getName2(), costUnitFileNAM.getName3(), costUnitFileNAM.getName4()};
+		institution.setFirmName(description);
+		if (nam != null) {//NAM-Segment: einmal obligatorisch
+			String[] names = new String[] {nam.getName1(), nam.getName2(), nam.getName3(), nam.getName4()};
 			String collectedName = Arrays.stream(names).filter(s -> s!=null && !s.trim().isEmpty()).collect(Collectors.joining(" "));
 			if(collectedName!=null && !collectedName.isEmpty()) {
 				institution.setFirmName(collectedName);
@@ -334,8 +335,8 @@ public class IDK extends Segment{
 		}
 		institution.setInstitutionNumber(institutionCode);
 		institution.setVknr(vKNR);
-		institution.setAddress(buildCostUnitAddress());
-		institution.setShortDescription(shortDescription);
+		institution.setAddress(buildCostUnitAddress().orElse(null));
+		institution.setShortDescription(description);
 //		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
 //		institution.setODAContactType(contactType);
 //		institution.setMembership(Integer.valueOf(0)); -> unrelevant

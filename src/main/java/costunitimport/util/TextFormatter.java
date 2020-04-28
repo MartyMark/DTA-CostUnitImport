@@ -27,9 +27,6 @@ public class TextFormatter {
 		return fill(value, length, filler, alignment);
 	}
 	
-	/**
-	 * @author Thorsten Dietz erzeugt einen Filler auf eine schnellere Art
-	 */
 	public static String getFiller(char c, int length) {
 		final char[] chars = new char[length];
 		Arrays.fill(chars, c);

@@ -2,6 +2,7 @@ package costunitimport.model.address;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -11,8 +12,7 @@ import javax.persistence.Table;
 @Table(name = "STAAT_PLZ")
 public class Zip {
 	
-	@Id
-	private Integer id;
+	private @Id @GeneratedValue Integer id;
 	
 	private String zipCode;
 	

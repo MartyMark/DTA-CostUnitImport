@@ -58,26 +58,17 @@ public class ANS extends Segment {
 	}
 	
 	private Zip buildZip() {
-		String zipCodeStr = zipCode.toString();
-		if(zipCodeStr.length()<5) {
-			try {
-				zipCodeStr = TextFormatter.convertString(zipCodeStr, 5, false, '0');
-			} catch (IOException e) {
-//				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace());
-			}
-		}
-		
-		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocation(zipCodeStr, location);
+		String zipCode = getZipCode().toString();
+		Optional<Zip> zip = rFactory.getZipRepository().findByZipCodeAndLocation(zipCode, location);
 		if(zip.isEmpty()) {
 			//Wenn kein Zip-Objekt ermittelt werden kann, dann wird einfach eine PLZ angelegt 
 			//-> ANS+2+00560+Münchberg+95205' 
 			Zip newZip = new Zip();
-			newZip.setZipCode(zipCodeStr);
+			newZip.setZipCode(zipCode);
 			newZip.setLocation(location);
-			Optional<Country> countryGermany = rFactory.getCountryRepository().findById(Country.GERMANY);
-			newZip.setCountry(countryGermany.get());
-			newZip.setFederalState(rFactory.getFederalStateRepository().findById(FederalState.UNKNOWN_FEDERAL_STATE_ID).get());
-			newZip.setZipType(rFactory.getZipTypeRepository().findById(ZipType.IMPORT_INTERFACE_UNCHECKED).get());
+			newZip.setCountry(rFactory.getCountryRepository().findById(Country.GERMANY).orElse(null));
+			newZip.setFederalState(rFactory.getFederalStateRepository().findById(FederalState.UNKNOWN_FEDERAL_STATE_ID).orElse(null));
+			newZip.setZipType(rFactory.getZipTypeRepository().findById(ZipType.IMPORT_INTERFACE_UNCHECKED).orElse(null));
 			return rFactory.getZipRepository().save(newZip);
 		}
 		return zip.get();
@@ -97,7 +88,15 @@ public class ANS extends Segment {
 	 * @return Postleitzahl 
 	 */
 	public Integer getZipCode() {
-		return zipCode;
+		String zipCodeStr = zipCode.toString();
+		if(zipCodeStr.length()<5) {
+			try {
+				zipCodeStr = TextFormatter.convertString(zipCodeStr, 5, false, '0');
+			} catch (IOException e) {
+//				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace());
+			}
+		}
+		return Integer.valueOf(zipCodeStr);
 	}
 
 	/**

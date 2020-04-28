@@ -3,6 +3,7 @@ package costunitimport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.CareProviderMethod;
@@ -69,7 +70,6 @@ public class LoadDatabase {
 			rFactory.getFederalStateRepository().save(new FederalState(99, germany, "Alle Bundesländer", null));
 			
 			Logger.info("ZipType - STAAT_PLZ_ART");
-			
 			rFactory.getZipTypeRepository().save(new ZipType(1, "Postfach"));
 			rFactory.getZipTypeRepository().save(new ZipType(2, "Schalterausgabe"));
 			rFactory.getZipTypeRepository().save(new ZipType(3, "Gruppen-GE"));
@@ -138,7 +138,21 @@ public class LoadDatabase {
 			DTAAccumulativeGroupKey sags7 = new DTAAccumulativeGroupKey(7, "nichtärztliche Dialysesachleistungen", "G", p302);
 			DTAAccumulativeGroupKey sags8 = new DTAAccumulativeGroupKey(8, "Leistungserbringer von Rehabilitationssport", "H", p302);
 			DTAAccumulativeGroupKey sags9 = new DTAAccumulativeGroupKey(9, "Leistungserbringer von Funktionstraining", "I", p302);
-			
+			DTAAccumulativeGroupKey sags10 = new DTAAccumulativeGroupKey(10, "Sonstige Leistungserbringer", "J", p302);
+			DTAAccumulativeGroupKey sags11 = new DTAAccumulativeGroupKey(11, "Leistungserbringer Präventions- und Gesundheitsfördermaßnamen", "K", p302);
+			DTAAccumulativeGroupKey sags12 = new DTAAccumulativeGroupKey(12, "Leistungserbringer vonergänzenden Rehamaßnamen / Amb.Rehamaßnamen / Mobile Rehaeinrichtungen", "L", p302);
+			DTAAccumulativeGroupKey sags13 = new DTAAccumulativeGroupKey(13, "Sozialpädiaristische Zentren / Frühförderstellen", "M", p302);
+			DTAAccumulativeGroupKey sags14 = new DTAAccumulativeGroupKey(14, "Soziotherapeutischer Leistungserbringer", "N", p302);
+			DTAAccumulativeGroupKey sags15 = new DTAAccumulativeGroupKey(15, "Leistungserbringer für Arzneimittel und Apothekenübliche Wareb", null, apo);
+			DTAAccumulativeGroupKey sags16 = new DTAAccumulativeGroupKey(16, "Leistungserbringer Pflegehilfsmittel", null, hpf);
+			DTAAccumulativeGroupKey sags17 = new DTAAccumulativeGroupKey(17, "Leistungserbringer ambulante Pflege", null, hpf);
+			DTAAccumulativeGroupKey sags18 = new DTAAccumulativeGroupKey(18, "Leistungserbringer Tagespflege", null, hpf);
+			DTAAccumulativeGroupKey sags19 = new DTAAccumulativeGroupKey(19, "Leistungserbringer Nachtpflege", null, hpf);
+			DTAAccumulativeGroupKey sags20 = new DTAAccumulativeGroupKey(20, "Leistungserbringer Kurzzeitpflege", null, hpf);
+			DTAAccumulativeGroupKey sags21 = new DTAAccumulativeGroupKey(21, "Leistungserbringer vollständige Pflege", null, hpf);
+			DTAAccumulativeGroupKey sags22 = new DTAAccumulativeGroupKey(22, "Leistungserbringer Sozialpädiaristische Zentren nach § 119 SGB V", null, hospital);
+			DTAAccumulativeGroupKey sags23 = new DTAAccumulativeGroupKey(23, "Spezialisierte ambulante Paliativversorgung", "O", p302);
+			DTAAccumulativeGroupKey sags24 = new DTAAccumulativeGroupKey(24, "gesundheitliche Versorgungsplanung nach § 132g SGB V", "P", p302);
 			DTAAccumulativeGroupKey sags25 = new DTAAccumulativeGroupKey(25, "Kurzzeitpflege", "Q", p302);
 			
 			rFactory.getSAGSRepository().save(sags1);
@@ -150,9 +164,22 @@ public class LoadDatabase {
 			rFactory.getSAGSRepository().save(sags7);
 			rFactory.getSAGSRepository().save(sags8);
 			rFactory.getSAGSRepository().save(sags9);
-			
+			rFactory.getSAGSRepository().save(sags10);
+			rFactory.getSAGSRepository().save(sags11);
+			rFactory.getSAGSRepository().save(sags12);
+			rFactory.getSAGSRepository().save(sags13);
+			rFactory.getSAGSRepository().save(sags14);
+			rFactory.getSAGSRepository().save(sags15);
+			rFactory.getSAGSRepository().save(sags16);
+			rFactory.getSAGSRepository().save(sags17);
+			rFactory.getSAGSRepository().save(sags18);
+			rFactory.getSAGSRepository().save(sags19);
+			rFactory.getSAGSRepository().save(sags20);
+			rFactory.getSAGSRepository().save(sags21);
+			rFactory.getSAGSRepository().save(sags22);
+			rFactory.getSAGSRepository().save(sags23);
+			rFactory.getSAGSRepository().save(sags24);
 			rFactory.getSAGSRepository().save(sags25);
-			
 		};
 	}
 }

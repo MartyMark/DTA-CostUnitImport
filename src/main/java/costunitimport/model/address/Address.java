@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -13,8 +14,7 @@ import javax.persistence.Table;
 @Table(name = "KASSE_VERKNUEPFUNG")
 public class Address {
 	
-	@Id 
-	private Integer id;
+	private @Id @GeneratedValue Integer id;
     
 	private Integer ik;
 	
