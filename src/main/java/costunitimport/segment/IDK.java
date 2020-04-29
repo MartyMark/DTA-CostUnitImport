@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
@@ -192,46 +191,46 @@ public class IDK extends Segment{
 			for (VKG vkg : vkgs) {
 				if (!listVKGsWithoutGroupACs.contains(vkg)) {
 					
-					CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
+					CostUnitAssignment groupAssignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
 					
 					if (vkg.getAccountingCode() == null) {
-						assignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
-						assignmentsByKindOfAssignment.add(assignment);
+						groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+						assignmentsByKindOfAssignment.add(groupAssignment);
 					} else {
 						switch (vkg.getAccountingCode()) {
 							case 0://00-Sammelschlüssel für alle Leistungsarten
-								assignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+								groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 								break;
 							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
-								assignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "11", "12", "13", "14", "15", "16", "17", "19" }));
+								groupAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "11", "12", "13", "14", "15", "16", "17", "19" }));
 								break;
 							case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
-								assignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "21", "22", "23", "24", "25", "26", "27", "28", "29" }));
+								groupAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "21", "22", "23", "24", "25", "26", "27", "28", "29" }));
 								break;
 							case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
-								assignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "31", "32", "33", "34" }));
+								groupAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "31", "32", "33", "34" }));
 								break;
 							case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
-								assignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "41", "42", "43", "44", "45", "46", "47", "48", "49" }));
+								groupAssignment.setAccountingCodes(getDtaAccountCodes(mapAccountingCodesCareProviderMethod, new String[] { "41", "42", "43", "44", "45", "46", "47", "48", "49" }));
 								break;
 							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
 								List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
 										.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
 								List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac))
 										.collect(Collectors.toList());
-								assignment.setAccountingCodes(listRemainingdACs);
+								groupAssignment.setAccountingCodes(listRemainingdACs);
 								break;
 							default:
 								break;
 						}
-						assignmentsByKindOfAssignment.add(assignment);
+						assignmentsByKindOfAssignment.add(groupAssignment);
 					}
 				}
 			}
 			allAssignments.addAll(assignmentsByKindOfAssignment);
 		}
 
-		Map<String, CostUnitAssignment> mapGroupedKotrAssignments = new HashMap<>();
+		Map<String, CostUnitAssignment> mapGroupedCostUnitAssignments = new HashMap<>();
 		for (CostUnitAssignment currentAssignment : allAssignments) {
 			StringBuilder keyBuilder = new StringBuilder();
 			keyBuilder.append("Id:").append(currentAssignment.getId());
@@ -247,9 +246,9 @@ public class IDK extends Segment{
 			keyBuilder.append("ValidityFrom:").append(currentAssignment.getValidityFrom());
 			keyBuilder.append("ValidityUntil:").append(currentAssignment.getValidityUntil());
 
-			CostUnitAssignment existingAssignment = mapGroupedKotrAssignments.get(keyBuilder.toString());
+			CostUnitAssignment existingAssignment = mapGroupedCostUnitAssignments.get(keyBuilder.toString());
 			if (existingAssignment == null) {
-				mapGroupedKotrAssignments.put(keyBuilder.toString(), currentAssignment);
+				mapGroupedCostUnitAssignments.put(keyBuilder.toString(), currentAssignment);
 			} else if (existingAssignment.getAccountingCodes() != null) {
 				if (currentAssignment.getAccountingCodes() == null) {
 					//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
@@ -263,12 +262,11 @@ public class IDK extends Segment{
 			}
 		}
 
-
 		CostUnitInstitution currentCostUnitInstitution = costUnitInstitutions.get(getInstitutionCode());
-		for (CostUnitAssignment currentAssignment : mapGroupedKotrAssignments.values()) {
+		for (CostUnitAssignment currentAssignment : mapGroupedCostUnitAssignments.values()) {
 			currentAssignment.setInstitutionId(currentCostUnitInstitution.getId());
 		}
-		return mapGroupedKotrAssignments.values().stream().collect(Collectors.toList());
+		return mapGroupedCostUnitAssignments.values().stream().collect(Collectors.toList());
 	}
 	
 	private List<DTAAccountingCode> getDtaAccountCodes(Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {

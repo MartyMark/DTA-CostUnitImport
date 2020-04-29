@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.CareProviderMethod;
@@ -39,15 +38,13 @@ public class CostUnitFileImport {
 	private final RepositoryFactory rFactory;
 	
 	private final Path path;
-	private final List<IDK> listIDKs;
+	private final List<IDK> listIDKs = new ArrayList<>();
 	
 	private UNB unb;
 	
 	public CostUnitFileImport(final Path path, final RepositoryFactory repositoryFactory) {
 		this.path = Objects.requireNonNull(path);
 		this.rFactory = Objects.requireNonNull(repositoryFactory);
-		
-		listIDKs =  new ArrayList<>();
 	}
 	
 	public void start() {
@@ -108,17 +105,15 @@ public class CostUnitFileImport {
 	}
 
 	private String[] splitLine(String line) {
-		final String SEPARATOR_SIGN = "\\+";
+		final String seperator = "\\+";
 		
 		line = line.replace("?:", ":").replace("?+", "%KOMMA%");
 		line = line.replace("?,", ",").replace("?'", "'");
-		return line.split(SEPARATOR_SIGN);
+		return line.split(seperator);
 	}
 	
 	private void insertCostUnitFile() {
-		Objects.requireNonNull(unb);
-		
-		CostUnitFile newFile = unb.getCostUnitFile();
+		CostUnitFile newFile = Objects.requireNonNull(unb).getCostUnitFile();
 		
 		rFactory.getCostUnitFileRepository().save(newFile);
 		
@@ -126,11 +121,14 @@ public class CostUnitFileImport {
 		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		
 		//*** Institution abschliessen, anlegen, updaten
+		
+		//TODO nach Kassenart trennen
 		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
 	
 		//*** Institutionen werden nur auf deren Gültigkeit gefiltert
 		List<IDK> filteredIDKs = filterIDKsByValidityUtil(importFileValidityFrom);
 		
+		//TODO Institution in neuer Datei nicht vorhanden -> muss abgeschlossen werden
 		closeExistingInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom);
 		updateCostUnitInstitutions(existingInstitutions, filteredIDKs, importFileValidityFrom, careProviderMethod);
 		
