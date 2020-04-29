@@ -1,7 +1,11 @@
 package costunitimport.dao.factory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import costunitimport.dao.AccountingCodeRepository;
 import costunitimport.dao.CareProviderMethodRepository;
 import costunitimport.dao.CostUnitAddressRepository;
@@ -13,14 +17,19 @@ import costunitimport.dao.CostUnitTypeAssignmentRepository;
 import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.CountryRepository;
-import costunitimport.dao.FederalStateRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
+import costunitimport.dao.FederalStateRepository;
 import costunitimport.dao.ZipRepository;
 import costunitimport.dao.ZipTypeRepository;
 import costunitimport.dao.impl.AccountingCodeRepositoryCustom;
+import costunitimport.model.CostUnitInstitution;
 
 @Component
 public class RepositoryFactory {
+	
+	Map<Integer, CostUnitInstitution> iKToCostUnit = new HashMap<>();
+	
+	
 	@Autowired
 	private CostUnitFileRepository costUnitFileRepository;
 	

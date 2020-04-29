@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.CareProviderMethod;
@@ -122,7 +123,7 @@ public class CostUnitFileImport {
 		
 		//*** Institution abschliessen, anlegen, updaten
 		
-		//TODO nach Kassenart trennen
+		//TODO nach Kassenart trennen + Latest
 		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepository().findLatestCostUnitInstitutionsByCareProviderMethod(careProviderMethod);
 	
 		//*** Institutionen werden nur auf deren Gültigkeit gefiltert
