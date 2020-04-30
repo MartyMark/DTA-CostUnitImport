@@ -3,17 +3,18 @@ package costunitimport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.logger.Logger;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitTypeAssignment;
 import costunitimport.model.CostUnitTypeMedium;
+import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.address.Country;
 import costunitimport.model.address.FederalState;
 import costunitimport.model.address.ZipType;
 import costunitimport.model.sags.DTAAccumulativeGroupKey;
+import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
 @Configuration
 public class LoadDatabase {
@@ -122,11 +123,116 @@ public class LoadDatabase {
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(8, "Bundeswehr"));
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(9, "Sonstige"));
 			
-			//TODO
 			Logger.info("DTAAccumulativeGroupKeyAccountinCode - DTA_SAGS_ABRECHNUNGSCODE");
+			DTAAccumulativeGroupKeyAccountinCode sagscode1 = new DTAAccumulativeGroupKeyAccountinCode(1, 11);
+			DTAAccumulativeGroupKeyAccountinCode sagscode2 = new DTAAccumulativeGroupKeyAccountinCode(1, 12);
+			DTAAccumulativeGroupKeyAccountinCode sagscode3 = new DTAAccumulativeGroupKeyAccountinCode(1, 13);
+			DTAAccumulativeGroupKeyAccountinCode sagscode4 = new DTAAccumulativeGroupKeyAccountinCode(1, 14);
+			DTAAccumulativeGroupKeyAccountinCode sagscode5 = new DTAAccumulativeGroupKeyAccountinCode(1, 15);
+			DTAAccumulativeGroupKeyAccountinCode sagscode6 = new DTAAccumulativeGroupKeyAccountinCode(1, 16);
+			DTAAccumulativeGroupKeyAccountinCode sagscode7 = new DTAAccumulativeGroupKeyAccountinCode(1, 17);
+			DTAAccumulativeGroupKeyAccountinCode sagscode8 = new DTAAccumulativeGroupKeyAccountinCode(1, 19);
+			DTAAccumulativeGroupKeyAccountinCode sagscode9 = new DTAAccumulativeGroupKeyAccountinCode(2, 21);
+			DTAAccumulativeGroupKeyAccountinCode sagscode10 = new DTAAccumulativeGroupKeyAccountinCode(2, 22);
+			DTAAccumulativeGroupKeyAccountinCode sagscode11 = new DTAAccumulativeGroupKeyAccountinCode(2, 23);
+			DTAAccumulativeGroupKeyAccountinCode sagscode12 = new DTAAccumulativeGroupKeyAccountinCode(2, 24);
+			DTAAccumulativeGroupKeyAccountinCode sagscode13 = new DTAAccumulativeGroupKeyAccountinCode(2, 25);
+			DTAAccumulativeGroupKeyAccountinCode sagscode14 = new DTAAccumulativeGroupKeyAccountinCode(2, 26);
+			DTAAccumulativeGroupKeyAccountinCode sagscode15 = new DTAAccumulativeGroupKeyAccountinCode(2, 27);
+			DTAAccumulativeGroupKeyAccountinCode sagscode16 = new DTAAccumulativeGroupKeyAccountinCode(2, 28);
+			DTAAccumulativeGroupKeyAccountinCode sagscode17 = new DTAAccumulativeGroupKeyAccountinCode(2, 29);
+			DTAAccumulativeGroupKeyAccountinCode sagscode18 = new DTAAccumulativeGroupKeyAccountinCode(2, 71);
+			DTAAccumulativeGroupKeyAccountinCode sagscode19 = new DTAAccumulativeGroupKeyAccountinCode(2, 72);
+			DTAAccumulativeGroupKeyAccountinCode sagscode20 = new DTAAccumulativeGroupKeyAccountinCode(2, 73);
+			DTAAccumulativeGroupKeyAccountinCode sagscode21 = new DTAAccumulativeGroupKeyAccountinCode(2, 74);
+			DTAAccumulativeGroupKeyAccountinCode sagscode22 = new DTAAccumulativeGroupKeyAccountinCode(3, 31);
+			DTAAccumulativeGroupKeyAccountinCode sagscode23 = new DTAAccumulativeGroupKeyAccountinCode(3, 32);
+			DTAAccumulativeGroupKeyAccountinCode sagscode24 = new DTAAccumulativeGroupKeyAccountinCode(3, 33);
+			DTAAccumulativeGroupKeyAccountinCode sagscode25 = new DTAAccumulativeGroupKeyAccountinCode(3, 34);
+			DTAAccumulativeGroupKeyAccountinCode sagscode26 = new DTAAccumulativeGroupKeyAccountinCode(4, 31);
+			DTAAccumulativeGroupKeyAccountinCode sagscode27 = new DTAAccumulativeGroupKeyAccountinCode(4, 32);
+			DTAAccumulativeGroupKeyAccountinCode sagscode28 = new DTAAccumulativeGroupKeyAccountinCode(4, 33);
+			DTAAccumulativeGroupKeyAccountinCode sagscode29 = new DTAAccumulativeGroupKeyAccountinCode(4, 34);
+			DTAAccumulativeGroupKeyAccountinCode sagscode30 = new DTAAccumulativeGroupKeyAccountinCode(5, 41);
+			DTAAccumulativeGroupKeyAccountinCode sagscode31 = new DTAAccumulativeGroupKeyAccountinCode(5, 42);
+			DTAAccumulativeGroupKeyAccountinCode sagscode32 = new DTAAccumulativeGroupKeyAccountinCode(5, 43);
+			DTAAccumulativeGroupKeyAccountinCode sagscode33 = new DTAAccumulativeGroupKeyAccountinCode(5, 44);
+			//TODO
 			
 			Logger.info("DTAAccountingCode - DTA_ABRECHNUNGSCODE"); 
+			DTAAccountingCode code1 = new DTAAccountingCode(8, "Leistungserbringer für Arzneimittel und apothekenübliche Waren");
+			DTAAccountingCode code2 = new DTAAccountingCode(11, "Apotheke");
+			DTAAccountingCode code3 = new DTAAccountingCode(12, "Augenoptiker");
+			DTAAccountingCode code4 = new DTAAccountingCode(13, "Augenarzt");
+			DTAAccountingCode code5 = new DTAAccountingCode(14, "Hörgeräteakustiker");
+			DTAAccountingCode code6 = new DTAAccountingCode(15, "Orthopädiemechaniker, Bandagist, Sanitätshaus");
+			DTAAccountingCode code7 = new DTAAccountingCode(16, "Orthopädieschumacher");
+			DTAAccountingCode code8 = new DTAAccountingCode(17, "Orthopäde");
+			DTAAccountingCode code9 = new DTAAccountingCode(19, "sonstige Hilfsmittellieferant");
+			DTAAccountingCode code10 = new DTAAccountingCode(21, "Masseur/Medizinischer Badebetrieb");
+			DTAAccountingCode code11 = new DTAAccountingCode(22, "Krankengymnast/Physiotherapeut");
+			DTAAccountingCode code12 = new DTAAccountingCode(23, "Logopäde/Stimmlehrer/Sprachtherapeut");
+			DTAAccountingCode code13 = new DTAAccountingCode(24, "Sprachheilpädagoge/Dipl.Pädagoge");
+			DTAAccountingCode code14 = new DTAAccountingCode(25, "Sonstiger Sprachtherapeut");
+			DTAAccountingCode code15 = new DTAAccountingCode(26, "Ergotherapeut");
+			DTAAccountingCode code16 = new DTAAccountingCode(26, "Krankenhaus");
+			DTAAccountingCode code17 = new DTAAccountingCode(26, "Kurbetrieb");
+			DTAAccountingCode code18 = new DTAAccountingCode(26, "Sonstige therapeutische Heilperson");
+			DTAAccountingCode code19 = new DTAAccountingCode(26, "freigemeinnützige Anbieter (Sozialstationen)");
+			DTAAccountingCode code20 = new DTAAccountingCode(26, "privatgewerbliche Anbieter");
+			DTAAccountingCode code21 = new DTAAccountingCode(26, "öffentliche Anbieter");
+			DTAAccountingCode code22 = new DTAAccountingCode(26, "Sonstige Pflegedienste");
+			DTAAccountingCode code23 = new DTAAccountingCode(26, "frei gemeinnütziger Anbieter (Sozialstation)");
+			DTAAccountingCode code24 = new DTAAccountingCode(26, "privat gewerblicher Anbieter");
+			DTAAccountingCode code25 = new DTAAccountingCode(26, "öffentlicher Anbieter");
+			DTAAccountingCode code26 = new DTAAccountingCode(26, "sonstiger Pflegedienst");
+			DTAAccountingCode code27 = new DTAAccountingCode(26, "Öffentliche Anbieter von qualifizierten Krankentransportleistungen");
+			DTAAccountingCode code28 = new DTAAccountingCode(26, "Deutsches Rotes Kreuz (DRK)");
+			DTAAccountingCode code29 = new DTAAccountingCode(26, "Arbeiter-Samariter-Bund (ASB)");
+			DTAAccountingCode code30 = new DTAAccountingCode(26, "Johanniter-Unfall-Hilfe (JUH)");
+			DTAAccountingCode code31 = new DTAAccountingCode(26, "Malteser-Hilfsdienst");
+			DTAAccountingCode code32 = new DTAAccountingCode(26, "Sonstige Leistungserbringer von nichtqualifizierten Krankentransportleistungen");
+			DTAAccountingCode code33 = new DTAAccountingCode(26, "Leistungerbringer von Flugrettungs- und Transportleistungen");
+			DTAAccountingCode code34 = new DTAAccountingCode(27, "Sonstiger nichtöffentlicher Anbieter von qualifizierten Krankentransport- bzw. Rettungsdienstleistung");
+			DTAAccountingCode code35 = new DTAAccountingCode(27, "Sonstiger Anbieter von Krankentransportleistungen");
+			DTAAccountingCode code36 = new DTAAccountingCode(27, "Hebammen");
+			DTAAccountingCode code37 = new DTAAccountingCode(27, "Sonstige Leistungserbringer von nichtärzlichen Dialysesachleistungen");
+			DTAAccountingCode code38 = new DTAAccountingCode(27, "Kuratorium für Heimdialyse (KfH)");
+			DTAAccountingCode code39 = new DTAAccountingCode(27, "Patienten-Heimversorgung (PHV)");
+			DTAAccountingCode code40 = new DTAAccountingCode(27, "Betriebshilfe");
+			DTAAccountingCode code41 = new DTAAccountingCode(27, "Leistungserbringer von Rehabilitationssport");
+			DTAAccountingCode code42 = new DTAAccountingCode(27, "Leistungserbringer von Funktionstraining");
+			DTAAccountingCode code43 = new DTAAccountingCode(27, "Leistungserbringer für ergänzende Rehabilitationsmaßnahmen");
+			DTAAccountingCode code44 = new DTAAccountingCode(27, "Sonstige Leistungserbringer");
+			DTAAccountingCode code45 = new DTAAccountingCode(27, "Leistungserbringer von Präventions- und Gesundheitsförderungsmaßnahmen im Rahmen von amb. Vorsorgele");
+			DTAAccountingCode code46 = new DTAAccountingCode(27, "Ambulantes Rehazentrum / Mobile Rehabilitationseinrichtung");
+			DTAAccountingCode code47 = new DTAAccountingCode(27, "Sozialpädiatrische Zentren / Frühförderstellen");
+			DTAAccountingCode code48 = new DTAAccountingCode(27, "Soziotherapeutischer Leistungserbringer");
+			DTAAccountingCode code49 = new DTAAccountingCode(27, "Podologen");
+			DTAAccountingCode code50 = new DTAAccountingCode(27, "Med.Fußpfleger");
+			DTAAccountingCode code51 = new DTAAccountingCode(27, "Leistungserbringer von Ernährungstherapie für seltene angeborene Stoffwechselerkrankungen");
+			DTAAccountingCode code52 = new DTAAccountingCode(27, "Leistungserbringer von Ernährungstherapie für Mukoviszidose");
+			DTAAccountingCode code53 = new DTAAccountingCode(27, "SAPV");
+			DTAAccountingCode code54 = new DTAAccountingCode(27, "Leistungserbringer nach § 132g SGB V");
 			
+			DTAAccountingCode code71 = new DTAAccountingCode(27, "privatgewerblicher Anbieter");
+			
+			DTAAccountingCode code56 = new DTAAccountingCode(27, "frei gemeinnütziger Anbieter (gemeinnützige private Anbieter");
+			DTAAccountingCode code57 = new DTAAccountingCode(27, "öffentlicher Anbieter");
+			DTAAccountingCode code58 = new DTAAccountingCode(27, "sonstige Pflegeeinrichtung");
+			DTAAccountingCode code59 = new DTAAccountingCode(27, "privat gewerblicher Anbieter");
+			DTAAccountingCode code60 = new DTAAccountingCode(27, "frei gemeinnütziger Anbieter (gemeinnützige private Anbieter)");
+			DTAAccountingCode code61 = new DTAAccountingCode(27, "öffentlicher Anbieter");
+			DTAAccountingCode code62 = new DTAAccountingCode(27, "sonstige Pflegeeinrichtung");
+			DTAAccountingCode code63 = new DTAAccountingCode(27, "privat gewerblicher Anbieter");
+			DTAAccountingCode code64 = new DTAAccountingCode(27, "frei gemeinnütziger Anbieter (gemeinnützige private Anbieter)");
+			DTAAccountingCode code65 = new DTAAccountingCode(27, "öffentlicher Anbieter");
+			DTAAccountingCode code66 = new DTAAccountingCode(27, "sonstige Pflegeeinrichtung");
+			DTAAccountingCode code67 = new DTAAccountingCode(27, "privat gewerblicher Anbieter");
+			DTAAccountingCode code68 = new DTAAccountingCode(27, "frei gemeinnütziger Anbieter (gemeinnützige private Anbieter)");
+			DTAAccountingCode code69 = new DTAAccountingCode(27, "öffentlicher Anbieter");
+			DTAAccountingCode code70 = new DTAAccountingCode(27, "sonstige Pflegeeinrichtung");
+			//TODO                                               
 			
 			Logger.info("DTAAccumulativeGroupKey - SAGS");
 			DTAAccumulativeGroupKey sags1 = new DTAAccumulativeGroupKey(1, "Leistungserbringer von Hilfsmitteln", "A", p302);

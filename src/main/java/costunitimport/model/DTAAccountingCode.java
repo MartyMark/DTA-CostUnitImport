@@ -1,14 +1,12 @@
 package costunitimport.model;
 
 import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
 @Entity
@@ -25,6 +23,13 @@ public class DTAAccountingCode {
 	@JoinColumn(name = "accountingId")
 	private List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode;
     
+	public DTAAccountingCode() {}
+	
+	public DTAAccountingCode(Integer accountingId, String description) {
+		this.accountingId = accountingId;
+		this.description = description;
+	}
+	
 	public List<DTAAccumulativeGroupKeyAccountinCode> getSagsDTAAccountingCode() {
 		return sagsDTAAccountingCode;
 	}
