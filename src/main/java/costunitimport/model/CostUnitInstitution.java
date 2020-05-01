@@ -25,17 +25,14 @@ public class CostUnitInstitution {
 	private Integer vknr;
 	
 	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "id", nullable=true)
 	private Address address;
 	
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
 	private String firmName;
 	private LocalDateTime creationTime;
-	
-	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-	private CareProviderMethod careProviderMethod;
+	private Integer careProviderMethodId;
 	
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
@@ -121,11 +118,11 @@ public class CostUnitInstitution {
 		this.costUnitSeparation = costUnitSeparation;
 	}
 
-	public void setCareProviderMethod(CareProviderMethod careProviderMethod) {
-		this.careProviderMethod = careProviderMethod;
+	public void setCareProviderMethodId(Integer careProviderMethodId) {
+		this.careProviderMethodId = careProviderMethodId;
 	}
 	
-	public CareProviderMethod getCareProviderMethod() {
-		return careProviderMethod;
+	public Integer getCareProviderMethod() {
+		return careProviderMethodId;
 	}
 }

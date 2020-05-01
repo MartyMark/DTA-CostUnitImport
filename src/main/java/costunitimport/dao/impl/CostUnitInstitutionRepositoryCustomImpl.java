@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import costunitimport.dao.CostUnitInstitutionRepository;
-import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitInstitution;
 
 @Repository
@@ -20,10 +19,10 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	CostUnitInstitutionRepository costUnitInstitutionRepository;
 	
 	@Override
-	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethod(
-			CareProviderMethod careProviderMethod) {
+	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodId(
+			Integer careProviderMethodId) {
 		
-		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByCareProviderMethod(careProviderMethod);
+		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByCareProviderMethodId(careProviderMethodId);
 		
 		Map<Integer, List<CostUnitInstitution>> ikToInstitutions =
 				institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
