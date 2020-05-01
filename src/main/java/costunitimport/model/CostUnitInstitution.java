@@ -37,6 +37,10 @@ public class CostUnitInstitution {
     @JoinColumn(name = "id")
 	private CareProviderMethod careProviderMethod;
 	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+	private DTACostUnitSeparation costUnitSeparation;
+	
 	public Integer getInstitutionNumber() {
 		return institutionNumber;
 	}
@@ -107,5 +111,21 @@ public class CostUnitInstitution {
 	
 	public LocalDateTime getCreationTime() {
 		return creationTime;
+	}
+
+	public DTACostUnitSeparation getCostUnitSeparation() {
+		return costUnitSeparation;
+	}
+
+	public void setCostUnitSeparation(DTACostUnitSeparation costUnitSeparation) {
+		this.costUnitSeparation = costUnitSeparation;
+	}
+
+	public void setCareProviderMethod(CareProviderMethod careProviderMethod) {
+		this.careProviderMethod = careProviderMethod;
+	}
+	
+	public CareProviderMethod getCareProviderMethod() {
+		return careProviderMethod;
 	}
 }

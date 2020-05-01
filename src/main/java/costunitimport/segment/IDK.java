@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
@@ -27,17 +29,20 @@ public class IDK extends Segment{
 	private String description;
 	private Integer vKNR;
 
-	private Optional<VDT> vdt = Optional.empty();
+	private VDT vdt;
+	private FKT fkt;
+	private NAM nam;
 	
 	private List<VKG> costUnitFileVKGs = new ArrayList<>();
-	private FKT costUnitFileFKT = null;
 	private List<KTO> costUnitFileKTOs = new ArrayList<>();
-	private NAM nam = null;
 	private List<ASP> costUnitFileASPs = new ArrayList<>();
 	private List<UEM> costUnitFileUEMs = new ArrayList<>();
 	
-	public IDK(String[] data) {
+	private RepositoryFactory rFactory;
+	
+	public IDK(String[] data, RepositoryFactory rFactory) {
 		super(data);
+		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -98,13 +103,13 @@ public class IDK extends Segment{
 	}
 
 
-	public FKT getCostUnitFileFKT() {
-		return costUnitFileFKT;
+	public FKT getFKT() {
+		return Objects.requireNonNull(fkt);
 	}
 
 
-	public void setCostUnitFileFKT(FKT costUnitFileFKT) {
-		this.costUnitFileFKT = costUnitFileFKT;
+	public void setFKT(FKT fkt) {
+		this.fkt =fkt;
 	}
 
 
@@ -148,13 +153,13 @@ public class IDK extends Segment{
 	}
 
 
-	public Optional<VDT> getCostUnitFileVDT() {
-		return vdt;
+	public VDT getVDT() {
+		return Objects.requireNonNull(vdt);
 	}
 
 
-	public void setCostUnitFileVDT(VDT costUnitFileVDT) {
-		this.vdt = Optional.ofNullable(costUnitFileVDT);
+	public void setCostUnitFileVDT(VDT vdt) {
+		this.vdt = vdt;
 	}
 	
 	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> costUnitInstitutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
@@ -270,6 +275,134 @@ public class IDK extends Segment{
 		return mapGroupedCostUnitAssignments.values().stream().collect(Collectors.toList());
 	}
 	
+	public List<CostUnitAssignment> getCostUnitAssignmentX(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutionNumberToInstitut){
+		List<CostUnitAssignment> allAssignments = new ArrayList<>();
+		
+		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
+		Map<Integer, List<VKG>> mapByKindOfAssignment = costUnitFileVKGs.stream().collect(Collectors.groupingBy(VKG::getKindOfAssignment));
+        
+		/* Iteriert durch jede Schlüsselart der Verknüpfung*/
+		for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
+        	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
+        	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
+        	
+    		/* Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
+    		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
+    		int[] groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
+        	
+        	//*** Alle Datensätze mit korrekten Abrechnungscodes -> das heißt alle Verknüpfungen ohne Gruppenschlüssel
+			List<VKG> listVKGsWithoutGroupACs = vkgs.stream().filter(v -> v.getAccountingCode() != null)
+					.filter(v -> IntStream.of(groupAccountCodes).noneMatch(any -> any == v.getAccountingCode().intValue())).collect(Collectors.toList());
+			for (VKG vkg : listVKGsWithoutGroupACs) {
+				if (vkg.getAccountingCode() == 18 || vkg.getAccountingCode() == 60) {
+					/*
+					 * 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15
+					 * vorzunehmen. Der Abrechnungscode 18 wird für Sanitätshäuser zum 31.12.2005 aufgehoben.)
+					 * Betriebshilfe 60 ist keinem SAGS zugeordnet!
+					 */
+					continue;
+				}
+				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutionNumberToInstitut);
+				assignment.setAccountingCodes(getDtaAccountCodesX(List.of(vkg.getAccountingCode().toString())));
+				assignmentsByKindOfAssignment.add(assignment);
+			} //***
+        	         	 
+			for (VKG vkg : vkgs) {
+				if (!listVKGsWithoutGroupACs.contains(vkg)) {
+					
+					CostUnitAssignment groupAssignment = vkg.buildCostUnitAssignment(validityFrom, institutionNumberToInstitut);
+					
+					if (vkg.getAccountingCode() == null) {
+						groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+						assignmentsByKindOfAssignment.add(groupAssignment);
+					} else {
+						switch (vkg.getAccountingCode()) {
+							case 0://00-Sammelschlüssel für alle Leistungsarten
+								groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
+								break;
+							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
+								
+								groupAssignment.setAccountingCodes(getDtaAccountCodesX(List.of("11", "12", "13", "14", "15", "16", "17", "19")));
+								break;
+							case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
+								groupAssignment.setAccountingCodes(getDtaAccountCodesX(List.of("21", "22", "23", "24", "25", "26", "27", "28", "29")));
+								break;
+							case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
+								groupAssignment.setAccountingCodes(getDtaAccountCodesX(List.of("31", "32", "33", "34")));
+								break;
+							case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
+								groupAssignment.setAccountingCodes(getDtaAccountCodesX(List.of("41", "42", "43", "44", "45", "46", "47", "48", "49")));
+								break;
+							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
+								List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
+										.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+								
+								List<DTAAccountingCode> allAccountingCode = rFactory.getAccountingCodeRepository().findAll();
+	
+								List<DTAAccountingCode> listRemainingdACs = allAccountingCode.stream().filter(ac -> !listAllocatedACs.contains(ac))
+										.collect(Collectors.toList());
+								groupAssignment.setAccountingCodes(listRemainingdACs);
+								break;
+							default:
+								break;
+						}
+						assignmentsByKindOfAssignment.add(groupAssignment);
+					}
+				}
+			}
+			allAssignments.addAll(assignmentsByKindOfAssignment);
+		}
+
+		Map<String, CostUnitAssignment> mapGroupedCostUnitAssignments = new HashMap<>();
+		for (CostUnitAssignment currentAssignment : allAssignments) {
+			StringBuilder keyBuilder = new StringBuilder();
+			keyBuilder.append("Id:").append(currentAssignment.getId());
+			keyBuilder.append("TypeAssignment:").append(currentAssignment.getTypeAssignment());
+			keyBuilder.append("InstitutionId:").append(currentAssignment.getInstitutionId());
+			keyBuilder.append("InstitutionIdAssignment:").append(currentAssignment.getInstitutionIdAssignment());
+			keyBuilder.append("InstitutionIdAccounting:").append(currentAssignment.getInstitutionIdAccounting());
+			keyBuilder.append("TypeDataSupply:").append(currentAssignment.getTypeDataSupply());
+			keyBuilder.append("TypeMedium:").append(currentAssignment.getTypeMedium());
+			keyBuilder.append("FederalStateClassificationId:").append(currentAssignment.getFederalStateClassificationId());
+			keyBuilder.append("DistrictId:").append(currentAssignment.getDistrictId());
+			keyBuilder.append("RateCode:").append(currentAssignment.getRateCode());
+			keyBuilder.append("ValidityFrom:").append(currentAssignment.getValidityFrom());
+			keyBuilder.append("ValidityUntil:").append(currentAssignment.getValidityUntil());
+
+			CostUnitAssignment existingAssignment = mapGroupedCostUnitAssignments.get(keyBuilder.toString());
+			if (existingAssignment == null) {
+				mapGroupedCostUnitAssignments.put(keyBuilder.toString(), currentAssignment);
+			} else if (existingAssignment.getAccountingCodes() != null) {
+				if (currentAssignment.getAccountingCodes() == null) {
+					//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+				}
+				boolean exist = existingAssignment.getAccountingCodes().stream().anyMatch(a -> currentAssignment.getAccountingCodes().contains(a));
+				if (exist) {
+					//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+				}
+
+				existingAssignment.getAccountingCodes().addAll(currentAssignment.getAccountingCodes());
+			}
+		}
+		
+		CostUnitInstitution currentCostUnitInstitution = institutionNumberToInstitut.get(getInstitutionCode());
+		for (CostUnitAssignment currentAssignment : mapGroupedCostUnitAssignments.values()) {
+			currentAssignment.setInstitutionId(currentCostUnitInstitution.getId());
+		}
+		return mapGroupedCostUnitAssignments.values().stream().collect(Collectors.toList());
+	}
+	
+	private List<DTAAccountingCode> getDtaAccountCodesX(List<String> searchACs) {
+		Objects.requireNonNull(searchACs);
+
+		List<DTAAccountingCode> listAccountingCodes = new ArrayList<>();
+		for (String currentAC : searchACs) {
+			Optional<DTAAccountingCode> accountingCode = rFactory.getAccountingCodeRepository().findById(Integer.valueOf(currentAC));
+			listAccountingCodes.add(accountingCode.orElseThrow());
+		}
+		return listAccountingCodes;
+	}
+	
 	private List<DTAAccountingCode> getDtaAccountCodes(Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod, String[] searchACs) {
 		if (searchACs == null || searchACs.length <= 0) {
 //			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Keine ACs übergeben!");
@@ -295,8 +428,8 @@ public class IDK extends Segment{
 		Address addressZip = null;
 		Address addressPostCode = null;
 		if (nam != null && nam.getCostUnitFileANSs() != null && !nam.getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
-			LocalDate validityFrom = vdt.get().getValidityFrom();
-			LocalDate validityUntil = vdt.get().getValidityUntil();
+			LocalDate validityFrom = getVDT().getValidityFrom();
+			LocalDate validityUntil = getVDT().getValidityUntil();
 			for (ANS ans : nam.getCostUnitFileANSs()) {
 				Address addressTmp = ans.getODAContactAddress(validityFrom, validityUntil);
 				if (ans.getKindOfAddress().intValue() == 1) { //Hausanschrift
@@ -316,13 +449,10 @@ public class IDK extends Segment{
 	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
-//		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment -> unrelevant
+		institution.setCareProviderMethod(careProviderMethod);//wird gesetzt aus den Informationen aus dem UNB-Segment
 		institution.setCreationTime(LocalDateTime.now());
-		
-		if (vdt.isPresent()) {
-			institution.setValidityFrom(vdt.get().getValidityFrom());
-			institution.setValidityUntil(vdt.get().getValidityUntil());
-		}
+		institution.setValidityFrom(getVDT().getValidityFrom());
+		institution.setValidityUntil(getVDT().getValidityUntil());
 
 		institution.setFirmName(description);
 		if (nam != null) {//NAM-Segment: einmal obligatorisch

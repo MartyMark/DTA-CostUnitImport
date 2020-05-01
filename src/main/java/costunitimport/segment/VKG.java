@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.exception.CostUnitAssigmentNotFoundException;
+import costunitimport.exception.CostUnitTypeDataSupplyNotFoundException;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.CostUnitTypeDataSupply;
@@ -55,18 +57,12 @@ public class VKG extends Segment {
 	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
 		//*** Art der Verknüpfung
-		Optional<CostUnitAssignment> typeAssignment = rFactory.getCostUnitAssignmentRepository().findById(kindOfAssignment);
-		if(typeAssignment.isEmpty()) {
-//			throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Verknuepfung! Id: " + kindOfAssignment);
-		}
-		assignment.setTypeAssignment(typeAssignment.get());
+		CostUnitAssignment typeAssignment = rFactory.getCostUnitAssignmentRepository().findById(kindOfAssignment).orElseThrow(() -> new CostUnitAssigmentNotFoundException(kindOfAssignment));
+		assignment.setTypeAssignment(typeAssignment);
 		//*** Art der Datenlieferung
 		if(kindOfDataSupply!=null) {
-			Optional<CostUnitTypeDataSupply> typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply);
-			if(typeDataSupply.isEmpty()) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Datenlieferung! Id: " + typeDataSupply);
-			}
-			assignment.setTypeDataSupply(typeDataSupply.get());
+			CostUnitTypeDataSupply typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply).orElseThrow(() -> new CostUnitTypeDataSupplyNotFoundException(kindOfDataSupply));
+			assignment.setTypeDataSupply(typeDataSupply);
 		}
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
