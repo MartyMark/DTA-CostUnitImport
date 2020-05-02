@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.model.AddressType;
 import costunitimport.model.address.Address;
 import costunitimport.model.address.Country;
 import costunitimport.model.address.FederalState;
@@ -35,22 +36,24 @@ public class ANS extends Segment {
 		street = getData(position, String.class);
 	}
 	
-	public Address getODAContactAddress(LocalDate validityFrom, LocalDate validityUntil) {
+	public Address buildAddress(LocalDate validityFrom, LocalDate validityUntil) {
 		Address address = new Address();
 		switch (kindOfAddress.intValue()) {
 			case 1://Hausanschrift
 				address.setStreet(street);
 				address.setZip(buildZip());
+				address.setAddressType(AddressType.STREET);
 				break;
 			case 2://Postfachanschrift
 				address.setPostBox(street);
 				address.setZip(buildZip());
+				address.setAddressType(AddressType.MAIL_BOX);
 				break;
 			case 3://Großkundenanschrift
-				//wird bisher nicht verarbeitet
+				address.setAddressType(AddressType.MAJOR_CLIENT);
 				break;
 			default:
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Anschrift! Art: " + kindOfAddress);
+//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Anschrift! Art: " + kindOfAddress);TODO
 		}
 		address.setValidityFrom(validityFrom);
 		address.setValidityUntil(validityUntil);

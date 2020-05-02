@@ -11,7 +11,7 @@ public class NAM extends Segment {
 	private String name3;
 	private String name4;
 	
-	private List<ANS> costUnitFileANSs = new ArrayList<>();
+	private List<ANS> listANS = new ArrayList<>();
 
 	public NAM(String[] data) {
 		super(data);
@@ -67,10 +67,13 @@ public class NAM extends Segment {
 	public String getName4() {
 		return name4;
 	}
-
 	
-	public List<ANS> getCostUnitFileANSs() {
-		return costUnitFileANSs;
+	public List<ANS> getANSs() {
+		return listANS;
+	}
+	
+	public void addANS(ANS ans) {
+		listANS.add(ans);
 	}
 
 }

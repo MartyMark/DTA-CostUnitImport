@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,14 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 			latestCostUnitInstitutions.add(entry.getValue().get(0));
 		}
 		return latestCostUnitInstitutions;
+	}
+
+	@Override
+	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderId(Integer careProviderMethodId) {
+		List<CostUnitInstitution> existingInstitutions = findLatestCostUnitInstitutionsByCareProviderMethodId(careProviderMethodId);
+
+		// IK - Kasseninstitution
+		return existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
 	}
 
 }

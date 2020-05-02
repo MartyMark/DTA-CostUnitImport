@@ -66,33 +66,33 @@ public class CostUnitFileImport {
 				listIDKs.add(idk);
 				break;
 			case "VDT":
-				getLastIDK().setCostUnitFileVDT(new VDT(data));
+				getLastIDK().setVDT(new VDT(data));
 				break;
 			case "FKT":
 				getLastIDK().setFKT(new FKT(data));
 				break;
 			case "VKG":
-				getLastIDK().getCostUnitFileVKGs().add(new VKG(data, rFactory));
+				getLastIDK().addVKG(new VKG(data, rFactory));
 				break;
 			case "NAM":
 				getLastIDK().setNAM(new NAM(data));
 				break;
 			case "ANS":
 				Optional<NAM> nam = getLastIDK().getNAM();
-				nam.ifPresent(x -> x.getCostUnitFileANSs().add(new ANS(data, rFactory)));
+				nam.ifPresent(x -> x.addANS(new ANS(data, rFactory)));
 				break;
 			case "ASP":
-				getLastIDK().getCostUnitFileASPs().add(new ASP(data));
+				getLastIDK().addASP(new ASP(data));
 				break;
 			case "UEM":
-				getLastIDK().getCostUnitFileUEMs().add(new UEM(data));
+				getLastIDK().addUEM(new UEM(data));
 				break;
 			case "DFU":
-				List<UEM> listUEMs = getLastIDK().getCostUnitFileUEMs();
+				List<UEM> listUEMs = getLastIDK().getUEMs();
 				listUEMs.get(listUEMs.size() - 1).getCostUnitFileDFUs().add(new DFU(data));
 				break;
 			case "KTO":
-				getLastIDK().getCostUnitFileKTOs().add(new KTO(data));
+				getLastIDK().addKTO(new KTO(data));
 				break;
 			case "UNB":
 				this.unb = new UNB(data, rFactory);
@@ -121,21 +121,25 @@ public class CostUnitFileImport {
 		
 		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		
-		//TODO nach Kassenart trennen + Latest
+		//*** Institutionen
+		
+		List<IDK> filterdIDKs = filterIDKs(newFile.getValidityFrom(), newFile.getCareProviderMethod());
+		
+		//TODO Institution in neuer Datei nicht vorhanden -> muss abgeschlossen werden
+		closeInstitutions(filterdIDKs, newFile.getValidityFrom(), newFile.getCareProviderMethod());
+		
+		updateInstitutions(filterdIDKs, newFile.getValidityFrom(), careProviderMethod);
+		//*** Verknüpfungen
+		
+		
+
+		
 		/* Beschafft sich zu einem Leistungsverfahren alle gültigen (latest) Kasseninstitutionen. */
 		List<CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepositoryCustom().findLatestCostUnitInstitutionsByCareProviderMethodId(careProviderMethod.getId());
 		
 		//IK - Kasseninstitution
 		Map<Integer, CostUnitInstitution> institutionNumberToInstitut = existingInstitutions.stream()
 				.collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
-		
-		//*** Institutionen werden nur auf deren Gültigkeit gefiltert
-		List<IDK> validIDKs = filterIDKsByValidityUtil(newFile.getValidityFrom());
-		
-		//TODO Institution in neuer Datei nicht vorhanden -> muss abgeschlossen werden
-		closeExsistingInstitutions(existingInstitutions, validIDKs, newFile.getValidityFrom());
-		
-		updateCostUnitInstitutions(existingInstitutions, validIDKs, newFile.getValidityFrom(), careProviderMethod);
 		
 		//*** Verknüpfungen
 		
@@ -154,7 +158,7 @@ public class CostUnitFileImport {
 		Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod = accountingCodes.stream().distinct()
 				.collect(Collectors.toMap(DTAAccountingCode::getAccountingCode, Function.identity()));
 		
-		for (IDK idk : validIDKs) {
+		for (IDK idk : filterdIDKs) {
 			List<CostUnitAssignment> assignments = idk.getCostUnitAssignment(newFile.getValidityFrom(),
 					institutionNumberToInstitut, mapAccountingCodesCareProviderMethod);
 			CostUnitInstitution currentInstitution = institutionNumberToInstitut
@@ -164,64 +168,62 @@ public class CostUnitFileImport {
 	}
 	
 	/**
-	 * Filtert die IDKs nach dem GültigkeitBis Datum.<br><br>
+	 * Filtert die IDKs der Importdatei.<br><br>
 	 * 
-	 * Liegt das in dem VDT Segment vorhandene GültigkeitBis-Datum vor dem GültigkeitAb-Datum der Kostenträgerdatei, ist die IDK/Kasseninstitution nicht mehr gültig.<br>
+	 * Filterung :<br>
+	 * IDK wird gefiltert wenn,<br><br>
 	 * 
-	 * @return es werden nur gültige IDKs zurückgegeben
+	 * 1. Das GülitgBis-Datum vor dem GültigAb-Datum der Importdatei liegt<br>
+	 * 2. Das Verarbeitungskennzeichen aus dem FKT-Segment die 04 (unverändert) eingetragen hat und die Kasseninstitution bereits abgespeichert ist
+	 * 
+	 * @param importFileValidityFrom GültigAb-Datum der Importdatei
+	 * @return IDKs die bearbeitet werden müssen 
 	 */
-	private List<IDK> filterIDKsByValidityUtil(LocalDate importFileValidityFrom) {
-		List<IDK> validityIDKs = new ArrayList<>();
+	private List<IDK> filterIDKs(LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
+		List<IDK> filterdIDKs = new ArrayList<>();
+		Map<Integer, CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepositoryCustom().findIKToLatestInstituinMapByCareProviderId(careProviderMethod.getId());
+		
 		for (IDK idk : listIDKs) {
 			LocalDate validityUntil = idk.getVDT().getValidityUntil();
-			// GültigkeitBis liegt in der Vergangenheit
+			
+			//1.Liegt das GülitgBis-Datum vor dem GültigAb-Datum der Importdatei ?
 			if (validityUntil != null && validityUntil.compareTo(importFileValidityFrom) <= 0) {
 				continue;
 			}
-			validityIDKs.add(idk);
+			
+			//2.Ist das Verarbeitungskennzeichen aus dem FKT-Segment die 04 (unverändert) eingetragen und ist die Kasseninstitution bereits abgespeichert ?
+			if(idk.getFKT().getProcessingIndicator().equals("04") && existingInstitutions.get(idk.getInstitutionCode()) != null) {
+				continue;
+			}
+			filterdIDKs.add(idk);
 		}
-		return validityIDKs;
-	}
-
-	/**
-	 * Schließt erstmal alle existierenden Institutionen aufgrund der neuen Import-Datei
-	 */
-	private void closeExsistingInstitutions(List<CostUnitInstitution> existingInstitutions, List<IDK> validityIDKs, LocalDate importFileValidityFrom) {
-		List<Integer> importInstitutionNumbers = validityIDKs.stream().map(IDK::getInstitutionCode).collect(Collectors.toList());
-		
-		List<CostUnitInstitution> institutionsToClose = existingInstitutions.stream().filter(o -> importInstitutionNumbers.contains(o.getInstitutionNumber())).collect(Collectors.toList());
-		
-		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-		for (CostUnitInstitution institution : institutionsToClose) {
-			institution.setValidityUntil(validityUntil);
-		}
-		rFactory.getCostUnitInstitutionRepository().saveAll(institutionsToClose);
+		return filterdIDKs;
 	}
 	
-	private void updateCostUnitInstitutions(List<CostUnitInstitution> existingInstitutions,
-			List<IDK> listIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
+	/**
+	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei) alle in der @param filterdIDKs befindelichen Kasseninstitutionen.
+	 */
+	private void closeInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
+		Map<Integer, CostUnitInstitution> existingInstitutions = rFactory.getCostUnitInstitutionRepositoryCustom().findIKToLatestInstituinMapByCareProviderId(careProviderMethod.getId());
 		
-		/* Hier wird die IK zu der Kasse gemappt*/
-		Map<Integer, CostUnitInstitution> institutionMap = existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
+		for (IDK idk : filterdIDKs) {
+			CostUnitInstitution institutionToClose = existingInstitutions.get(idk.getInstitutionCode());
+			institutionToClose.setValidityUntil(importFileValidityFrom.minusDays(1));
+			rFactory.getCostUnitInstitutionRepository().save(institutionToClose);
+		}
+	}
+	
+	private void updateInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod) {
+		Map<Integer, CostUnitInstitution> institutionMap = rFactory.getCostUnitInstitutionRepositoryCustom().findIKToLatestInstituinMapByCareProviderId(careProviderMethod.getId());
 		
-		for (IDK idk : listIDKs) {
+		for (IDK idk : filterdIDKs) {
 			CostUnitInstitution existingInstitution = institutionMap.get(idk.getInstitutionCode());
 			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod);
 			if (existingInstitution == null) {//Neue Institution
-				if (institutionFromFile.getValidityFrom() == null) {
-					institutionFromFile.setValidityFrom(importFileValidityFrom);
-				}
-				Optional<Address> address = idk.buildCostUnitAddress();
-				//TODO
-				if(address.isPresent()) {
-					institutionFromFile.setAddress(rFactory.getCostUnitAddressRepository().save(address.get()));
-				}
-				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
+				rFactory.getCostUnitAddressRepository().save(institutionFromFile.getAddress()); //TODO 
+				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile); //TODO falls neue Addresse vorhanden ist soll diese auch direkt abgespeichert werden
 			} else {
 				institutionFromFile.setId(existingInstitution.getId());
-				if (institutionFromFile.getValidityFrom() == null) {
-					institutionFromFile.setValidityFrom(importFileValidityFrom);
-				}
 				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
 				Optional<Address> contactAddress = idk.buildCostUnitAddress();
 				if (contactAddress.isPresent()) {

@@ -73,8 +73,8 @@ public class RepositoryFactory {
 	private AccountingCodeRepositoryCustom accountingCodeRepositoryCustom;
 	
 	@Autowired
-	private CostUnitInstitutionRepositoryCustom costUnitInstitutionRepositoryCustom;
 	
+	private CostUnitInstitutionRepositoryCustom costUnitInstitutionRepositoryCustom;
 	public DTAAccumulativeGroupKeyRepository getSAGSRepository() {
 		return sAGSRepository;
 	}

@@ -1,6 +1,5 @@
 package costunitimport.segment;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.model.AddressType;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
@@ -34,9 +34,9 @@ public class IDK extends Segment{
 	private Optional<NAM> nam;
 	
 	private List<VKG> listVKG = new ArrayList<>();
-	private List<KTO> costUnitFileKTOs = new ArrayList<>();
-	private List<ASP> costUnitFileASPs = new ArrayList<>();
-	private List<UEM> costUnitFileUEMs = new ArrayList<>();
+	private List<KTO> listKTOs = new ArrayList<>();
+	private List<ASP> listASPs = new ArrayList<>();
+	private List<UEM> listUEMs = new ArrayList<>();
 	
 	private RepositoryFactory rFactory;
 	
@@ -96,6 +96,10 @@ public class IDK extends Segment{
 	public List<VKG> getCostUnitFileVKGs() {
 		return listVKG;
 	}
+	
+	public void addVKG(VKG vkg) {
+		listVKG.add(vkg);
+	}
 
 
 	public void setCostUnitFileVKGs(List<VKG> costUnitFileVKGs) {
@@ -113,15 +117,13 @@ public class IDK extends Segment{
 	}
 
 
-	public List<KTO> getCostUnitFileKTOs() {
-		return costUnitFileKTOs;
+	public List<KTO> getKTOs() {
+		return listKTOs;
 	}
-
-
-	public void setCostUnitFileKTOs(List<KTO> costUnitFileKTOs) {
-		this.costUnitFileKTOs = costUnitFileKTOs;
+	
+	public void addKTO(KTO kto) {
+		listKTOs.add(kto);
 	}
-
 
 	public Optional<NAM> getNAM() {
 		return nam;
@@ -133,32 +135,28 @@ public class IDK extends Segment{
 	}
 
 
-	public List<ASP> getCostUnitFileASPs() {
-		return costUnitFileASPs;
+	public List<ASP> getASPs() {
+		return listASPs;
+	}
+	
+	public void addASP(ASP asp) {
+		listASPs.add(asp);
 	}
 
-
-	public void setCostUnitFileASPs(List<ASP> costUnitFileASPs) {
-		this.costUnitFileASPs = costUnitFileASPs;
+	public List<UEM> getUEMs() {
+		return listUEMs;
 	}
-
-
-	public List<UEM> getCostUnitFileUEMs() {
-		return costUnitFileUEMs;
+	
+	public void addUEM(UEM uem) {
+		listUEMs.add(uem);
 	}
-
-
-	public void setCostUnitFileUEMs(List<UEM> costUnitFileUEMs) {
-		this.costUnitFileUEMs = costUnitFileUEMs;
-	}
-
 
 	public VDT getVDT() {
 		return Objects.requireNonNull(vdt);
 	}
 
 
-	public void setCostUnitFileVDT(VDT vdt) {
+	public void setVDT(VDT vdt) {
 		this.vdt = vdt;
 	}
 	
@@ -290,19 +288,18 @@ public class IDK extends Segment{
 	 * Ermittelt anhand den eingelesenen Daten die mögliche Anschrift
 	 * 
 	 * @return Anschrift
-	 * @throws IOException 
 	 */
 	public Optional<Address> buildCostUnitAddress() {
 		Address addressZip = null;
 		Address addressPostCode = null;
-		if (nam.isPresent() && nam.get().getCostUnitFileANSs() != null && !nam.get().getCostUnitFileANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
+		if (nam.isPresent() && !nam.get().getANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
 			LocalDate validityFrom = getVDT().getValidityFrom();
 			LocalDate validityUntil = getVDT().getValidityUntil();
-			for (ANS ans : nam.get().getCostUnitFileANSs()) {
-				Address addressTmp = ans.getODAContactAddress(validityFrom, validityUntil);
-				if (ans.getKindOfAddress().intValue() == 1) { //Hausanschrift
+			for (ANS ans : nam.get().getANSs()) {
+				Address addressTmp = ans.buildAddress(validityFrom, validityUntil);
+				if (ans.getKindOfAddress().intValue() == AddressType.STREET.getId()) { //Hausanschrift
 					addressZip  = addressTmp;
-				} else if (ans.getKindOfAddress().intValue() == 2) { //Postfachanschrift
+				} else if (ans.getKindOfAddress().intValue() == AddressType.MAIL_BOX.getId()) { //Postfachanschrift
 					addressPostCode = addressTmp;
 				}
 			}

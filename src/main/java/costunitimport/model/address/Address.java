@@ -10,6 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import costunitimport.model.AddressType;
+
 @Entity
 @Table(name = "KASSE_VERKNUEPFUNG")
 public class Address {
@@ -26,6 +28,15 @@ public class Address {
 	private String postBox;
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
+	private AddressType addressType;
+
+	public AddressType getAddressType() {
+		return addressType;
+	}
+
+	public void setAddressType(AddressType addressType) {
+		this.addressType = addressType;
+	}
 
 	public Integer getIk() {
 		return ik;
