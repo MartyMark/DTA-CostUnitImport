@@ -14,6 +14,7 @@ import costunitimport.dao.CostUnitTypeAssignmentRepository;
 import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.CountryRepository;
+import costunitimport.dao.DTAAccumulativeGroupKeyAccountinCodeRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
 import costunitimport.dao.FederalStateRepository;
 import costunitimport.dao.ZipRepository;
@@ -73,8 +74,11 @@ public class RepositoryFactory {
 	private AccountingCodeRepositoryCustom accountingCodeRepositoryCustom;
 	
 	@Autowired
+	private DTAAccumulativeGroupKeyAccountinCodeRepository accumulativeGroupKeyAccountingCodeRepository;
 	
+	@Autowired
 	private CostUnitInstitutionRepositoryCustom costUnitInstitutionRepositoryCustom;
+	
 	public DTAAccumulativeGroupKeyRepository getSAGSRepository() {
 		return sAGSRepository;
 	}
@@ -141,5 +145,9 @@ public class RepositoryFactory {
 	
 	public CostUnitInstitutionRepositoryCustom getCostUnitInstitutionRepositoryCustom() {
 		return costUnitInstitutionRepositoryCustom;
+	}
+
+	public DTAAccumulativeGroupKeyAccountinCodeRepository getAccumulativeGroupKeyAccountingCodeRepository() {
+		return accumulativeGroupKeyAccountingCodeRepository;
 	}
 }

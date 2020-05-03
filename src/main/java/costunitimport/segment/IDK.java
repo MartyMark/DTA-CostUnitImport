@@ -20,6 +20,7 @@ import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
+import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.address.Address;
 
 public class IDK extends Segment{
@@ -171,6 +172,13 @@ public class IDK extends Segment{
         	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
         	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
         	
+        	for(VKG vkg : vkgs) {
+        		CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
+        		assignmentsByKindOfAssignment.add(assignment);
+        	}
+        	
+        	//...........................
+        	
     		/* Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
     		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
     		int[] groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
@@ -188,7 +196,7 @@ public class IDK extends Segment{
 					continue;
 				}
 				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
-				assignment.setAccountingCodes(getDtaAccountCodes(List.of(vkg.getAccountingCode().toString())));
+				assignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(List.of(vkg.getAccountingCode())));
 				assignmentsByKindOfAssignment.add(assignment);
 			} //***
         	         	 
@@ -206,16 +214,16 @@ public class IDK extends Segment{
 								groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
 								break;
 							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
-								groupAssignment.setAccountingCodes(getDtaAccountCodes(List.of("11", "12", "13", "14", "15", "16", "17", "19")));
+								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHimiCodes()));
 								break;
 							case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
-								groupAssignment.setAccountingCodes(getDtaAccountCodes(List.of("21", "22", "23", "24", "25", "26", "27", "28", "29")));
+								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHeimiCodes()));
 								break;
 							case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
-								groupAssignment.setAccountingCodes(getDtaAccountCodes(List.of("31", "32", "33", "34")));
+								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHpfCodes()));
 								break;
 							case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
-								groupAssignment.setAccountingCodes(getDtaAccountCodes(List.of("41", "42", "43", "44", "45", "46", "47", "48", "49")));
+								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getTransportCodes()));
 								break;
 							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
 								List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
@@ -273,17 +281,6 @@ public class IDK extends Segment{
 		return mapGroupedCostUnitAssignments.values().stream().collect(Collectors.toList());
 	}
 	
-	private List<DTAAccountingCode> getDtaAccountCodes(List<String> searchACs) {
-		Objects.requireNonNull(searchACs);
-
-		List<DTAAccountingCode> listAccountingCodes = new ArrayList<>();
-		for (String currentAC : searchACs) {
-			Optional<DTAAccountingCode> accountingCode = rFactory.getAccountingCodeRepository().findById(Integer.valueOf(currentAC));
-			listAccountingCodes.add(accountingCode.orElseThrow());
-		}
-		return listAccountingCodes;
-	}
-	
 	/**
 	 * Ermittelt anhand den eingelesenen Daten die mögliche Anschrift
 	 * 
@@ -311,9 +308,10 @@ public class IDK extends Segment{
 		return addressZip != null ? Optional.of(addressZip) : Optional.ofNullable(addressPostCode);
 	}
 	
-	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod) {
+	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeparation) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 //		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
+		institution.setCostUnitSeparation(costUnitSeparation.getId());
 		institution.setCareProviderMethodId(careProviderMethod.getId());//wird gesetzt aus den Informationen aus dem UNB-Segment
 		institution.setCreationTime(LocalDateTime.now());
 		institution.setValidityFrom(getVDT().getValidityFrom());

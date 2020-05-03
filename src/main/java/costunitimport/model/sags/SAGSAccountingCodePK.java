@@ -1,6 +1,7 @@
 package costunitimport.model.sags;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -12,6 +13,8 @@ public class SAGSAccountingCodePK implements Serializable{
 
 	@Column(name = "accountingId")
 	private Integer accountingId;
+	
+	public SAGSAccountingCodePK(){}
 	
 	public SAGSAccountingCodePK(Integer sagsId, Integer accountingId) {
 		this.sagsId = sagsId;

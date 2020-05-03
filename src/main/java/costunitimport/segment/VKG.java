@@ -1,16 +1,19 @@
 package costunitimport.segment;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.exception.CostUnitAssigmentNotFoundException;
+import costunitimport.exception.CostUnitTypeAssigmentNotFoundException;
 import costunitimport.exception.CostUnitTypeDataSupplyNotFoundException;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
+import costunitimport.model.CostUnitTypeAssignment;
 import costunitimport.model.CostUnitTypeDataSupply;
 import costunitimport.model.CostUnitTypeMedium;
+import costunitimport.model.DTAAccountingCode;
 
 /**
  * 
@@ -56,8 +59,9 @@ public class VKG extends Segment {
 	 */
 	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
+		
 		//*** Art der Verknüpfung
-		CostUnitAssignment typeAssignment = rFactory.getCostUnitAssignmentRepository().findById(kindOfAssignment).orElseThrow(() -> new CostUnitAssigmentNotFoundException(kindOfAssignment));
+		CostUnitTypeAssignment typeAssignment = rFactory.getCostUnitTypeAssignmentRepository().findById(kindOfAssignment).orElseThrow(() -> new CostUnitTypeAssigmentNotFoundException(kindOfAssignment));
 		assignment.setTypeAssignment(typeAssignment);
 		//*** Art der Datenlieferung
 		if(kindOfDataSupply!=null) {
@@ -94,7 +98,13 @@ public class VKG extends Segment {
 		assignment.setRateCode(strRateCode);
 		assignment.setValidityFrom(validityFrom);
 		assignment.setValidityUntil(null);
+		assignment.setAccountingCodes(findAccountingCodes());
 		return assignment;
+	}
+
+	private List<DTAAccountingCode> findAccountingCodes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

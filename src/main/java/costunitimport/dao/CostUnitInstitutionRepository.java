@@ -9,5 +9,5 @@ import costunitimport.model.CostUnitInstitution;
 
 @Repository
 public interface CostUnitInstitutionRepository extends JpaRepository<CostUnitInstitution, Integer> {
-	public List<CostUnitInstitution> findByCareProviderMethodId(Integer careProviderMethodId);
+	public List<CostUnitInstitution> findByCareProviderMethodIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId);
 }

@@ -16,8 +16,7 @@ public class DTACostUnitSeparation {
 	public static final int MARITIME_HEALTH_INSURANCE = 7; //Seekrankenkassen
 	public static final int OTHER = 9;// Sonstige
 	
-	@Id 
-	private Integer id;
+	private @Id Integer id;
 
 	private String description;
 	
@@ -34,5 +33,13 @@ public class DTACostUnitSeparation {
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 }

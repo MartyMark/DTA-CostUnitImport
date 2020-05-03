@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -15,7 +16,7 @@ import javax.persistence.Table;
 @Table(name = "KASSE_VERKNUEPFUNG")
 public class CostUnitAssignment {
 	
-	private @Id Integer id;
+	private @Id @GeneratedValue Integer id;
 	
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
@@ -32,6 +33,10 @@ public class CostUnitAssignment {
 	@OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
 	private CostUnitTypeMedium typeMedium;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+	private CostUnitTypeAssignment typeAssignment;
 	
 	private Integer federalStateClassificationId;
 	private Integer districtId;
@@ -51,12 +56,12 @@ public class CostUnitAssignment {
 		this.id = id;
 	}
 	
-	public CostUnitAssignment getTypeAssignment() {
-		return assignment;
+	public CostUnitTypeAssignment getTypeAssignment() {
+		return typeAssignment;
 	}
 	
-	public void setTypeAssignment(CostUnitAssignment typeAssignment) {
-		this.assignment = typeAssignment;
+	public void setTypeAssignment(CostUnitTypeAssignment typeAssignment) {
+		this.typeAssignment = typeAssignment;
 	}
 	
 	public Integer getInstitutionId() {
@@ -145,5 +150,13 @@ public class CostUnitAssignment {
 	
 	public void setAccountingCodes(List<DTAAccountingCode> accountingCodes) {
 		this.accountingCodes = accountingCodes;
+	}
+
+	public CostUnitAssignment getAssignment() {
+		return assignment;
+	}
+
+	public void setAssignment(CostUnitAssignment assignment) {
+		this.assignment = assignment;
 	}
 }

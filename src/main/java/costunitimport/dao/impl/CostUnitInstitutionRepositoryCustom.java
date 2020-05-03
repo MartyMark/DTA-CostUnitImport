@@ -8,17 +8,16 @@ import costunitimport.model.CostUnitInstitution;
 public interface CostUnitInstitutionRepositoryCustom {
 	
 	/**
-	 * //TODO nach Kassenart trennen + Latest
-	 * Beschafft sich zu einem Leistungsverfahren alle gültigen (latest) Kasseninstitutionen.
+	 * Beschafft sich zu einem Leistungsverfahren und einer Kassenart alle gültigen (latest) Kasseninstitutionen.
 	 * 
 	 * @param careProviderMethodId Leistungsverfahren-ID
 	 */
-	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodId(Integer careProviderMethodId);
+	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId);
 	
 	/**
-	 * Beschafft sich zu einem Leistungsverfahren alle gültigen (latest) Kasseninstitutionen und mappt dann die jeweilige IK zu der Kasseinstitution
+	 * Beschafft sich zu einem Leistungsverfahren und einer Kassenart alle gültigen (latest) Kasseninstitutionen und mappt dann die jeweilige IK zu der Kasseinstitution
 	 * 
 	 * @param careProviderMethodId Leistungsverfahren-ID
 	 */
-	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderId(Integer careProviderMethodId);
+	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId);
 }

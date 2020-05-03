@@ -72,7 +72,7 @@ public class ANS extends Segment {
 			newZip.setCountry(rFactory.getCountryRepository().findById(Country.GERMANY).orElse(null));
 			newZip.setFederalState(rFactory.getFederalStateRepository().findById(FederalState.UNKNOWN_FEDERAL_STATE_ID).orElse(null));
 			newZip.setZipType(rFactory.getZipTypeRepository().findById(ZipType.IMPORT_INTERFACE_UNCHECKED).orElse(null));
-			return rFactory.getZipRepository().save(newZip);
+			return newZip;
 		}
 		return zip.get();
 	}
@@ -96,7 +96,7 @@ public class ANS extends Segment {
 			try {
 				zipCodeStr = TextFormatter.convertString(zipCodeStr, 5, false, '0');
 			} catch (IOException e) {
-//				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace());
+//				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace()); //TODO
 			}
 		}
 		return Integer.valueOf(zipCodeStr);

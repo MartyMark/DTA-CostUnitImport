@@ -1,28 +1,20 @@
 package costunitimport.model;
 
 import java.util.List;
+
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
 @Entity
 @Table(name = "DTA_ABRECHNUNGSCODE")
 public class DTAAccountingCode {
 	public static final int CARE_PROVIDER_PHARMACY = 8;//LEISTUNGSERBRINGER FÜR ARZNEIMITTEL UND APOTHEKENÜBLICHE WAREN
 	public static final int MIDWIFES = 50;//HEBAMMEN
-	
-    @Id 
-	private Integer accountingId;
+
+	private @Id Integer accountingId;
 	private String description;
 	
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "accountingId")
-	private List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode;
-    
 	public DTAAccountingCode() {}
 	
 	public DTAAccountingCode(Integer accountingId, String description) {
@@ -30,14 +22,6 @@ public class DTAAccountingCode {
 		this.description = description;
 	}
 	
-	public List<DTAAccumulativeGroupKeyAccountinCode> getSagsDTAAccountingCode() {
-		return sagsDTAAccountingCode;
-	}
-
-	public void setSagsDTAAccountingCode(List<DTAAccumulativeGroupKeyAccountinCode> sagsDTAAccountingCode) {
-		this.sagsDTAAccountingCode = sagsDTAAccountingCode;
-	}
-
 	public Integer getAccountingCode() {
 		return accountingId;
 	}
@@ -60,5 +44,33 @@ public class DTAAccountingCode {
 	 */
 	public static int[] getGroupAccountingCodes() {
 		return new int[] {0, 99, 10, 20, 30, 40};
+	}
+	
+	/**
+	 * 10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
+	 */
+	public static List<Integer> getHimiCodes(){
+		return List.of(11, 12, 13, 14, 15, 16, 17, 19);
+	}
+	
+	/**
+	 * 20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
+	 */
+	public static List<Integer> getHeimiCodes(){
+		return List.of(11, 12, 13, 14, 15, 16, 17, 19);
+	}
+	
+	/**
+	 * 30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
+	 */
+	public static List<Integer> getHpfCodes(){
+		return List.of(31, 32, 33, 34);
+	}
+	
+	/**
+	 * 40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
+	 */
+	public static List<Integer> getTransportCodes(){
+		return List.of(41, 42, 43, 44, 45, 46, 47, 48, 49);
 	}
 }

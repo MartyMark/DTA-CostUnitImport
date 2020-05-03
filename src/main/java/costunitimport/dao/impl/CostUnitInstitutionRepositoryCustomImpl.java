@@ -20,10 +20,8 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	CostUnitInstitutionRepository costUnitInstitutionRepository;
 	
 	@Override
-	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodId(
-			Integer careProviderMethodId) {
-		
-		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByCareProviderMethodId(careProviderMethodId);
+	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId) {
+		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByCareProviderMethodIdAndCostUnitSeparationId(careProviderMethodId, costUnitSeparationId);
 		
 		Map<Integer, List<CostUnitInstitution>> ikToInstitutions =
 				institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
@@ -39,8 +37,8 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	}
 
 	@Override
-	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderId(Integer careProviderMethodId) {
-		List<CostUnitInstitution> existingInstitutions = findLatestCostUnitInstitutionsByCareProviderMethodId(careProviderMethodId);
+	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparation) {
+		List<CostUnitInstitution> existingInstitutions = findLatestCostUnitInstitutionsByCareProviderMethodIdAndCostUnitSeparationId(careProviderMethodId, costUnitSeparation);
 
 		// IK - Kasseninstitution
 		return existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));

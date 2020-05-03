@@ -3,7 +3,6 @@ package costunitimport.segment;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import costunitimport.dao.factory.RepositoryFactory;
@@ -73,23 +72,17 @@ public class UNB extends Segment {
 	}
 
 	public CostUnitFile getCostUnitFile() {
-		Optional<DTACostUnitSeparation> costUnitSeperation = getDtaCostUnitSeparationByToken(fileName.substring(0, 2));
-		Optional<CareProviderMethod> careProviderMethod = getCareProviderMethodByToken(fileName.substring(2, 4));
-		
 		CostUnitFile file = new CostUnitFile();
 		file.setCreationTime(creationTime);
 		file.setFileName(fileName);
-		
-		file.setDtaCostUnitSeparation(costUnitSeperation.orElse(null));
-		file.setCareProviderMethod(careProviderMethod.orElse(null));
-		
-		
+		file.setDtaCostUnitSeparation(getDtaCostUnitSeparationByToken(fileName.substring(0, 2)));
+		file.setCareProviderMethod(getCareProviderMethodByToken(fileName.substring(2, 4)));
 		file.setValidityFrom(getValidityFrom(fileName.substring(4, 6), fileName.substring(6, 8)));
 		file.setVersion(Integer.valueOf(fileName.substring(10, 11)));
 		return file;
 	}
 
-	private Optional<DTACostUnitSeparation> getDtaCostUnitSeparationByToken(String costUnitSeparationToken) {
+	private DTACostUnitSeparation getDtaCostUnitSeparationByToken(String costUnitSeparationToken) {
 		Integer dtaCostUnitSeparationId = null;
 		switch (costUnitSeparationToken) {
 		case "AO":// AOK
@@ -116,10 +109,10 @@ public class UNB extends Segment {
 		default:
 			throw new CostUnitSeperationNotFoundException(Integer.valueOf(costUnitSeparationToken));
 		}
-		return rFactory.getCostUnitSeparationRepository().findById(dtaCostUnitSeparationId.intValue());
+		return rFactory.getCostUnitSeparationRepository().findById(dtaCostUnitSeparationId.intValue()).orElseThrow();
 	}
 	
-	private Optional<CareProviderMethod> getCareProviderMethodByToken(String careProviderMethodToken) {
+	private CareProviderMethod getCareProviderMethodByToken(String careProviderMethodToken) {
 		Integer  careProviderMethodId = null;
 		switch (careProviderMethodToken) {
 			case "03"://Datenaustausch Teilprojekt Apotheken
@@ -135,7 +128,7 @@ public class UNB extends Segment {
 			default:
 				throw new CareProviderMethodNotFoundException(Integer.valueOf(careProviderMethodToken));
 		}
-		return rFactory.getCareProviderMethodRepository().findById(careProviderMethodId.intValue());
+		return rFactory.getCareProviderMethodRepository().findById(careProviderMethodId.intValue()).orElseThrow();
 	}
 	
 	private static LocalDate getValidityFrom(String validityFromMonthQuarter, String validityFromYear) {

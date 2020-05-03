@@ -1,10 +1,12 @@
 package costunitimport.dao.impl;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import costunitimport.model.CareProviderMethod;
 import costunitimport.model.DTAAccountingCode;
 
 public interface AccountingCodeRepositoryCustom {
-	List<DTAAccountingCode> findDTAAccountingCodesByCareProviderMethod(CareProviderMethod careProviderMethod);
+	Set<DTAAccountingCode> findDTAAccountingCodesByCareProviderMethodId(Integer careProviderMethodId);
+	
+	Map<Integer, DTAAccountingCode> findIDToDTAAccountingCodesByCareProviderMethodId(Integer careProviderMethodId);
 }

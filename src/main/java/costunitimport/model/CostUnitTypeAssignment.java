@@ -10,8 +10,7 @@ public class CostUnitTypeAssignment {
 	
 	public static final int ASSIGNMENT_IK_HEALTH_INSURANCE_CARD_TO_COST_UNIT =1;
 	
-	@Id 
-	private Integer id;
+	private @Id Integer id;
 	
 	private String description;
 	
@@ -22,12 +21,19 @@ public class CostUnitTypeAssignment {
 		this.description = description;
 	}
 	
-	
 	public String getDescription() {
 		return description;
 	}
 	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 }

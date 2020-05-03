@@ -3,6 +3,7 @@ package costunitimport.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,14 +18,12 @@ import costunitimport.model.address.Address;
 @Table(name = "KOSTENTRÄGER_INSTITUTION")
 public class CostUnitInstitution {
 	
-	@Id 
-	@GeneratedValue
-	private Integer id;
+	private @Id @GeneratedValue Integer id;
 	private Integer institutionNumber;
 	private String shortDescription;
 	private Integer vknr;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinColumn(name = "id", nullable=true)
 	private Address address;
 	
@@ -33,10 +32,7 @@ public class CostUnitInstitution {
 	private String firmName;
 	private LocalDateTime creationTime;
 	private Integer careProviderMethodId;
-	
-	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-	private DTACostUnitSeparation costUnitSeparation;
+	private Integer costUnitSeparationId;
 	
 	public Integer getInstitutionNumber() {
 		return institutionNumber;
@@ -110,12 +106,12 @@ public class CostUnitInstitution {
 		return creationTime;
 	}
 
-	public DTACostUnitSeparation getCostUnitSeparation() {
-		return costUnitSeparation;
+	public Integer getCostUnitSeparationId() {
+		return costUnitSeparationId;
 	}
 
-	public void setCostUnitSeparation(DTACostUnitSeparation costUnitSeparation) {
-		this.costUnitSeparation = costUnitSeparation;
+	public void setCostUnitSeparation(Integer costUnitSeparationId) {
+		this.costUnitSeparationId = costUnitSeparationId;
 	}
 
 	public void setCareProviderMethodId(Integer careProviderMethodId) {

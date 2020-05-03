@@ -8,10 +8,15 @@ import javax.persistence.Table;
 @Table(name = "KASSEN_ART_DATENLIEFERUNG")
 public class CostUnitTypeDataSupply {
 	
-	@Id
-	private Integer id;
-	
+	private @Id Integer id;
 	private String description;
+	
+	CostUnitTypeDataSupply(){}
+	
+	public CostUnitTypeDataSupply(Integer id, String description) {
+		this.id = id;
+		this.description = description;
+	}
 	
 	public String getDescription() {
 		return description;
