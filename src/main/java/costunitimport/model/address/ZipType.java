@@ -16,8 +16,8 @@ public class ZipType {
 	public static final int IMPORT_INTERFACE = 7;
 	public static final int IMPORT_INTERFACE_UNCHECKED = 8;
 	
-	@Id
-	private Integer id;
+
+	private @Id Integer id;
 	
 	private String description;
 	

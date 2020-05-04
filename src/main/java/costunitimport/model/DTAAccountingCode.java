@@ -42,8 +42,8 @@ public class DTAAccountingCode {
 	 * Das sind die Ids der Abrechnungscodesgruppenschlüssel bspw : <br>
 	 * 00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)...
 	 */
-	public static int[] getGroupAccountingCodes() {
-		return new int[] {0, 99, 10, 20, 30, 40};
+	public static List<Integer> getGroupAccountingCodes() {
+		return List.of(0, 99, 10, 20, 30, 40);
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class DTAAccountingCode {
 	 * 20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
 	 */
 	public static List<Integer> getHeimiCodes(){
-		return List.of(11, 12, 13, 14, 15, 16, 17, 19);
+		return List.of(21, 22, 23, 24, 25, 26, 27, 29);
 	}
 	
 	/**

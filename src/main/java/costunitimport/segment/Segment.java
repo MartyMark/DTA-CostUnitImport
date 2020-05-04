@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import costunitimport.logger.Logger;
+
 public abstract class Segment {
-		private String[] data = new String[0];
+	private String[] data = new String[0];
 	
 	private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMdd:HHmm");
@@ -35,22 +37,22 @@ public abstract class Segment {
 			try {
 				return (P)LocalDate.parse(importData, dateFormatter);
 			} catch (Exception e) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler beim erzeugen des Datums: " + importData);
+				Logger.error("Fehler beim erzeugen des Datums: " + importData);
 			}
 		} else if(type.equals(LocalTime.class)) {
 			try {
 				return (P) LocalTime.parse(importData, timeFormatter);
 			} catch (Exception e) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler beim erzeugen der Zeit: " + importData);
+				Logger.error("Fehler beim erzeugen der Zeit: " + importData);
 			}
 		} else if(type.equals(LocalDateTime.class)) {
 			try {
 				return (P) LocalDateTime.parse(importData, dateTimeFormatter);
 			} catch (Exception e) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler beim erzeugen der Zeit: " + importData);
+				Logger.error("Fehler beim erzeugen der Zeit: " + importData);
 			}
 		}
-//		throw new ApplicationException("Unbekannter Datentyp! Typ: " + type);
+		Logger.error("Unbekannter Datentyp! Typ: " + type);
 		return null;
 	}
 

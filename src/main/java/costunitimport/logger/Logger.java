@@ -21,6 +21,14 @@ public class Logger {
 		LOG.error(logText, ex);
 	}
 	
+	public static void error(final String subject, final Throwable ex) {
+		LOG.error(subject, ex);
+	}
+	
+	public static void error(final String subject) {
+		LOG.error(subject);
+	}
+		
 	public static void error(final String subject, final String stackTrace) {
 		String logText = buildLogText();
 		LOG.error("{}{}{}", subject, logText, stackTrace);

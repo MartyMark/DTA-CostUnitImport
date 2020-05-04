@@ -117,14 +117,13 @@ public class UNB extends Segment {
 		switch (careProviderMethodToken) {
 			case "03"://Datenaustausch Teilprojekt Apotheken
 				careProviderMethodId = CareProviderMethod.P_300;
-			break;
+				break;
 			case "05"://Datenaustausch Teilprojekt Sonstige Leistungserbringer
 				careProviderMethodId = CareProviderMethod.P_302;
-			break;
+				break;
 			case "06"://Datenaustausch Teilprojekt Leistungserbringer Pflege
 				careProviderMethodId = CareProviderMethod.P_105;
-			break;
-			
+				break;
 			default:
 				throw new CareProviderMethodNotFoundException(Integer.valueOf(careProviderMethodToken));
 		}

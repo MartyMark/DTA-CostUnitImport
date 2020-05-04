@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import costunitimport.dao.factory.RepositoryFactory;
@@ -61,7 +60,7 @@ public class CostUnitFileImport {
 		
 		switch (data[0]) {
 			case "IDK":
-				IDK idk = new IDK(data, rFactory);
+				IDK idk = new IDK(data);
 				listIDKs.add(idk);
 				break;
 			case "VDT":
@@ -141,11 +140,17 @@ public class CostUnitFileImport {
 		Map<Integer, DTAAccountingCode> idToAccountoungCode = rFactory.getAccountingCodeRepositoryCustom().findIDToDTAAccountingCodesByCareProviderMethodId(careProviderMethod.getId());
 		
 		for (IDK idk : filterdIDKs) {
-			List<CostUnitAssignment> assignments = idk.getCostUnitAssignment(newFile.getValidityFrom(),
-					refreshedInstitutionMap, idToAccountoungCode);
-			CostUnitInstitution currentInstitution = refreshedInstitutionMap
-					.get(idk.getInstitutionCode());
-			updateAndInsertCostUnitAssignments(currentInstitution.getId(), assignments, newFile.getValidityFrom());
+			List<CostUnitAssignment> assignmentsFromFile = idk.getCostUnitAssignment(newFile.getValidityFrom(), refreshedInstitutionMap, idToAccountoungCode);
+			
+			CostUnitInstitution currentInstitution = refreshedInstitutionMap.get(idk.getInstitutionCode());
+			
+			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByInstitutionIdAndValidityFrom(currentInstitution.getId(), newFile.getValidityFrom());
+			if (!exisitingAssignments.isEmpty() && exisitingAssignments.stream().filter(assignment -> assignment.getValidityFrom().equals(newFile.getValidityFrom())).count() > 0) {
+				//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
+				//Der Fall kann entstehen, 
+			}
+			closeAssignments(exisitingAssignments, newFile.getValidityFrom());
+			updateAssignments(currentInstitution, assignmentsFromFile, exisitingAssignments, newFile.getValidityFrom());
 		} // ***
 	}
 	
@@ -181,8 +186,24 @@ public class CostUnitFileImport {
 		return filterdIDKs;
 	}
 	
+	private void updateInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeperation, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
+		for (IDK idk : filterdIDKs) {
+			CostUnitInstitution existingInstitution = existingInstitutionMap.get(idk.getInstitutionCode());
+			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod, costUnitSeperation);
+			
+			if(existingInstitution != null) {
+				institutionFromFile.setId(existingInstitution.getId());
+			}
+			rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
+		}
+	}
+	
 	/**
 	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei) alle in der @param filterdIDKs befindelichen Kasseninstitutionen.
+	 * 
+	 * @param filterdIDKs gefilterte Kasseninstitutionen der Importdatei
+	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
+	 * @param existingInstitutionMap alle Institutionen aus der Datenbank
 	 */
 	private void closeInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
 		for (IDK idk : filterdIDKs) {
@@ -196,69 +217,54 @@ public class CostUnitFileImport {
 		}
 	}
 	
-	private void updateInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeperation, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
-		for (IDK idk : filterdIDKs) {
-			CostUnitInstitution existingInstitution = existingInstitutionMap.get(idk.getInstitutionCode());
-			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod, costUnitSeperation);
+	/**
+	 * Prüft, ob die Verknüpfung schon in der Datenbank vorhanden ist.<br>
+	 * Falls dies der Fall ist, ID der Verknüpfung aus der Datenbank auf die Verknüpfung in der Datei übertragen.<br>
+	 * Somit muss kein neuer Datensatz erstellt werden.
+	 * 
+	 * @param currentInstitution Aktuelle Kasseninstitution 
+	 * @param assignmentsFromFile alle Verknüpfungen der Datei
+	 * @param exisitingAssignments alle Verknüpfungen aus der Datenbank
+	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
+	 */
+	private void updateAssignments(CostUnitInstitution currentInstitution, List<CostUnitAssignment> assignmentsFromFile, List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
+		for(CostUnitAssignment assignmentFromFile : assignmentsFromFile) {
 			
-			if (existingInstitution == null) {
-				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
-			} else {
-				institutionFromFile.setId(existingInstitution.getId());
-				rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
-			}
-		}
-	}
-	
-	private void updateAndInsertCostUnitAssignments(int institutionId, List<CostUnitAssignment> assignmentsFromFile, LocalDate importFileValidityFrom) {
-		List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByInstitutionIdAndValidityFrom(institutionId, importFileValidityFrom);
-		if (!exisitingAssignments.isEmpty() && exisitingAssignments.stream().filter(assignment -> assignment.getValidityFrom().equals(importFileValidityFrom)).count() > 0) {
-			//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
-			//Der Fall kann entstehen, 
-		}
-
-		List<CostUnitAssignment> assignmentsToClose = getCostUnitAssignmentsWithoutMatchSecondList(exisitingAssignments, assignmentsFromFile);
-		List<CostUnitAssignment> assignmentsToInsert = getCostUnitAssignmentsWithoutMatchSecondList(assignmentsFromFile, exisitingAssignments);
-
-		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-
-		for (CostUnitAssignment kotrAssignment : assignmentsToClose) {
-			if (kotrAssignment.getValidityFrom().compareTo(validityUntil) >= 0) {
-				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
-				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
-				if (kotrAssignment.getTypeAssignment().getId() != 1) {
-					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + institutionId + " kotrAssignmentId:" + kotrAssignment.getId());
+			String assignmentFromFileCompareString = getCompareString(assignmentFromFile);
+			
+			for(CostUnitAssignment exisitingAssignment : exisitingAssignments) {
+				if(assignmentFromFileCompareString.equals(getCompareString(exisitingAssignment))) {
+					assignmentFromFile.setId(exisitingAssignment.getId());
 				}
-			} else {
-				kotrAssignment.setValidityUntil(validityUntil);
 			}
 		}
-		rFactory.getCostUnitAssignmentRepository().saveAll(assignmentsToClose); //update
-		rFactory.getCostUnitAssignmentRepository().saveAll(assignmentsToInsert);
+		rFactory.getCostUnitAssignmentRepository().saveAll(assignmentsFromFile);
 	}
 	
 	/**
-	 * Sucht aus der 1ten Liste die Verknüpfungen heraus die sich nicht in der 2ten Liste befinden<br>
-	 * 1.Liste DB, 2.Liste Import => Verknüpfungen die abgeschlossen werden müssen (Delete)<br>
-	 * 1.Liste Import, 2.Liste DB => Verknüpfungen die gespeichert werden müssen (Insert)
+	 * Schließt alle Verknüpfungen der Datenbank.<br>
+	 * Diese werden später durch die Verknüpfungen der Datei aktualisiert.
 	 * 
-	 * @param assignmentsFirst
-	 * @param assignmentsSecond
+	 * @param exisitingAssignments alle Verknüpfungen aus der Datenbank
+	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 */
-	private static List<CostUnitAssignment> getCostUnitAssignmentsWithoutMatchSecondList(List<CostUnitAssignment> assignmentsFirst, List<CostUnitAssignment> assignmentsSecond) {
-		if (assignmentsFirst.isEmpty()) {
-			return new ArrayList<>();
-		}
-		List<String> listAssignmentsFileCompareStrings = assignmentsSecond.stream().map(CostUnitFileImport::getCompareString).collect(Collectors.toList());
-		List<CostUnitAssignment> kotrAssignmentsWithoutMatch = new ArrayList<>();
-		for (CostUnitAssignment kotrAssignment : assignmentsFirst) {
-			if (!listAssignmentsFileCompareStrings.contains(getCompareString(kotrAssignment))) {
-				kotrAssignmentsWithoutMatch.add(kotrAssignment);
+	private void closeAssignments(List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
+		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
+		for (CostUnitAssignment assignmentToClose : exisitingAssignments) {
+			if (assignmentToClose.getValidityFrom().compareTo(validityUntil) >= 0) {
+				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
+				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
+				if (assignmentToClose.getTypeAssignment().getId() != 1) {
+					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
+				}
+			} else {
+				assignmentToClose.setValidityUntil(validityUntil);
 			}
 		}
-		return kotrAssignmentsWithoutMatch;
+		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
 	}
 	
+	//TODO Man könnte auch die CompareKey-Methode in der CostUnitAssignment verwenden, jedoch müssen hierbei die Gültigkeiten ausgelassen und die Abrechnungscodes beachtet werden.
 	private static String getCompareString(CostUnitAssignment assignment) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("typeAssignment:").append(assignment.getTypeAssignment() == null ? null : assignment.getTypeAssignment().getId()).append("|");
@@ -270,9 +276,7 @@ public class CostUnitFileImport {
 		builder.append("federalStateClassificationId:").append(assignment.getFederalStateClassificationId()).append("|");
 		builder.append("districtId:").append(assignment.getDistrictId()).append("|");
 		builder.append("rateCode:").append(assignment.getRateCode()).append("|");
-//		TODO
-//		builder.append("accountingCodes:").append(
-//				assignment.getAccountingCodes().isEmpty() ? null : assignment.getAccountingCodes().stream().map(DTAAccountingCode::getAccountingCode).sorted().collect(Collectors.joining(",")));
+		builder.append("accountingCodes:").append(assignment.getAccountingCodes().toString());
 		return builder.toString();
 	}
 }	

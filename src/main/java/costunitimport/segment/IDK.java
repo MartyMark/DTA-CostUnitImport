@@ -12,9 +12,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.exception.CostUnitAssigmentGroupingException;
 import costunitimport.model.AddressType;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
@@ -39,11 +38,8 @@ public class IDK extends Segment{
 	private List<ASP> listASPs = new ArrayList<>();
 	private List<UEM> listUEMs = new ArrayList<>();
 	
-	private RepositoryFactory rFactory;
-	
-	public IDK(String[] data, RepositoryFactory rFactory) {
+	public IDK(String[] data) {
 		super(data);
-		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -94,19 +90,13 @@ public class IDK extends Segment{
 	}
 
 
-	public List<VKG> getCostUnitFileVKGs() {
+	public List<VKG> getVKGs() {
 		return listVKG;
 	}
 	
 	public void addVKG(VKG vkg) {
 		listVKG.add(vkg);
 	}
-
-
-	public void setCostUnitFileVKGs(List<VKG> costUnitFileVKGs) {
-		this.listVKG = costUnitFileVKGs;
-	}
-
 
 	public FKT getFKT() {
 		return Objects.requireNonNull(fkt);
@@ -161,7 +151,7 @@ public class IDK extends Segment{
 		this.vdt = vdt;
 	}
 	
-	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> costUnitInstitutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
+	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
 		List<CostUnitAssignment> allAssignments = new ArrayList<>();
 		
 		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
@@ -170,115 +160,64 @@ public class IDK extends Segment{
 		/* Iteriert durch jede Schlüsselart der Verknüpfung*/
 		for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
         	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
+        	
+        	/* VKGs werden aufsteiged nach Leistungserbringerschlüssel sortiert, damit schon alle Abrechnungscodes bearbeitet worden sind, wenn eine
+        	 * Verknüpfung mit dem Abrechnungscode 99 eintrifft */
         	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
         	
         	for(VKG vkg : vkgs) {
-        		CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
-        		assignmentsByKindOfAssignment.add(assignment);
+				Optional<CostUnitAssignment> assignment = vkg.buildCostUnitAssignment(validityFrom, institutions);
+        		assignment.ifPresent(a -> assignmentsByKindOfAssignment.add(a));
+        		
+        		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
+        		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
+					List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
+							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac))
+							.collect(Collectors.toList());
+					assignment.get().setAccountingCodes(listRemainingdACs);
+        		}
         	}
-        	
-        	//...........................
-        	
-    		/* Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
-    		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
-    		int[] groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
-        	
-        	//*** Alle Datensätze mit korrekten Abrechnungscodes -> das heißt alle Verknüpfungen ohne Gruppenschlüssel
-			List<VKG> listVKGsWithoutGroupACs = vkgs.stream().filter(v -> v.getAccountingCode() != null)
-					.filter(v -> IntStream.of(groupAccountCodes).noneMatch(any -> any == v.getAccountingCode().intValue())).collect(Collectors.toList());
-			for (VKG vkg : listVKGsWithoutGroupACs) {
-				if (vkg.getAccountingCode() == 18 || vkg.getAccountingCode() == 60) {
-					/*
-					 * 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15
-					 * vorzunehmen. Der Abrechnungscode 18 wird für Sanitätshäuser zum 31.12.2005 aufgehoben.)
-					 * Betriebshilfe 60 ist keinem SAGS zugeordnet!
-					 */
-					continue;
-				}
-				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
-				assignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(List.of(vkg.getAccountingCode())));
-				assignmentsByKindOfAssignment.add(assignment);
-			} //***
-        	         	 
-			for (VKG vkg : vkgs) {
-				if (!listVKGsWithoutGroupACs.contains(vkg)) {
-					
-					CostUnitAssignment groupAssignment = vkg.buildCostUnitAssignment(validityFrom, costUnitInstitutions);
-					
-					if (vkg.getAccountingCode() == null) {
-						groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
-						assignmentsByKindOfAssignment.add(groupAssignment);
-					} else {
-						switch (vkg.getAccountingCode()) {
-							case 0://00-Sammelschlüssel für alle Leistungsarten
-								groupAssignment.setAccountingCodes(new ArrayList<DTAAccountingCode>());//00-Sammelschlüssel für alle Leistungsarten
-								break;
-							case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
-								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHimiCodes()));
-								break;
-							case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
-								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHeimiCodes()));
-								break;
-							case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
-								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHpfCodes()));
-								break;
-							case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
-								groupAssignment.setAccountingCodes(rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getTransportCodes()));
-								break;
-							case 99://99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-								List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
-										.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-								List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac))
-										.collect(Collectors.toList());
-								groupAssignment.setAccountingCodes(listRemainingdACs);
-								break;
-							default:
-								break;
-						}
-						assignmentsByKindOfAssignment.add(groupAssignment);
-					}
-				}
-			}
 			allAssignments.addAll(assignmentsByKindOfAssignment);
 		}
-
-		Map<String, CostUnitAssignment> mapGroupedCostUnitAssignments = new HashMap<>();
+		
+		Map<String, CostUnitAssignment> groupedAssignments = new HashMap<>();
 		for (CostUnitAssignment currentAssignment : allAssignments) {
-			StringBuilder keyBuilder = new StringBuilder();
-			keyBuilder.append("Id:").append(currentAssignment.getId());
-			keyBuilder.append("TypeAssignment:").append(currentAssignment.getTypeAssignment());
-			keyBuilder.append("InstitutionId:").append(currentAssignment.getInstitutionId());
-			keyBuilder.append("InstitutionIdAssignment:").append(currentAssignment.getInstitutionIdAssignment());
-			keyBuilder.append("InstitutionIdAccounting:").append(currentAssignment.getInstitutionIdAccounting());
-			keyBuilder.append("TypeDataSupply:").append(currentAssignment.getTypeDataSupply());
-			keyBuilder.append("TypeMedium:").append(currentAssignment.getTypeMedium());
-			keyBuilder.append("FederalStateClassificationId:").append(currentAssignment.getFederalStateClassificationId());
-			keyBuilder.append("DistrictId:").append(currentAssignment.getDistrictId());
-			keyBuilder.append("RateCode:").append(currentAssignment.getRateCode());
-			keyBuilder.append("ValidityFrom:").append(currentAssignment.getValidityFrom());
-			keyBuilder.append("ValidityUntil:").append(currentAssignment.getValidityUntil());
+			String key = currentAssignment.getCompareKey();//Man könnte auch die Equals überschreiben und dann mit einem Set arbeiten
 
-			CostUnitAssignment existingAssignment = mapGroupedCostUnitAssignments.get(keyBuilder.toString());
+			CostUnitAssignment existingAssignment = groupedAssignments.get(key);
+			
+			/* Hier werden die Verknüpfungen gemappt 
+			 * Somit wird aus :
+			 * VKG+03+101317004+5++07++++56
+			 * VKG+03+101317004+5++07++++57
+			 * 
+			 * diese Verknüpfung :			 
+			 * VKG+03+101317004+5++07++++56,57
+			 * 
+			 * Der Comparekey bezieht sich auf alle Attribute bis auf die Abrechungscodes
+			 * Sind zwei Datensätze gleich werden die Abrechnungscodes nach Verknüpfung gruppiert
+			 * */
 			if (existingAssignment == null) {
-				mapGroupedCostUnitAssignments.put(keyBuilder.toString(), currentAssignment);
+				groupedAssignments.put(key, currentAssignment);
 			} else if (existingAssignment.getAccountingCodes() != null) {
 				if (currentAssignment.getAccountingCodes() == null) {
-					//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+					throw new CostUnitAssigmentGroupingException();
 				}
 				boolean exist = existingAssignment.getAccountingCodes().stream().anyMatch(a -> currentAssignment.getAccountingCodes().contains(a));
 				if (exist) {
-					//					throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Gruppierung der Verknüpfungen fehlgeschlagen!");
+					throw new CostUnitAssigmentGroupingException();
 				}
-
 				existingAssignment.getAccountingCodes().addAll(currentAssignment.getAccountingCodes());
 			}
 		}
-
-		CostUnitInstitution currentCostUnitInstitution = costUnitInstitutions.get(getInstitutionCode());
-		for (CostUnitAssignment currentAssignment : mapGroupedCostUnitAssignments.values()) {
-			currentAssignment.setInstitutionId(currentCostUnitInstitution.getId());
-		}
-		return mapGroupedCostUnitAssignments.values().stream().collect(Collectors.toList());
+		
+		CostUnitInstitution currentInstitution = institutions.get(getInstitutionCode());
+		
+		//Jede Verknüpfung erhält die InstitutionsId von der sie referenziert wird
+		groupedAssignments.values().forEach(x -> x.setInstitutionId(currentInstitution.getId()));
+		
+		return groupedAssignments.values().stream().collect(Collectors.toList());
 	}
 	
 	/**
@@ -310,7 +249,6 @@ public class IDK extends Segment{
 	
 	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeparation) {
 		CostUnitInstitution institution = new CostUnitInstitution();
-//		institution.setActiveIndicator(Boolean.TRUE);//in der Datei befinden sich nur aktuell gültige Institutionen -> unrelevant
 		institution.setCostUnitSeparation(costUnitSeparation.getId());
 		institution.setCareProviderMethodId(careProviderMethod.getId());//wird gesetzt aus den Informationen aus dem UNB-Segment
 		institution.setCreationTime(LocalDateTime.now());
@@ -321,9 +259,6 @@ public class IDK extends Segment{
 		institution.setVknr(vKNR);
 		institution.setAddress(buildCostUnitAddress().orElse(null));
 		institution.setShortDescription(description);
-//		ODAContactType contactType = FacadeHandler.getMasterDataInfFacadeLocal().findODAContactTypeById(ODAContactType.KOTR_INSTITUTION);
-//		institution.setODAContactType(contactType);
-//		institution.setMembership(Integer.valueOf(0)); -> unrelevant
 		return institution;
 	}
 	

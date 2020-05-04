@@ -39,8 +39,7 @@ public class FederalState {
 	
 	public static final int UPPER_AUSTRIA = 104;
 	
-	@Id
-	private Integer id;
+	private @Id Integer id;
 	
 	private String description;
 	

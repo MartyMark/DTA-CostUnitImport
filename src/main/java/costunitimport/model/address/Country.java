@@ -23,8 +23,7 @@ public class Country {
 	public static final int FINNLAND = 10135;
 	public static final int CROATIA = 10124;
 	
-	@Id
-	private Integer id;
+	private @Id Integer id;
 	
 	private String description;
 	private String token;

@@ -159,4 +159,21 @@ public class CostUnitAssignment {
 	public void setAssignment(CostUnitAssignment assignment) {
 		this.assignment = assignment;
 	}
+	
+	public String getCompareKey() {
+		StringBuilder keyBuilder = new StringBuilder();
+		keyBuilder.append("Id:").append(id);
+		keyBuilder.append("TypeAssignment:").append(typeAssignment);
+		keyBuilder.append("InstitutionId:").append(institutionId);
+		keyBuilder.append("InstitutionIdAssignment:").append(institutionIdAssignment);
+		keyBuilder.append("InstitutionIdAccounting:").append(institutionIdAccounting);
+		keyBuilder.append("TypeDataSupply:").append(typeDataSupply);
+		keyBuilder.append("TypeMedium:").append(typeMedium);
+		keyBuilder.append("FederalStateClassificationId:").append(federalStateClassificationId);
+		keyBuilder.append("DistrictId:").append(districtId);
+		keyBuilder.append("RateCode:").append(rateCode);
+		keyBuilder.append("ValidityFrom:").append(validityFrom);
+		keyBuilder.append("ValidityUntil:").append(validityUntil);
+		return keyBuilder.toString();
+	}
 }

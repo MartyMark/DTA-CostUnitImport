@@ -8,13 +8,9 @@ public class TextFormatter {
 	/**
 	 * Füllt einen String mit Leerzeichen auf eine gewünschte Länge auf.
 	 * 
-	 * @param value -
-	 *            Der Wert, der aufgefüllt werden soll
-	 * @param length -
-	 *            Gewünschte Länge, auf die aufgefüllt werden soll
-	 * @param alignment -
-	 *            Richtung aus der aufgefüllt werden soll
-	 * @return String
+	 * @param value - Der Wert, der aufgefüllt werden soll
+	 * @param length - Gewünschte Länge, auf die aufgefüllt werden soll
+	 * @param alignment - Richtung aus der aufgefüllt werden soll
 	 * @throws IOException
 	 */
 	public static String convertString(String value, int length, boolean alignment, char filler) throws IOException {
@@ -37,14 +33,10 @@ public class TextFormatter {
 	/**
 	 * Füllt einen String mit Leerzeichen auf eine gewünschte Länge auf.
 	 * 
-	 * @param value -
-	 *            Der Wert, der aufgefüllt werden soll
-	 * @param length -
-	 *            Gewünschte Länge, auf die aufgefüllt werden soll
+	 * @param value - Der Wert, der aufgefüllt werden soll
+	 * @param length - Gewünschte Länge, auf die aufgefüllt werden soll
 	 * @param filler
-	 * @param alignment -
-	 *            Richtung aus der aufgefüllt werden soll
-	 * @return String
+	 * @param alignment - Richtung aus der aufgefüllt werden soll
 	 */
 	static String fill(String value, int length, char filler, boolean alignment) {
 		String result = value;

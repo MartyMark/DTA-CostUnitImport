@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.logger.Logger;
 import costunitimport.model.AddressType;
 import costunitimport.model.address.Address;
 import costunitimport.model.address.Country;
@@ -53,7 +54,7 @@ public class ANS extends Segment {
 				address.setAddressType(AddressType.MAJOR_CLIENT);
 				break;
 			default:
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art der Anschrift! Art: " + kindOfAddress);TODO
+				Logger.error("Unbekannte Art der Anschrift! Art: " + kindOfAddress);
 		}
 		address.setValidityFrom(validityFrom);
 		address.setValidityUntil(validityUntil);
@@ -96,7 +97,7 @@ public class ANS extends Segment {
 			try {
 				zipCodeStr = TextFormatter.convertString(zipCodeStr, 5, false, '0');
 			} catch (IOException e) {
-//				throw new ApplicationException("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e.getStackTrace()); //TODO
+				Logger.error("Fehlerhafte Verarbeitung PLZ! " +zipCodeStr, e);
 			}
 		}
 		return Integer.valueOf(zipCodeStr);

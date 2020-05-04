@@ -8,8 +8,7 @@ import javax.persistence.Table;
 @Table(name = "KASSEN_ART_MEDIUM")
 public class CostUnitTypeMedium {
 	
-	@Id
-	private Integer id;
+	private @Id Integer id;
 	
 	private String description;
 	

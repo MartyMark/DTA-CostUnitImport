@@ -1,6 +1,7 @@
 package costunitimport.segment;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,7 +58,15 @@ public class VKG extends Segment {
 	/**
 	 * Baut das Verknüpfungs-Objekt
 	 */
-	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> kotrInstitutions) {
+	public Optional<CostUnitAssignment> buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
+		if (accountingCode != null && (accountingCode == 18 || accountingCode == 60)) { //TODO
+			/*
+			 * 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15 vorzunehmen. 
+			 * Der Abrechnungscode 18 wird für Sanitätshäuser zum 31.12.2005 aufgehoben.)
+			 * Betriebshilfe 60 ist keinem SAGS zugeordnet!
+			 */
+			return Optional.empty();
+		}
 		CostUnitAssignment assignment = new CostUnitAssignment();
 		
 		//*** Art der Verknüpfung
@@ -78,7 +87,7 @@ public class VKG extends Segment {
 		}
 		//*** Institut des Verknüpfungspartners
 		if(institutionCodeAssignmentPartner!=null) {
-			CostUnitInstitution institutionToSet = kotrInstitutions.get(institutionCodeAssignmentPartner);
+			CostUnitInstitution institutionToSet = institutions.get(institutionCodeAssignmentPartner);
 			if(institutionToSet==null) {
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAssignmentPartner);
 			}
@@ -86,7 +95,7 @@ public class VKG extends Segment {
 		}
 		//*** Institut der Abrechnungsstelle
 		if(institutionCodeAccounting!=null) {
-			CostUnitInstitution institutionToSet = kotrInstitutions.get(institutionCodeAccounting);
+			CostUnitInstitution institutionToSet = institutions.get(institutionCodeAccounting);
 			if(institutionToSet==null) {
 //				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAccounting);
 			}
@@ -98,13 +107,37 @@ public class VKG extends Segment {
 		assignment.setRateCode(strRateCode);
 		assignment.setValidityFrom(validityFrom);
 		assignment.setValidityUntil(null);
-		assignment.setAccountingCodes(findAccountingCodes());
-		return assignment;
+		assignment.setAccountingCodes(findAccountingCodes(validityFrom, institutions));
+		return Optional.of(assignment);
 	}
 
-	private List<DTAAccountingCode> findAccountingCodes() {
-		// TODO Auto-generated method stub
-		return null;
+	private List<DTAAccountingCode> findAccountingCodes(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
+		/* Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
+		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
+		List<Integer> groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
+		
+		if(accountingCode == null) {
+			return Collections.emptyList();//00-Sammelschlüssel für alle Leistungsarten
+		}
+		
+		/* Handelt sich um einen Gruppenschlüssel */
+		if(groupAccountCodes.contains(accountingCode)) {
+			switch (accountingCode) {
+			case 0://00-Sammelschlüssel für alle Leistungsarten
+				return Collections.emptyList();//00-Sammelschlüssel für alle Leistungsarten
+			case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
+				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHimiCodes());
+			case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
+				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHeimiCodes());
+			case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
+				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHpfCodes());
+			case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
+				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getTransportCodes());
+			default:
+				break;
+			}
+		}
+		return rFactory.getAccountingCodeRepository().findAllById(List.of(accountingCode));
 	}
 
 	/**

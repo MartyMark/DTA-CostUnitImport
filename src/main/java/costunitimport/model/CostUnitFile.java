@@ -2,6 +2,7 @@ package costunitimport.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,9 +14,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "KOSTENTRÄGER_DATEI")
 public class CostUnitFile {
-	@Id 
-	@GeneratedValue
-	private Integer id;
+
+	private @Id @GeneratedValue Integer id;
 	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
