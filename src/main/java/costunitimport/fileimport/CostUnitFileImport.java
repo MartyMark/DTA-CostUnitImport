@@ -1,4 +1,4 @@
-package costunitimport.costunitImport;
+package costunitimport.fileimport;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,9 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.logger.Logger;
+import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
@@ -50,7 +49,7 @@ public class CostUnitFileImport {
 		try (Stream<String> lines = Files.lines(path, StandardCharsets.ISO_8859_1)) {
 			lines.forEach(line -> assign(line));
 		} catch (IOException e) {
-			Logger.error(e);
+			throw new InternalServiceApplication("Lesen der Datei fehlerhaft!", e); 
 		}
 		insertCostUnitFile();
 	}
@@ -128,7 +127,7 @@ public class CostUnitFileImport {
 		
 		closeInstitutions(filterdIDKs, newFile.getValidityFrom(), existingInstitutionMap);
 		
-		updateInstitutions(filterdIDKs, newFile.getValidityFrom(), careProviderMethod, costUnitSeperation, existingInstitutionMap);
+		updateInstitutions(filterdIDKs, careProviderMethod, costUnitSeperation, existingInstitutionMap);
 		
 		
 		//*** Verknüpfungen
@@ -150,7 +149,7 @@ public class CostUnitFileImport {
 				//Der Fall kann entstehen, 
 			}
 			closeAssignments(exisitingAssignments, newFile.getValidityFrom());
-			updateAssignments(currentInstitution, assignmentsFromFile, exisitingAssignments, newFile.getValidityFrom());
+			updateAssignments(assignmentsFromFile, exisitingAssignments, newFile.getValidityFrom());
 		} // ***
 	}
 	
@@ -186,7 +185,7 @@ public class CostUnitFileImport {
 		return filterdIDKs;
 	}
 	
-	private void updateInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeperation, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
+	private void updateInstitutions(List<IDK> filterdIDKs, CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeperation, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
 		for (IDK idk : filterdIDKs) {
 			CostUnitInstitution existingInstitution = existingInstitutionMap.get(idk.getInstitutionCode());
 			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod, costUnitSeperation);
@@ -205,6 +204,8 @@ public class CostUnitFileImport {
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 * @param existingInstitutionMap alle Institutionen aus der Datenbank
 	 */
+	
+	//TODO Nur Institutionen abschließen die nicht in der neuen Datei vorhanden sind, aber in der DB
 	private void closeInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
 		for (IDK idk : filterdIDKs) {
 			CostUnitInstitution institutionToClose = existingInstitutionMap.get(idk.getInstitutionCode());
@@ -222,12 +223,11 @@ public class CostUnitFileImport {
 	 * Falls dies der Fall ist, ID der Verknüpfung aus der Datenbank auf die Verknüpfung in der Datei übertragen.<br>
 	 * Somit muss kein neuer Datensatz erstellt werden.
 	 * 
-	 * @param currentInstitution Aktuelle Kasseninstitution 
 	 * @param assignmentsFromFile alle Verknüpfungen der Datei
 	 * @param exisitingAssignments alle Verknüpfungen aus der Datenbank
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 */
-	private void updateAssignments(CostUnitInstitution currentInstitution, List<CostUnitAssignment> assignmentsFromFile, List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
+	private void updateAssignments(List<CostUnitAssignment> assignmentsFromFile, List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
 		for(CostUnitAssignment assignmentFromFile : assignmentsFromFile) {
 			
 			String assignmentFromFileCompareString = getCompareString(assignmentFromFile);
@@ -264,7 +264,7 @@ public class CostUnitFileImport {
 		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
 	}
 	
-	//TODO Man könnte auch die CompareKey-Methode in der CostUnitAssignment verwenden, jedoch müssen hierbei die Gültigkeiten ausgelassen und die Abrechnungscodes beachtet werden.
+	//Man könnte auch die CompareKey-Methode in der CostUnitAssignment verwenden, jedoch müssen hierbei die Gültigkeiten ausgelassen und die Abrechnungscodes beachtet werden.
 	private static String getCompareString(CostUnitAssignment assignment) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("typeAssignment:").append(assignment.getTypeAssignment() == null ? null : assignment.getTypeAssignment().getId()).append("|");

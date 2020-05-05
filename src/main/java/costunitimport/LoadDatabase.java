@@ -1,11 +1,11 @@
 package costunitimport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.logger.Logger;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitTypeAssignment;
 import costunitimport.model.CostUnitTypeDataSupply;
@@ -21,12 +21,14 @@ import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 @Configuration
 public class LoadDatabase {
 	
+	public final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
+	
 	private static final String UNKNOWN = "unbekannt";
 	
 	@Bean
 	CommandLineRunner initDatabase(RepositoryFactory rFactory) {
 		return args -> {
-			Logger.info("Country - STAAT");
+			log.info("Country - STAAT");
 			Country unknown = new Country();
 			unknown.setId(0);
 			unknown.setDescription(UNKNOWN);
@@ -50,7 +52,7 @@ public class LoadDatabase {
 			
 			rFactory.getCountryRepository().save(germany);
 			
-			Logger.info("FederalState - STAAT_BUNDESLAND");
+			log.info("FederalState - STAAT_BUNDESLAND");
 			rFactory.getFederalStateRepository().save(new FederalState(0, germany, UNKNOWN, null));
 			rFactory.getFederalStateRepository().save(new FederalState(1, germany, "Schleswig-Holstein", null));
 			rFactory.getFederalStateRepository().save(new FederalState(2, germany, "Hamburg", null));
@@ -72,7 +74,7 @@ public class LoadDatabase {
 			rFactory.getFederalStateRepository().save(new FederalState(17, germany, "Westfalen-Lippe", 5));
 			rFactory.getFederalStateRepository().save(new FederalState(99, germany, "Alle Bundesländer", null));
 			
-			Logger.info("ZipType - STAAT_PLZ_ART");
+			log.info("ZipType - STAAT_PLZ_ART");
 			rFactory.getZipTypeRepository().save(new ZipType(1, "Postfach"));
 			rFactory.getZipTypeRepository().save(new ZipType(2, "Schalterausgabe"));
 			rFactory.getZipTypeRepository().save(new ZipType(3, "Gruppen-GE"));
@@ -82,7 +84,7 @@ public class LoadDatabase {
 			rFactory.getZipTypeRepository().save(new ZipType(7, "Import-Schnittstelle"));
 			rFactory.getZipTypeRepository().save(new ZipType(8, "Import-Schnittstelle ungeprüft"));
 			
-			Logger.info("DTACareProvidermethod - DTA_LEISTUNGSVERFAHREN");
+			log.info("DTACareProvidermethod - DTA_LEISTUNGSVERFAHREN");
 			CareProviderMethod unknownMethod = new CareProviderMethod(0, UNKNOWN, "", false);
 			CareProviderMethod apo = new CareProviderMethod(3, "Apotheken", "Abrechnung nach §300", true);
 			CareProviderMethod p302 = new CareProviderMethod(5, "Sonstige Leistungserbringer", "Abrechnung nach §302", true);
@@ -97,7 +99,7 @@ public class LoadDatabase {
 			rFactory.getCareProviderMethodRepository().save(hospital);
 			rFactory.getCareProviderMethodRepository().save(direct);
 			
-			Logger.info("CostUnitTypeMedium - KASSEN_ART_MEDIUM");
+			log.info("CostUnitTypeMedium - KASSEN_ART_MEDIUM");
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(1, "DFÜ"));
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(2, "Magnetband"));
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(3, "Magnetbandkassette"));
@@ -107,13 +109,13 @@ public class LoadDatabase {
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(7, "CD-ROM"));
 			rFactory.getCostUnitTypeMediumRepository().save(new CostUnitTypeMedium(9, "Alle Datenträger (Schlüssel 2 bis 4 und 7)"));
 			
-			Logger.info("CostUnitTypeAssignment - KASSE_ART_VERKNUEPFUNG");
+			log.info("CostUnitTypeAssignment - KASSE_ART_VERKNUEPFUNG");
 			rFactory.getCostUnitTypeAssignmentRepository().save(new CostUnitTypeAssignment(1, "Verweis vom IK der Versichertenkarte"));
 			rFactory.getCostUnitTypeAssignmentRepository().save(new CostUnitTypeAssignment(2, "Verweis auf eine Datenannahmestelle (ohne Entschlüsselungsbefugnis)"));
 			rFactory.getCostUnitTypeAssignmentRepository().save(new CostUnitTypeAssignment(3, "Verweis auf eine Datenannahmestelle (mit Entschlüsselungsbefugnis)"));
 			rFactory.getCostUnitTypeAssignmentRepository().save(new CostUnitTypeAssignment(9, "Verweis auf eine Papierannahmestelle"));
 			
-			Logger.info("CostUnitTypeDataSupply - KASSE_ART_DATENLIEFERUNG");
+			log.info("CostUnitTypeDataSupply - KASSE_ART_DATENLIEFERUNG");
 			rFactory.getCostUnitTypeDataSupplyRepository().save(new CostUnitTypeDataSupply(7, "Rechnungs-und Abrechnungsdaten SLGA und SLLA digitalisiert"));
 			rFactory.getCostUnitTypeDataSupplyRepository().save(new CostUnitTypeDataSupply(21, "Rechnung (Papier)"));
 			rFactory.getCostUnitTypeDataSupplyRepository().save(new CostUnitTypeDataSupply(24, "maschinenlesbarer Beleg"));
@@ -122,7 +124,7 @@ public class LoadDatabase {
 			rFactory.getCostUnitTypeDataSupplyRepository().save(new CostUnitTypeDataSupply(28, "papiergebundene Unterlagen einer digitalen Abrechnung (Verordnung, ggf. Kostenvoranschlag, ggf. Rechnung)"));
 			rFactory.getCostUnitTypeDataSupplyRepository().save(new CostUnitTypeDataSupply(29, "maschinenlesbarer Beleg einschließlich der dazugehöri-gen Abrechnungsunterlagen"));
 			
-			Logger.info("DTACostUnitSeperation - DTA_KASSENTRENNUNG");
+			log.info("DTACostUnitSeperation - DTA_KASSENTRENNUNG");
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(1, "AOK"));
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(2, "Ersatzkassen"));
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(3, "Ersatzkassen"));
@@ -134,7 +136,7 @@ public class LoadDatabase {
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(8, "Bundeswehr"));
 			rFactory.getCostUnitSeparationRepository().save(new DTACostUnitSeparation(9, "Sonstige"));
 			
-			Logger.info("DTAAccumulativeGroupKeyAccountinCode - DTA_SAGS_ABRECHNUNGSCODE");
+			log.info("DTAAccumulativeGroupKeyAccountinCode - DTA_SAGS_ABRECHNUNGSCODE");
 			DTAAccumulativeGroupKeyAccountinCode sagscode1 = new DTAAccumulativeGroupKeyAccountinCode(1, 11);
 			DTAAccumulativeGroupKeyAccountinCode sagscode2 = new DTAAccumulativeGroupKeyAccountinCode(1, 12);
 			DTAAccumulativeGroupKeyAccountinCode sagscode3 = new DTAAccumulativeGroupKeyAccountinCode(1, 13);
@@ -204,6 +206,7 @@ public class LoadDatabase {
 			DTAAccumulativeGroupKeyAccountinCode sagscode67 = new DTAAccumulativeGroupKeyAccountinCode(19, 88);
 			DTAAccumulativeGroupKeyAccountinCode sagscode68 = new DTAAccumulativeGroupKeyAccountinCode(19, 89);
 			DTAAccumulativeGroupKeyAccountinCode sagscode69 = new DTAAccumulativeGroupKeyAccountinCode(20, 91);
+			DTAAccumulativeGroupKeyAccountinCode sagscode70 = new DTAAccumulativeGroupKeyAccountinCode(26, 60);
 			
 			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode1);
 			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode2); 
@@ -274,8 +277,9 @@ public class LoadDatabase {
 			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode67);
 			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode68);
 			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode69);
+			rFactory.getAccumulativeGroupKeyAccountingCodeRepository().save(sagscode70);
 			
-			Logger.info("DTAAccountingCode - DTA_ABRECHNUNGSCODE"); 
+			log.info("DTAAccountingCode - DTA_ABRECHNUNGSCODE"); 
 			DTAAccountingCode code1 = new DTAAccountingCode(8, "Leistungserbringer für Arzneimittel und apothekenübliche Waren");
 			DTAAccountingCode code2 = new DTAAccountingCode(11, "Apotheke");
 			DTAAccountingCode code3 = new DTAAccountingCode(12, "Augenoptiker");
@@ -422,7 +426,7 @@ public class LoadDatabase {
 			rFactory.getAccountingCodeRepository().save(code69);
 			rFactory.getAccountingCodeRepository().save(code70);
 			
-			Logger.info("DTAAccumulativeGroupKey - SAGS");
+			log.info("DTAAccumulativeGroupKey - SAGS");
 			DTAAccumulativeGroupKey sags1 = new DTAAccumulativeGroupKey(1, "Leistungserbringer von Hilfsmitteln", "A", p302);
 			DTAAccumulativeGroupKey sags2 = new DTAAccumulativeGroupKey(2, "Leistungserbringer von Heilmitteln", "B", p302);
 			DTAAccumulativeGroupKey sags3 = new DTAAccumulativeGroupKey(3, "Leistungserbringer von häuslicher Krankenpflege", "C", p302);
@@ -448,6 +452,7 @@ public class LoadDatabase {
 			DTAAccumulativeGroupKey sags23 = new DTAAccumulativeGroupKey(23, "Spezialisierte ambulante Paliativversorgung", "O", p302);
 			DTAAccumulativeGroupKey sags24 = new DTAAccumulativeGroupKey(24, "gesundheitliche Versorgungsplanung nach § 132g SGB V", "P", p302);
 			DTAAccumulativeGroupKey sags25 = new DTAAccumulativeGroupKey(25, "Kurzzeitpflege", "Q", p302);
+			DTAAccumulativeGroupKey sags26 = new DTAAccumulativeGroupKey(26, "Keinem Leistungserbringer-Sammelgruppenschlüssel zugeordnet", null, p302);
 			
 			rFactory.getSAGSRepository().save(sags1);
 			rFactory.getSAGSRepository().save(sags2);
@@ -474,6 +479,7 @@ public class LoadDatabase {
 			rFactory.getSAGSRepository().save(sags23);
 			rFactory.getSAGSRepository().save(sags24);
 			rFactory.getSAGSRepository().save(sags25);
+			rFactory.getSAGSRepository().save(sags26);
 		};
 	}
 }

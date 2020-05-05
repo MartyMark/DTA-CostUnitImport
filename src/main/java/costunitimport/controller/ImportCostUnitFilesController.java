@@ -10,14 +10,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import javax.xml.bind.JAXBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import costunitimport.costunitImport.CostUnitFileImport;
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.logger.Logger;
+import costunitimport.exception.InternalServiceApplication;
+import costunitimport.fileimport.CostUnitFileImport;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.rssfeed.CostUnitRSSFeed;
@@ -26,6 +28,8 @@ import costunitimport.rssfeed.RSSFeedParser;
 
 @RestController
 public class ImportCostUnitFilesController {
+	
+	public final Logger log = LoggerFactory.getLogger(ImportCostUnitFilesController.class);
 	
 	@Autowired
 	private RepositoryFactory rFactory;
@@ -43,19 +47,19 @@ public class ImportCostUnitFilesController {
 				String filename = new File(feedItem.getLink()).getName().replace(".", "");
 				List<CostUnitFile> costUnitFile = rFactory.getCostUnitFileRepository().findByFileName(filename);
 				if(costUnitFile.isEmpty()) {
-					Logger.info("Started import of CostUnitFile " + filename);
+					log.info("Started import of CostUnitFile " + filename);
 					String httpsLink = feedItem.getLink().replaceFirst("http:", "https:");
 					Path path = downloadAndSaveTempFile(httpsLink, filename);
 					
 					CostUnitFileImport costUnitImport = new CostUnitFileImport(path, rFactory);
 					costUnitImport.start();
 					
-					Logger.info("Finished import of CostUnitFile " + filename);
+					log.info("Finished import of CostUnitFile " + filename);
 					deleteFiles(path);
 				}
 			}
 		} catch (JAXBException | IOException e) {
-			Logger.error(e);
+			throw new InternalServiceApplication("Import ist fehlgeschlagen!", e); 
 		}
 		return null;
 	}
@@ -64,7 +68,7 @@ public class ImportCostUnitFilesController {
 		try {
 			Files.deleteIfExists(path);
 		} catch (IOException e) {
-			Logger.info("File " + path.getFileName() + " konte nicht gelöscht werden!");
+			log.info("File " + path.getFileName() + " konte nicht gelöscht werden!");
 		}
 	}
 

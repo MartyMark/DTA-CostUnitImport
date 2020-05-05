@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.exception.CostUnitInstitutionNotFoundException;
 import costunitimport.exception.CostUnitTypeAssigmentNotFoundException;
 import costunitimport.exception.CostUnitTypeDataSupplyNotFoundException;
+import costunitimport.exception.CostUnitTypeMediumNotFoundException;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.CostUnitTypeAssignment;
@@ -58,15 +59,7 @@ public class VKG extends Segment {
 	/**
 	 * Baut das Verknüpfungs-Objekt
 	 */
-	public Optional<CostUnitAssignment> buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
-		if (accountingCode != null && (accountingCode == 18 || accountingCode == 60)) { //TODO
-			/*
-			 * 18-Sanitätshaus (Bei neuen Verträgen bzw. Vertragsanpassungen ist eine Umschlüsselung mit dem Abrechnungscode 15 vorzunehmen. 
-			 * Der Abrechnungscode 18 wird für Sanitätshäuser zum 31.12.2005 aufgehoben.)
-			 * Betriebshilfe 60 ist keinem SAGS zugeordnet!
-			 */
-			return Optional.empty();
-		}
+	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
 		
 		//*** Art der Verknüpfung
@@ -79,36 +72,27 @@ public class VKG extends Segment {
 		}
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
-			Optional<CostUnitTypeMedium> typeMedium = rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium);
-			if(typeMedium.isEmpty()) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte Art des Mediums! Id: " + kindOfDataMedium);
-			}
-			assignment.setTypeMedium(typeMedium.get());
+			CostUnitTypeMedium typeMedium = rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium).orElseThrow(() -> new CostUnitTypeMediumNotFoundException(kindOfDataMedium));
+			assignment.setTypeMedium(typeMedium);
 		}
 		//*** Institut des Verknüpfungspartners
 		if(institutionCodeAssignmentPartner!=null) {
-			CostUnitInstitution institutionToSet = institutions.get(institutionCodeAssignmentPartner);
-			if(institutionToSet==null) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAssignmentPartner);
-			}
+			CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAssignmentPartner)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAssignmentPartner));
 			assignment.setInstitutionIdAssignment(institutionToSet.getId());
 		}
 		//*** Institut der Abrechnungsstelle
 		if(institutionCodeAccounting!=null) {
-			CostUnitInstitution institutionToSet = institutions.get(institutionCodeAccounting);
-			if(institutionToSet==null) {
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Unbekannte IK des Verknüpfungspartners! IK: " + institutionCodeAccounting);
-			}
+			CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAccounting)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAccounting));
 			assignment.setInstitutionIdAccounting(institutionToSet.getId());
 		}
 		assignment.setFederalStateClassificationId(federalStateCareProvider);
 		assignment.setDistrictId(regionCareProvider);
-		String strRateCode = rateCode!=null?rateCode.toString():null;//Tarifkennzeichen ist in der Berschreibung der Kostenträgerdatei nur numerisch
+		String strRateCode = rateCode != null ? rateCode.toString() : null;//Tarifkennzeichen ist in der Berschreibung der Kostenträgerdatei nur numerisch
 		assignment.setRateCode(strRateCode);
 		assignment.setValidityFrom(validityFrom);
 		assignment.setValidityUntil(null);
 		assignment.setAccountingCodes(findAccountingCodes(validityFrom, institutions));
-		return Optional.of(assignment);
+		return assignment;
 	}
 
 	private List<DTAAccountingCode> findAccountingCodes(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {

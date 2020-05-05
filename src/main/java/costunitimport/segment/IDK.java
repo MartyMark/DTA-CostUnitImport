@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import costunitimport.exception.CostUnitAssigmentGroupingException;
 import costunitimport.model.AddressType;
 import costunitimport.model.CareProviderMethod;
@@ -166,8 +165,8 @@ public class IDK extends Segment{
         	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
         	
         	for(VKG vkg : vkgs) {
-				Optional<CostUnitAssignment> assignment = vkg.buildCostUnitAssignment(validityFrom, institutions);
-        		assignment.ifPresent(a -> assignmentsByKindOfAssignment.add(a));
+				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions);
+        		assignmentsByKindOfAssignment.add(assignment);
         		
         		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
         		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
@@ -175,7 +174,7 @@ public class IDK extends Segment{
 							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
 					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac))
 							.collect(Collectors.toList());
-					assignment.get().setAccountingCodes(listRemainingdACs);
+					assignment.setAccountingCodes(listRemainingdACs);
         		}
         	}
 			allAssignments.addAll(assignmentsByKindOfAssignment);

@@ -5,8 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
-import costunitimport.logger.Logger;
+import costunitimport.exception.InternalServiceApplication;
 
 public abstract class Segment {
 	private String[] data = new String[0];
@@ -37,23 +36,22 @@ public abstract class Segment {
 			try {
 				return (P)LocalDate.parse(importData, dateFormatter);
 			} catch (Exception e) {
-				Logger.error("Fehler beim erzeugen des Datums: " + importData);
+				throw new InternalServiceApplication("Fehler beim erzeugen des Datums: " + importData); 
 			}
 		} else if(type.equals(LocalTime.class)) {
 			try {
 				return (P) LocalTime.parse(importData, timeFormatter);
 			} catch (Exception e) {
-				Logger.error("Fehler beim erzeugen der Zeit: " + importData);
+				throw new InternalServiceApplication("Fehler beim erzeugen der Zeit: " + importData);
 			}
 		} else if(type.equals(LocalDateTime.class)) {
 			try {
 				return (P) LocalDateTime.parse(importData, dateTimeFormatter);
 			} catch (Exception e) {
-				Logger.error("Fehler beim erzeugen der Zeit: " + importData);
+				throw new InternalServiceApplication("Fehler beim erzeugen der Zeit: " + importData);
 			}
 		}
-		Logger.error("Unbekannter Datentyp! Typ: " + type);
-		return null;
+		throw new InternalServiceApplication("Unbekannter Datentyp! Typ: " + type);
 	}
 
 	private String getImportData(int position) {
