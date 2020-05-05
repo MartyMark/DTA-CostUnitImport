@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.CareProviderMethodNotFoundException;
 import costunitimport.exception.CostUnitSeperationNotFoundException;
+import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.DTACostUnitSeparation;
@@ -146,9 +147,8 @@ public class UNB extends Segment {
 			case "Q4":
 				return LocalDate.of(year, Month.OCTOBER, 1);
 			default:
-//				throw new ApplicationException(ApplicationException.ILLEGAL_DATA_STATE, "Fehler bei der Ermittlung des Datei Gültigkeitsdatums!");
+				throw new InternalServiceApplication("Fehler bei der Ermittlung des Datei Gültigkeitsdatums!");
 		}
-		return null;
 	}
 	
 	/**

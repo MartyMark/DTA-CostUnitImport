@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
@@ -123,9 +125,10 @@ public class CostUnitFileImport {
 		
 		//*** Institutionen
 		
-		List<IDK> filterdIDKs = filterIDKs(newFile.getValidityFrom(), existingInstitutionMap);
 		
-		closeInstitutions(filterdIDKs, newFile.getValidityFrom(), existingInstitutionMap);
+		closeInstitutions(listIDKs, newFile.getValidityFrom(), existingInstitutionMap);
+		
+		List<IDK> filterdIDKs = filterIDKs(newFile.getValidityFrom(), existingInstitutionMap);
 		
 		updateInstitutions(filterdIDKs, careProviderMethod, costUnitSeperation, existingInstitutionMap);
 		
@@ -198,22 +201,19 @@ public class CostUnitFileImport {
 	}
 	
 	/**
-	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei) alle in der @param filterdIDKs befindelichen Kasseninstitutionen.
+	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei) aller Kasseninstitutionen die sich in der Datenbank befinden aber nicht mehr in der Importdatei.
 	 * 
-	 * @param filterdIDKs gefilterte Kasseninstitutionen der Importdatei
+	 * @param listIDKs Kasseninstitutionen der Importdatei
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 * @param existingInstitutionMap alle Institutionen aus der Datenbank
 	 */
-	
-	//TODO Nur Institutionen abschließen die nicht in der neuen Datei vorhanden sind, aber in der DB
-	private void closeInstitutions(List<IDK> filterdIDKs, LocalDate importFileValidityFrom, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
-		for (IDK idk : filterdIDKs) {
-			CostUnitInstitution institutionToClose = existingInstitutionMap.get(idk.getInstitutionCode());
+	private void closeInstitutions(List<IDK> listIDKs, LocalDate importFileValidityFrom, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
+		for(CostUnitInstitution existingInstitution : existingInstitutionMap.values()) {
+			List<Integer> idkIKs = listIDKs.stream().map(IDK::getInstitutionCode).collect(Collectors.toList()); 
 			
-			/* Institution befindet sich nicht in der Datenbank */
-			if(institutionToClose != null) {
-				institutionToClose.setValidityUntil(importFileValidityFrom.minusDays(1));
-				rFactory.getCostUnitInstitutionRepository().save(institutionToClose);
+			if(!idkIKs.contains(existingInstitution.getInstitutionNumber())) {
+				existingInstitution.setValidityUntil(importFileValidityFrom.minusDays(1));
+				rFactory.getCostUnitInstitutionRepository().save(existingInstitution);
 			}
 		}
 	}
