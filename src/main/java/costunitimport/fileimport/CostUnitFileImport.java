@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
@@ -121,10 +120,10 @@ public class CostUnitFileImport {
 		CareProviderMethod careProviderMethod = newFile.getCareProviderMethod();
 		DTACostUnitSeparation costUnitSeperation = newFile.getDtaCostUnitSeparation();
 		
+		/* Sucht alle Kasseninstitutionen nach Leistungserbringerschlüssel (Bsp: 5 für Sonstige Leistungserbringer) und Kassentrennung (Bsp: AOK)) */
 		Map<Integer, CostUnitInstitution> existingInstitutionMap = rFactory.getCostUnitInstitutionRepositoryCustom().findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(careProviderMethod.getId(), costUnitSeperation.getId());
 		
 		//*** Institutionen
-		
 		
 		closeInstitutions(listIDKs, newFile.getValidityFrom(), existingInstitutionMap);
 		

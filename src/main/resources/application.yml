@@ -1,0 +1,42 @@
+## ------ Grundeinstellungen ------
+server:
+   port: 8081
+   error:
+      include-stacktrace: always
+
+spring:
+   application:
+      name: costunitimport
+   jpa:
+      hibernate:
+         naming:
+            physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      datasource:
+         tomcat:
+            max-wait: 10000 # Anzahl von Millisekunden die gewartet wird, bis eine Exception geworden wird, wenn keine Verbindung aufgebaut werden kann
+
+# RSS-Feeds die verarbeitet werden sollen
+rssfeeds:
+   url: https://www.gkv-datenaustausch.de/leistungserbringer/sonstige_leistungserbringer/kostentraegerdateien_sle/rss_kostentraegerdateien_sonstige_leistungserbringer.xml
+
+
+##------ Eureka Discovery ------
+eureka:
+   client:
+      serviceUrl:
+         defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+      register-with-eureka: true
+      fetch-registry: true
+   instance:
+      preferIpAddress: true
+      
+      
+security:
+   oauth2:
+      client:
+         clientId: dtaService
+         clientSecret: dtaServiceSecret
+         accessTokenUri: http://localhost:9191/oauth/token
+         userAuthorizationUri: http://localhost:9191/oauth/authorize
+      resource:
+         token-info-uri: http://localhost:9191/oauth/check_token  
