@@ -5,6 +5,7 @@ import costunitimport.assembler.AssemblerTools;
 import costunitimport.service.CostUnitService;
 
 public class CostUnitController {
+	
 	@Autowired
 	private CostUnitService service;
 	
