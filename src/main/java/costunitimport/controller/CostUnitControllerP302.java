@@ -2,17 +2,17 @@ package costunitimport.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import costunitimport.assembler.AssemblerTools;
-import costunitimport.service.CostUnitService;
+import costunitimport.service.CostUnitServiceP302;
 
-public class CostUnitController {
+public class CostUnitControllerP302 {
 	
 	@Autowired
-	private CostUnitService service;
+	private CostUnitServiceP302 service;
 	
 	@Autowired
 	private AssemblerTools tools;
 	
-	public CostUnitService getService() {
+	public CostUnitServiceP302 getService() {
 		return service;
 	}
 	

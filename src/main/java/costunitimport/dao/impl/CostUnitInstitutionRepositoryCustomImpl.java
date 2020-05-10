@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,13 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 
 		// IK - Kasseninstitution
 		return existingInstitutions.stream().collect(Collectors.toMap(CostUnitInstitution::getInstitutionNumber, Function.identity()));
+	}
+
+	@Override
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId) {
+		
+		
+		return null;
 	}
 
 }

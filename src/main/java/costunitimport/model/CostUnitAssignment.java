@@ -22,7 +22,7 @@ public class CostUnitAssignment {
     @JoinColumn(name = "id")
 	private CostUnitAssignment assignment;
 	
-	private Integer institutionId;
+	private Integer parentInstitutionId;
 	private Integer institutionIdAssignment;
 	private Integer institutionIdAccounting;
 	
@@ -30,13 +30,9 @@ public class CostUnitAssignment {
     @JoinColumn(name = "id")
 	private CostUnitTypeDataSupply typeDataSupply;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-	private CostUnitTypeMedium typeMedium;
+	private Integer typeMediumId;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-	private CostUnitTypeAssignment typeAssignment;
+	private Integer typeAssignmentId;
 	
 	private Integer federalStateClassificationId;
 	private Integer districtId;
@@ -48,6 +44,8 @@ public class CostUnitAssignment {
     @JoinColumn(name = "id")
 	private List<DTAAccountingCode> accountingCodes;
 	
+	private Integer careProverMethodId;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -56,20 +54,20 @@ public class CostUnitAssignment {
 		this.id = id;
 	}
 	
-	public CostUnitTypeAssignment getTypeAssignment() {
-		return typeAssignment;
+	public Integer getTypeAssignmentId() {
+		return typeAssignmentId;
 	}
 	
-	public void setTypeAssignment(CostUnitTypeAssignment typeAssignment) {
-		this.typeAssignment = typeAssignment;
+	public void setTypeAssignmentId(Integer typeAssignmentId) {
+		this.typeAssignmentId = typeAssignmentId;
 	}
 	
-	public Integer getInstitutionId() {
-		return institutionId;
+	public Integer getParentInstitutionId() {
+		return parentInstitutionId;
 	}
 	
-	public void setInstitutionId(Integer institutionId) {
-		this.institutionId = institutionId;
+	public void setParentInstitutionId(Integer institutionId) {
+		this.parentInstitutionId = institutionId;
 	}
 	
 	public Integer getInstitutionIdAssignment() {
@@ -96,12 +94,12 @@ public class CostUnitAssignment {
 		this.typeDataSupply = typeDataSupply;
 	}
 	
-	public CostUnitTypeMedium getTypeMedium() {
-		return typeMedium;
+	public Integer getTypeMediumId() {
+		return typeMediumId;
 	}
 	
-	public void setTypeMedium(CostUnitTypeMedium typeMedium) {
-		this.typeMedium = typeMedium;
+	public void setTypeMediumId(Integer typeMediumId) {
+		this.typeMediumId = typeMediumId;
 	}
 	
 	public Integer getFederalStateClassificationId() {
@@ -163,17 +161,25 @@ public class CostUnitAssignment {
 	public String getCompareKey() {
 		StringBuilder keyBuilder = new StringBuilder();
 		keyBuilder.append("Id:").append(id);
-		keyBuilder.append("TypeAssignment:").append(typeAssignment);
-		keyBuilder.append("InstitutionId:").append(institutionId);
+		keyBuilder.append("TypeAssignment:").append(typeAssignmentId);
+		keyBuilder.append("InstitutionId:").append(parentInstitutionId);
 		keyBuilder.append("InstitutionIdAssignment:").append(institutionIdAssignment);
 		keyBuilder.append("InstitutionIdAccounting:").append(institutionIdAccounting);
 		keyBuilder.append("TypeDataSupply:").append(typeDataSupply);
-		keyBuilder.append("TypeMedium:").append(typeMedium);
+		keyBuilder.append("TypeMedium:").append(typeMediumId);
 		keyBuilder.append("FederalStateClassificationId:").append(federalStateClassificationId);
 		keyBuilder.append("DistrictId:").append(districtId);
 		keyBuilder.append("RateCode:").append(rateCode);
 		keyBuilder.append("ValidityFrom:").append(validityFrom);
 		keyBuilder.append("ValidityUntil:").append(validityUntil);
 		return keyBuilder.toString();
+	}
+
+	public Integer getCareProverMethodId() {
+		return careProverMethodId;
+	}
+
+	public void setCareProverMethodId(Integer careProverMethodId) {
+		this.careProverMethodId = careProverMethodId;
 	}
 }

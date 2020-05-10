@@ -2,6 +2,7 @@ package costunitimport.dao.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import costunitimport.model.CostUnitInstitution;
 
@@ -20,4 +21,12 @@ public interface CostUnitInstitutionRepositoryCustom {
 	 * @param careProviderMethodId Leistungsverfahren-ID
 	 */
 	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId);
+
+	/**
+	 * Beschafft sich zu einem Institutionsnummer und einer Kassenart die gültige (latest) Kasseninstitution.
+	 * 
+	 * @param careProviderMethodId Leistungsverfahren-ID
+	 */
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId);
+
 }

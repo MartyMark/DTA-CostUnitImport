@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
@@ -253,8 +254,8 @@ public class CostUnitFileImport {
 			if (assignmentToClose.getValidityFrom().compareTo(validityUntil) >= 0) {
 				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
 				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
-				if (assignmentToClose.getTypeAssignment().getId() != 1) {
-					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
+				if (assignmentToClose.getTypeAssignmentId() != 1) {
+					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getParentInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
 				}
 			} else {
 				assignmentToClose.setValidityUntil(validityUntil);
@@ -266,12 +267,12 @@ public class CostUnitFileImport {
 	//Man könnte auch die CompareKey-Methode in der CostUnitAssignment verwenden, jedoch müssen hierbei die Gültigkeiten ausgelassen und die Abrechnungscodes beachtet werden.
 	private static String getCompareString(CostUnitAssignment assignment) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("typeAssignment:").append(assignment.getTypeAssignment() == null ? null : assignment.getTypeAssignment().getId()).append("|");
-		builder.append("institutionId:").append(assignment.getInstitutionId()).append("|");
+		builder.append("typeAssignment:").append(assignment.getTypeAssignmentId() == null ? null : assignment.getTypeAssignmentId()).append("|");
+		builder.append("institutionId:").append(assignment.getParentInstitutionId()).append("|");
 		builder.append("institutionIdAssignment:").append(assignment.getInstitutionIdAssignment()).append("|");
 		builder.append("institutionIdAccounting:").append(assignment.getInstitutionIdAccounting()).append("|");
 		builder.append("typeDataSupply:").append(assignment.getTypeDataSupply() == null ? null : assignment.getTypeDataSupply().getId()).append("|");
-		builder.append("typeMedium:").append(assignment.getTypeMedium() == null ? null : assignment.getTypeMedium().getId()).append("|");
+		builder.append("typeMedium:").append(assignment.getTypeMediumId() == null ? null : assignment.getTypeMediumId()).append("|");
 		builder.append("federalStateClassificationId:").append(assignment.getFederalStateClassificationId()).append("|");
 		builder.append("districtId:").append(assignment.getDistrictId()).append("|");
 		builder.append("rateCode:").append(assignment.getRateCode()).append("|");

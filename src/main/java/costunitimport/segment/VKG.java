@@ -5,11 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.exception.CareProviderMethodNotFoundException;
 import costunitimport.exception.CostUnitInstitutionNotFoundException;
 import costunitimport.exception.CostUnitTypeAssigmentNotFoundException;
 import costunitimport.exception.CostUnitTypeDataSupplyNotFoundException;
 import costunitimport.exception.CostUnitTypeMediumNotFoundException;
+import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.CostUnitTypeAssignment;
@@ -64,27 +67,34 @@ public class VKG extends Segment {
 		
 		//*** Art der Verknüpfung
 		CostUnitTypeAssignment typeAssignment = rFactory.getCostUnitTypeAssignmentRepository().findById(kindOfAssignment).orElseThrow(() -> new CostUnitTypeAssigmentNotFoundException(kindOfAssignment));
-		assignment.setTypeAssignment(typeAssignment);
+		assignment.setTypeAssignmentId(typeAssignment.getId());
+		
 		//*** Art der Datenlieferung
-		if(kindOfDataSupply!=null) {
-			CostUnitTypeDataSupply typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply).orElseThrow(() -> new CostUnitTypeDataSupplyNotFoundException(kindOfDataSupply));
-			assignment.setTypeDataSupply(typeDataSupply);
-		}
+		CostUnitTypeDataSupply typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply).orElseThrow(() -> new CostUnitTypeDataSupplyNotFoundException(kindOfDataSupply));
+		assignment.setTypeDataSupply(typeDataSupply);
+		
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
 			CostUnitTypeMedium typeMedium = rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium).orElseThrow(() -> new CostUnitTypeMediumNotFoundException(kindOfDataMedium));
-			assignment.setTypeMedium(typeMedium);
+			assignment.setTypeMediumId(typeMedium.getId());
 		}
+		
 		//*** Institut des Verknüpfungspartners
-		if(institutionCodeAssignmentPartner!=null) {
-			CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAssignmentPartner)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAssignmentPartner));
-			assignment.setInstitutionIdAssignment(institutionToSet.getId());
-		}
+		CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAssignmentPartner)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAssignmentPartner));
+		assignment.setInstitutionIdAssignment(institutionToSet.getId());
+		
 		//*** Institut der Abrechnungsstelle
 		if(institutionCodeAccounting!=null) {
-			CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAccounting)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAccounting));
-			assignment.setInstitutionIdAccounting(institutionToSet.getId());
+			CostUnitInstitution institutionToSetAcc = Optional.ofNullable(institutions.get(institutionCodeAccounting)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAccounting));
+			assignment.setInstitutionIdAccounting(institutionToSetAcc.getId());
 		}
+		
+		//*** Leistungserbringergruppe
+		if(careProviderGroup != null) {
+			CareProviderMethod careProviderMethod = rFactory.getCareProviderMethodRepository().findById(careProviderGroup).orElseThrow(() -> new CareProviderMethodNotFoundException(careProviderGroup));
+			assignment.setCareProverMethodId(careProviderMethod.getId());
+		}
+		
 		assignment.setFederalStateClassificationId(federalStateCareProvider);
 		assignment.setDistrictId(regionCareProvider);
 		String strRateCode = rateCode != null ? rateCode.toString() : null;//Tarifkennzeichen ist in der Berschreibung der Kostenträgerdatei nur numerisch

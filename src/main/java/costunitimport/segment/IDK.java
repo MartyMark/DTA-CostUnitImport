@@ -214,7 +214,7 @@ public class IDK extends Segment{
 		CostUnitInstitution currentInstitution = institutions.get(getInstitutionCode());
 		
 		//Jede Verknüpfung erhält die InstitutionsId von der sie referenziert wird
-		groupedAssignments.values().forEach(x -> x.setInstitutionId(currentInstitution.getId()));
+		groupedAssignments.values().forEach(x -> x.setParentInstitutionId(currentInstitution.getId()));
 		
 		return groupedAssignments.values().stream().collect(Collectors.toList());
 	}
