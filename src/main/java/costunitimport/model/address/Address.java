@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import costunitimport.model.AddressType;
-
 @Entity
 @Table(name = "KASSE_VERKNUEPFUNG")
 public class Address {

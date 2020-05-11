@@ -1,4 +1,4 @@
-package costunitimport.model;
+package costunitimport.model.address;
 
 public enum AddressType {
 

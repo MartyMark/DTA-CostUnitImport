@@ -7,10 +7,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import costunitimport.dao.CostUnitInstitutionRepository;
 import costunitimport.model.CostUnitInstitution;
 
@@ -49,6 +47,12 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId) {
 		
 		
+		return null;
+	}
+
+	@Override
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

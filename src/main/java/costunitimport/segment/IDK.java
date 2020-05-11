@@ -13,13 +13,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import costunitimport.exception.CostUnitAssigmentGroupingException;
-import costunitimport.model.AddressType;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.address.Address;
+import costunitimport.model.address.AddressType;
 
 public class IDK extends Segment{
 	
