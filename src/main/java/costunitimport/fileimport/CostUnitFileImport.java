@@ -146,7 +146,7 @@ public class CostUnitFileImport {
 			
 			CostUnitInstitution currentInstitution = refreshedInstitutionMap.get(idk.getInstitutionCode());
 			
-			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByInstitutionIdAndValidityFrom(currentInstitution.getId(), newFile.getValidityFrom());
+			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByParentInstitutionIdAndValidityFrom(currentInstitution.getId(), newFile.getValidityFrom());
 			if (!exisitingAssignments.isEmpty() && exisitingAssignments.stream().filter(assignment -> assignment.getValidityFrom().equals(newFile.getValidityFrom())).count() > 0) {
 				//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
 				//Der Fall kann entstehen, 
@@ -249,18 +249,18 @@ public class CostUnitFileImport {
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 */
 	private void closeAssignments(List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
-		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-		for (CostUnitAssignment assignmentToClose : exisitingAssignments) {
-			if (assignmentToClose.getValidityFrom().compareTo(validityUntil) >= 0) {
-				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
-				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
-				if (assignmentToClose.getTypeAssignmentId() != 1) {
-					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getParentInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
-				}
-			} else {
-				assignmentToClose.setValidityUntil(validityUntil);
-			}
-		}
+//		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
+//		for (CostUnitAssignment assignmentToClose : exisitingAssignments) {
+//			if (assignmentToClose.getValidityFrom().compareTo(validityUntil) >= 0) {
+//				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
+//				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
+//				if (assignmentToClose.getTypeAssignmentId() != 1) {
+//					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getParentInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
+//				}
+//			} else {
+//				assignmentToClose.setValidityUntil(validityUntil);
+//			}
+//		}
 		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
 	}
 	

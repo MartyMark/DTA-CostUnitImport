@@ -70,9 +70,10 @@ public class VKG extends Segment {
 		assignment.setTypeAssignmentId(typeAssignment.getId());
 		
 		//*** Art der Datenlieferung
-		CostUnitTypeDataSupply typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply).orElseThrow(() -> new CostUnitTypeDataSupplyNotFoundException(kindOfDataSupply));
-		assignment.setTypeDataSupply(typeDataSupply);
-		
+		if(kindOfDataSupply != null) {
+			CostUnitTypeDataSupply typeDataSupply = rFactory.getCostUnitTypeDataSupplyRepository().findById(kindOfDataSupply).orElseThrow(() -> new CostUnitTypeDataSupplyNotFoundException(kindOfDataSupply));
+			assignment.setTypeDataSupply(typeDataSupply);
+		}
 		//*** Art des Mediums 
 		if(kindOfDataMedium!=null) {
 			CostUnitTypeMedium typeMedium = rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium).orElseThrow(() -> new CostUnitTypeMediumNotFoundException(kindOfDataMedium));

@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import costunitimport.dao.CostUnitInstitutionRepository;
 import costunitimport.model.CostUnitInstitution;
 
@@ -22,17 +24,7 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	public List<CostUnitInstitution> findLatestCostUnitInstitutionsByCareProviderMethodIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparationId) {
 		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByCareProviderMethodIdAndCostUnitSeparationId(careProviderMethodId, costUnitSeparationId);
 		
-		Map<Integer, List<CostUnitInstitution>> ikToInstitutions =
-				institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
-		
-		final List<CostUnitInstitution> latestCostUnitInstitutions = new ArrayList<>();
-		
-		for (Map.Entry<Integer, List<CostUnitInstitution>> entry : ikToInstitutions.entrySet()) {
-			entry.getValue().sort(Comparator.comparing(o -> o.getValidityFrom()));
-			
-			latestCostUnitInstitutions.add(entry.getValue().get(0));
-		}
-		return latestCostUnitInstitutions;
+		return findLatestCostUnitInstitutions(institutions);
 	}
 
 	@Override
@@ -44,16 +36,41 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	}
 
 	@Override
-	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId) {
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId) throws Exception {
+		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumberAndCostUnitSeparationId(institutionNumber, costUnitSeparationId);
 		
+		institutions = findLatestCostUnitInstitutions(institutions);
 		
-		return null;
+		if(institutions.size() > 1) {
+			throw new Exception();
+		}
+		
+		return Optional.ofNullable(institutions.get(0));
 	}
-
+	
 	@Override
-	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) {
-		// TODO Auto-generated method stub
-		return null;
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) throws Exception {
+		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumber(institutionNumber);
+		
+		institutions = findLatestCostUnitInstitutions(institutions);
+		
+		if(institutions.size() > 1) {
+			throw new Exception();
+		}
+		
+		return Optional.ofNullable(institutions.get(0));
 	}
 
+	private List<CostUnitInstitution> findLatestCostUnitInstitutions(List<CostUnitInstitution> institutions) {
+		Map<Integer, List<CostUnitInstitution>> ikToInstitutions = institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
+		
+		final List<CostUnitInstitution> latestCostUnitInstitutions = new ArrayList<>();
+		
+		for (Map.Entry<Integer, List<CostUnitInstitution>> entry : ikToInstitutions.entrySet()) {
+			entry.getValue().sort(Comparator.comparing(o -> o.getValidityFrom()));
+			
+			latestCostUnitInstitutions.add(entry.getValue().get(0));
+		}
+		return latestCostUnitInstitutions;
+	}
 }
