@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
@@ -152,7 +151,7 @@ public class CostUnitFileImport {
 				//Der Fall kann entstehen, 
 			}
 			closeAssignments(exisitingAssignments, newFile.getValidityFrom());
-			updateAssignments(assignmentsFromFile, exisitingAssignments, newFile.getValidityFrom());
+			updateAssignments(assignmentsFromFile, exisitingAssignments);
 		} // ***
 	}
 	
@@ -227,7 +226,7 @@ public class CostUnitFileImport {
 	 * @param exisitingAssignments alle Verknüpfungen aus der Datenbank
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 */
-	private void updateAssignments(List<CostUnitAssignment> assignmentsFromFile, List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
+	private void updateAssignments(List<CostUnitAssignment> assignmentsFromFile, List<CostUnitAssignment> exisitingAssignments) {
 		for(CostUnitAssignment assignmentFromFile : assignmentsFromFile) {
 			
 			String assignmentFromFileCompareString = getCompareString(assignmentFromFile);
@@ -249,18 +248,8 @@ public class CostUnitFileImport {
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei 
 	 */
 	private void closeAssignments(List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
-//		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-//		for (CostUnitAssignment assignmentToClose : exisitingAssignments) {
-//			if (assignmentToClose.getValidityFrom().compareTo(validityUntil) >= 0) {
-//				//Eventuell für Verknüpfungen mit der Veknüpfungsart 01-Verweis vom IK der Versichertenkarte zum Kostenträger kann
-//				//dies manchmal vorkommen, dass eine Institution sich in mehreren gleichzeit gültigen Kostenträgerdateien befindet
-//				if (assignmentToClose.getTypeAssignmentId() != 1) {
-//					throw new IllegalArgumentException("Fehlerhafte Verknüpfungen!!! KotrInstitutionId:" + assignmentToClose.getParentInstitutionId() + " kotrAssignmentId:" + assignmentToClose.getId());
-//				}
-//			} else {
-//				assignmentToClose.setValidityUntil(validityUntil);
-//			}
-//		}
+		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
+		exisitingAssignments.stream().forEach(x -> x.setValidityUntil(validityUntil));
 		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
 	}
 	

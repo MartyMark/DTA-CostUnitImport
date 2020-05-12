@@ -23,7 +23,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
 	@Override
 	public void configure(final HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/costunitimportfiles").access("hasRole('ADMIN')").and().httpBasic();
+//		http.authorizeRequests().antMatchers("/costunitimportfiles").access("hasRole('ADMIN')").and().httpBasic();
+		http.authorizeRequests().anyRequest().authenticated();
 	}
 
 	@Primary

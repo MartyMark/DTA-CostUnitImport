@@ -5,26 +5,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import costunitimport.assembler.AssemblerTools;
+import org.springframework.web.bind.annotation.RestController;
 import costunitimport.exception.CostUnitInstitutionNotFoundException;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.service.CostUnitService;
 
+@RestController
 public class CostUnitController {
 	
 	@Autowired
 	private CostUnitService service;
 	
-	@Autowired
-	private AssemblerTools tools;
-	
 	public CostUnitService getService() {
 		return service;
-	}
-	
-	public AssemblerTools getTools() {
-		return tools;
 	}
 	
 	@GetMapping(value = "/costUnit", produces = "application/json")
