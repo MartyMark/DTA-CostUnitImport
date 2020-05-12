@@ -1,6 +1,8 @@
 package costunitimport.rssfeed;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -50,6 +52,19 @@ public class CostUnitRSSFeedItem {
 	@XmlJavaTypeAdapter(DateAdapter.class)
 	public void setPubDate(LocalDateTime pubDate) {
 		this.pubDate = pubDate;
+	}
+	
+	/**
+	 * Beschafft sich das Gültigkeitsdatum aus der Beschreibung der Datei, da dieses genauer ist, als das Datum aus dem UNB-Segment der Datei.
+	 */
+	public LocalDate getValidityFrom() {
+		String dateString = description.replaceAll("\\D+","");
+		
+		String day = dateString.substring(0, 2);
+		String month = dateString.substring(2, 4);
+		String year = dateString.substring(4, 8);
+		
+		return LocalDate.parse(year + "-" + month + "-" + day);
 	}
 
 	@Override

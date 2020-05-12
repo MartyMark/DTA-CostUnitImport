@@ -1,7 +1,13 @@
 package costunitimport.rssfeed;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -48,6 +54,36 @@ public class CostUnitRSSChannel {
 	public List<CostUnitRSSFeedItem> getItems() {
 		return items;
 	}
+	
+	/**
+	 * Filtert die importierten Kostenträgerdateien.
+	 * 
+	 * 1. Kostenträgerdateien deren GültigkeitsAb-Datum in der Zukunft liegt
+	 * 2. Zu alte Versionen
+	 */
+	public List<CostUnitRSSFeedItem> getFilterdItems() {
+		Map<String, List<CostUnitRSSFeedItem>> linkNameToItems = new HashMap<>();
+		
+		for(CostUnitRSSFeedItem item : items) {
+			/* Liegt das GültigAb-Datum vor dem Importdatum wird die Datei nicht importiert */
+			if(item.getValidityFrom().isBefore(LocalDate.now())) {
+				String key = item.getLink().substring(0, item.getLink().length() - 3);
+				
+				if(linkNameToItems.get(key) == null) {
+					linkNameToItems.put(key, new ArrayList<>());
+				}
+				linkNameToItems.get(key).add(item);
+			}
+		}
+		
+		List<CostUnitRSSFeedItem> filterdItems = new ArrayList<>();
+		for (Entry<String, List<CostUnitRSSFeedItem>> entry : linkNameToItems.entrySet()) {
+			entry.getValue().sort(Comparator.comparing(CostUnitRSSFeedItem::getValidityFrom).reversed());
+			
+			filterdItems.add(entry.getValue().get(0));
+		}
+		return filterdItems;
+	}
 
 	@XmlElement(name = "item")
 	public void setItems(List<CostUnitRSSFeedItem> items) {
@@ -57,7 +93,7 @@ public class CostUnitRSSChannel {
 	public List<CostUnitRSSFeedItem> getMessages() {
 		return items;
 	}
-
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("CostUnitRSSChannel[");

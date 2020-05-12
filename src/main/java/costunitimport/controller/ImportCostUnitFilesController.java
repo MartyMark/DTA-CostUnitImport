@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +37,8 @@ public class ImportCostUnitFilesController {
 
 	@Value("${rssfeeds.url}")
 	private String rssfeedUrl;
-	
+	             
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/importcostunitfiles")
 	public ResponseEntity<String> manuellImport() {
 		importCostUnitFiles();
@@ -51,23 +53,22 @@ public class ImportCostUnitFilesController {
 		importCostUnitFiles();
 	}
 
-
 	private void importCostUnitFiles() {
 		try {
 			RSSFeedParser rssFeedParser = new RSSFeedParser(rssfeedUrl);
 			CostUnitRSSFeed rssFeed = rssFeedParser.readFeed();
-
-			for (CostUnitRSSFeedItem feedItem : rssFeed.getChannel().getItems()) {
+			
+			for (CostUnitRSSFeedItem feedItem : rssFeed.getChannel().getFilterdItems()) {
 				String filename = new File(feedItem.getLink()).getName().replace(".", "");
 				List<CostUnitFile> costUnitFile = rFactory.getCostUnitFileRepository().findByFileName(filename);
 				if (costUnitFile.isEmpty()) {
-					log.info("Started import of CostUnitFile " + filename);
+					log.info("Started import of CostUnitFile " + filename + " " + feedItem.getTitle());
 					String httpsLink = feedItem.getLink().replaceFirst("http:", "https:");
 					Path path = ImportUtil.downloadAndSaveTempFile(httpsLink, filename);
 
-					CostUnitFileImport costUnitImport = new CostUnitFileImport(path, rFactory);
+					CostUnitFileImport costUnitImport = new CostUnitFileImport(path, rFactory, feedItem.getValidityFrom());
 					costUnitImport.start();
-
+					
 					log.info("Finished import of CostUnitFile " + filename);
 					ImportUtil.deleteFiles(path);
 				}

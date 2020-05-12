@@ -38,7 +38,7 @@ public class CostUnitFile {
 		this.dtaCostUnitSeparation = dtaCostUnitSeparation;
 	}
 	
-	public LocalDate getValidityFrom() {
+	public LocalDate getValidityFro() {
 		return validityFrom;
 	}
 	

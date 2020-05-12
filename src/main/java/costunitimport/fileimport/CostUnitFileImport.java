@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
 import costunitimport.model.CareProviderMethod;
@@ -39,11 +40,19 @@ public class CostUnitFileImport {
 	private final Path path;
 	private final List<IDK> listIDKs = new ArrayList<>();
 	
-	private UNB unb;
+	/**
+	 * Das Gültigkeitsdatum welches bei einer Kostenträgerdatei mitgegeben wird.
+	 * 
+	 * Leider nicht schön....
+	 */
+	private final LocalDate validityFrom;
 	
-	public CostUnitFileImport(final Path path, final RepositoryFactory repositoryFactory) {
+	private UNB unb;
+
+	public CostUnitFileImport(final Path path, final RepositoryFactory repositoryFactory, final LocalDate validityFrom) {
 		this.path = Objects.requireNonNull(path);
 		this.rFactory = Objects.requireNonNull(repositoryFactory);
+		this.validityFrom = validityFrom;
 	}
 	
 	public void start() {
@@ -125,9 +134,9 @@ public class CostUnitFileImport {
 		
 		//*** Institutionen
 		
-		closeInstitutions(listIDKs, newFile.getValidityFrom(), existingInstitutionMap);
+		closeInstitutions(listIDKs, validityFrom, existingInstitutionMap);
 		
-		List<IDK> filterdIDKs = filterIDKs(newFile.getValidityFrom(), existingInstitutionMap);
+		List<IDK> filterdIDKs = filterIDKs(validityFrom, existingInstitutionMap);
 		
 		updateInstitutions(filterdIDKs, careProviderMethod, costUnitSeperation, existingInstitutionMap);
 		
@@ -141,16 +150,16 @@ public class CostUnitFileImport {
 		Map<Integer, DTAAccountingCode> idToAccountoungCode = rFactory.getAccountingCodeRepositoryCustom().findIDToDTAAccountingCodesByCareProviderMethodId(careProviderMethod.getId());
 		
 		for (IDK idk : filterdIDKs) {
-			List<CostUnitAssignment> assignmentsFromFile = idk.getCostUnitAssignment(newFile.getValidityFrom(), refreshedInstitutionMap, idToAccountoungCode);
+			List<CostUnitAssignment> assignmentsFromFile = idk.getCostUnitAssignment(validityFrom, refreshedInstitutionMap, idToAccountoungCode);
 			
 			CostUnitInstitution currentInstitution = refreshedInstitutionMap.get(idk.getInstitutionCode());
 			
-			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByParentInstitutionIdAndValidityFrom(currentInstitution.getId(), newFile.getValidityFrom());
-			if (!exisitingAssignments.isEmpty() && exisitingAssignments.stream().filter(assignment -> assignment.getValidityFrom().equals(newFile.getValidityFrom())).count() > 0) {
+			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository().findByParentInstitutionIdAndValidityFrom(currentInstitution.getId(), validityFrom);
+			if (!exisitingAssignments.isEmpty() && exisitingAssignments.stream().filter(assignment -> assignment.getValidityFrom().equals(validityFrom)).count() > 0) {
 				//Die aktuell hinterlegten Verknüpfungen haben die gleiche GültigkeitAb wie die Datensätze die nun importiert werden sollen
 				//Der Fall kann entstehen, 
 			}
-			closeAssignments(exisitingAssignments, newFile.getValidityFrom());
+			closeAssignments(exisitingAssignments, validityFrom);
 			updateAssignments(assignmentsFromFile, exisitingAssignments);
 		} // ***
 	}
