@@ -13,12 +13,8 @@ import costunitimport.dao.CostUnitSeparationRepository;
 import costunitimport.dao.CostUnitTypeAssignmentRepository;
 import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
-import costunitimport.dao.CountryRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyAccountinCodeRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
-import costunitimport.dao.FederalStateRepository;
-import costunitimport.dao.ZipRepository;
-import costunitimport.dao.ZipTypeRepository;
 import costunitimport.dao.impl.AccountingCodeRepositoryCustom;
 import costunitimport.dao.impl.CostUnitInstitutionRepositoryCustom;
 
@@ -45,18 +41,6 @@ public class RepositoryFactory {
 	
 	@Autowired
 	private CareProviderMethodRepository careProviderMethodRepository;
-	
-	@Autowired
-	private ZipRepository zipRepository;
-	
-	@Autowired
-	private ZipTypeRepository zipTypeRepository;
-	
-	@Autowired
-	private CountryRepository countryRepository;
-	
-	@Autowired
-	private FederalStateRepository federalStateRepository;
 	
 	@Autowired
 	private CostUnitTypeMediumRepository  costUnitTypeMediumRepository;
@@ -113,22 +97,6 @@ public class RepositoryFactory {
 	
 	public CareProviderMethodRepository getCareProviderMethodRepository() {
 		return careProviderMethodRepository;
-	}
-	
-	public ZipRepository getZipRepository() {
-		return zipRepository;
-	}
-	
-	public ZipTypeRepository getZipTypeRepository() {
-		return zipTypeRepository;
-	}
-	
-	public CountryRepository getCountryRepository() {
-		return countryRepository;
-	}
-	
-	public FederalStateRepository getFederalStateRepository() {
-		return federalStateRepository;
 	}
 	
 	public CostUnitTypeMediumRepository getCostUnitTypeMediumRepository() {

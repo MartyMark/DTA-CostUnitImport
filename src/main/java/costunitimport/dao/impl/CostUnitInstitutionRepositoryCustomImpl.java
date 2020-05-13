@@ -26,6 +26,21 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 		
 		return findLatestCostUnitInstitutions(institutions);
 	}
+	
+	private List<CostUnitInstitution> findLatestCostUnitInstitutions(List<CostUnitInstitution> institutions) {
+		Map<Integer, List<CostUnitInstitution>> ikToInstitutions = institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
+		
+		final List<CostUnitInstitution> latestCostUnitInstitutions = new ArrayList<>();
+		
+		for (Map.Entry<Integer, List<CostUnitInstitution>> entry : ikToInstitutions.entrySet()) {
+			entry.getValue().sort(Comparator.comparing(o -> o.getValidityFrom()));
+			
+			latestCostUnitInstitutions.add(entry.getValue().get(0));
+		}
+		return latestCostUnitInstitutions;
+	}
+	
+	
 
 	@Override
 	public Map<Integer, CostUnitInstitution> findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(Integer careProviderMethodId, Integer costUnitSeparation) {
@@ -39,11 +54,7 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumberAndCostUnitSeparationId(Integer institutionNumber, Integer costUnitSeparationId) throws Exception {
 		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumberAndCostUnitSeparationId(institutionNumber, costUnitSeparationId);
 		
-		institutions = findLatestCostUnitInstitutions(institutions);
-		
-		if(institutions.size() > 1) {
-			throw new Exception();
-		}
+		institutions.sort(Comparator.comparing(o -> o.getValidityFrom()));
 		
 		return Optional.ofNullable(institutions.get(0));
 	}
@@ -52,25 +63,8 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) throws Exception {
 		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumber(institutionNumber);
 		
-		institutions = findLatestCostUnitInstitutions(institutions);
-		
-		if(institutions.size() > 1) {
-			throw new Exception();
-		}
+		institutions.sort(Comparator.comparing(o -> o.getValidityFrom()));
 		
 		return Optional.ofNullable(institutions.get(0));
-	}
-
-	private List<CostUnitInstitution> findLatestCostUnitInstitutions(List<CostUnitInstitution> institutions) {
-		Map<Integer, List<CostUnitInstitution>> ikToInstitutions = institutions.stream().collect(Collectors.groupingBy(CostUnitInstitution::getInstitutionNumber));
-		
-		final List<CostUnitInstitution> latestCostUnitInstitutions = new ArrayList<>();
-		
-		for (Map.Entry<Integer, List<CostUnitInstitution>> entry : ikToInstitutions.entrySet()) {
-			entry.getValue().sort(Comparator.comparing(o -> o.getValidityFrom()));
-			
-			latestCostUnitInstitutions.add(entry.getValue().get(0));
-		}
-		return latestCostUnitInstitutions;
 	}
 }

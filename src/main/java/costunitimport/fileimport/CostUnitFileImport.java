@@ -86,7 +86,7 @@ public class CostUnitFileImport {
 				break;
 			case "ANS":
 				Optional<NAM> nam = getLastIDK().getNAM();
-				nam.ifPresent(x -> x.addANS(new ANS(data, rFactory)));
+				nam.ifPresent(x -> x.addANS(new ANS(data)));
 				break;
 			case "ASP":
 				getLastIDK().addASP(new ASP(data));
@@ -204,7 +204,8 @@ public class CostUnitFileImport {
 			if(existingInstitution != null) {
 				institutionFromFile.setId(existingInstitution.getId());
 			}
-			rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
+			CostUnitInstitution x = rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
+			System.out.println(x);
 		}
 	}
 	

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitTypeAssignment;
@@ -12,9 +13,6 @@ import costunitimport.model.CostUnitTypeDataSupply;
 import costunitimport.model.CostUnitTypeMedium;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
-import costunitimport.model.address.Country;
-import costunitimport.model.address.FederalState;
-import costunitimport.model.address.ZipType;
 import costunitimport.model.sags.DTAAccumulativeGroupKey;
 import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
@@ -28,62 +26,6 @@ public class LoadDatabase {
 	@Bean
 	CommandLineRunner initDatabase(RepositoryFactory rFactory) {
 		return args -> {
-			log.info("Country - STAAT");
-			Country unknown = new Country();
-			unknown.setId(0);
-			unknown.setDescription(UNKNOWN);
-			unknown.setMaxZipLength(0);
-			unknown.setFlag("WHITE");
-			rFactory.getCountryRepository().save(unknown);
-			
-			Country germany = new Country();
-			germany.setId(35);
-			germany.setDescription("Deutschland");
-			germany.setToken("D");
-			germany.setMaxZipLength(5);
-			germany.setDtaTokenP302("D");
-			germany.setDtaTokenP301("D");
-			germany.setiSOA2("DE");
-			germany.setiSOA3("DEU");
-			germany.setiSON3(276);
-			germany.setFlag("GERMANY");
-			germany.setIbanLength(22);
-			germany.setCountryCode("+49");
-			
-			rFactory.getCountryRepository().save(germany);
-			
-			log.info("FederalState - STAAT_BUNDESLAND");
-			rFactory.getFederalStateRepository().save(new FederalState(0, germany, UNKNOWN, null));
-			rFactory.getFederalStateRepository().save(new FederalState(1, germany, "Schleswig-Holstein", null));
-			rFactory.getFederalStateRepository().save(new FederalState(2, germany, "Hamburg", null));
-			rFactory.getFederalStateRepository().save(new FederalState(3, germany, "Niedersachen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(4, germany, "Bremen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(5, germany, "Nordrhein-Westfalen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(6, germany, "Hessen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(7, germany, "Rheinland-Pfalz", null));
-			rFactory.getFederalStateRepository().save(new FederalState(8, germany, "Baden-Württemberg", null));
-			rFactory.getFederalStateRepository().save(new FederalState(9, germany, "Bayern", null));
-			rFactory.getFederalStateRepository().save(new FederalState(10, germany, "Saarland", null));
-			rFactory.getFederalStateRepository().save(new FederalState(11, germany, "Berlin", null));
-			rFactory.getFederalStateRepository().save(new FederalState(12, germany, "Brandenburg", null));
-			rFactory.getFederalStateRepository().save(new FederalState(13, germany, "Mecklenburg-Vorpommern", null));
-			rFactory.getFederalStateRepository().save(new FederalState(14, germany, "Sachsen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(15, germany, "Sachsen-Anhalt", null));
-			rFactory.getFederalStateRepository().save(new FederalState(16, germany, "Thüringen", null));
-			rFactory.getFederalStateRepository().save(new FederalState(16, germany, "Rheinland", 5));
-			rFactory.getFederalStateRepository().save(new FederalState(17, germany, "Westfalen-Lippe", 5));
-			rFactory.getFederalStateRepository().save(new FederalState(99, germany, "Alle Bundesländer", null));
-			
-			log.info("ZipType - STAAT_PLZ_ART");
-			rFactory.getZipTypeRepository().save(new ZipType(1, "Postfach"));
-			rFactory.getZipTypeRepository().save(new ZipType(2, "Schalterausgabe"));
-			rFactory.getZipTypeRepository().save(new ZipType(3, "Gruppen-GE"));
-			rFactory.getZipTypeRepository().save(new ZipType(4, "Einzel-GE"));
-			rFactory.getZipTypeRepository().save(new ZipType(5, "Aktions-PLZ"));
-			rFactory.getZipTypeRepository().save(new ZipType(6, "Zustellung und Postfach"));
-			rFactory.getZipTypeRepository().save(new ZipType(7, "Import-Schnittstelle"));
-			rFactory.getZipTypeRepository().save(new ZipType(8, "Import-Schnittstelle ungeprüft"));
-			
 			log.info("DTACareProvidermethod - DTA_LEISTUNGSVERFAHREN");
 			CareProviderMethod unknownMethod = new CareProviderMethod(0, UNKNOWN, "", false);
 			CareProviderMethod apo = new CareProviderMethod(3, "Apotheken", "Abrechnung nach §300", true);

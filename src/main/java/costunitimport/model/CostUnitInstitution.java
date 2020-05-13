@@ -25,7 +25,11 @@ public class CostUnitInstitution {
 	
 	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     @JoinColumn(name = "id", nullable=true)
-	private Address address;
+	private Address addressfirst;
+	
+	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+    @JoinColumn(name = "id", nullable=true)
+	private Address addressSecond;
 	
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
@@ -74,14 +78,6 @@ public class CostUnitInstitution {
 		this.validityUntil = validityUntil;
 	}
 
-	public Address getAddress() {
-		return address;
-	}
-
-	public void setAddress(Address address) {
-		this.address = address;
-	}
-
 	public Integer getId() {
 		return id;
 	}
@@ -120,5 +116,21 @@ public class CostUnitInstitution {
 	
 	public Integer getCareProviderMethod() {
 		return careProviderMethodId;
+	}
+
+	public Address getAddressfirst() {
+		return addressfirst;
+	}
+
+	public Address getAddressSecond() {
+		return addressSecond;
+	}
+
+	public void setAddressfirst(Address addressfirst) {
+		this.addressfirst = addressfirst;
+	}
+
+	public void setAddressSecond(Address addressSecond) {
+		this.addressSecond = addressSecond;
 	}
 }

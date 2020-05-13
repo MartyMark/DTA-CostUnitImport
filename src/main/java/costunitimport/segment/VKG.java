@@ -61,9 +61,12 @@ public class VKG extends Segment {
 	
 	/**
 	 * Baut das Verknüpfungs-Objekt
+	 * @param parentInstitutionCode 
 	 */
-	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
+	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Integer parentInstitutionCode) {
 		CostUnitAssignment assignment = new CostUnitAssignment();
+		
+		assignment.setParentInstitutionId(parentInstitutionCode);
 		
 		//*** Art der Verknüpfung
 		CostUnitTypeAssignment typeAssignment = rFactory.getCostUnitTypeAssignmentRepository().findById(kindOfAssignment).orElseThrow(() -> new CostUnitTypeAssigmentNotFoundException(kindOfAssignment));
@@ -82,7 +85,7 @@ public class VKG extends Segment {
 		
 		//*** Institut des Verknüpfungspartners
 		CostUnitInstitution institutionToSet = Optional.ofNullable(institutions.get(institutionCodeAssignmentPartner)).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionCodeAssignmentPartner));
-		assignment.setInstitutionIdAssignment(institutionToSet.getId());
+		assignment.setInstitutionIdAssignment(institutionToSet.getInstitutionNumber());
 		
 		//*** Institut der Abrechnungsstelle
 		if(institutionCodeAccounting!=null) {
@@ -106,7 +109,7 @@ public class VKG extends Segment {
 		return assignment;
 	}
 
-	private List<DTAAccountingCode> findAccountingCodes(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
+	private List<Integer> findAccountingCodes(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions) {
 		/* Das sind die Ids der Obergruppen der Abrechnungscodes bspw : 
 		   00 Sammelschlüssel für alle Leistungsarten , 10 Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)*/
 		List<Integer> groupAccountCodes = DTAAccountingCode.getGroupAccountingCodes(); 
@@ -121,18 +124,18 @@ public class VKG extends Segment {
 			case 0://00-Sammelschlüssel für alle Leistungsarten
 				return Collections.emptyList();//00-Sammelschlüssel für alle Leistungsarten
 			case 10://10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
-				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHimiCodes());
+				return DTAAccountingCode.getHimiCodes();
 			case 20://20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
-				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHeimiCodes());
+				return DTAAccountingCode.getHeimiCodes();
 			case 30://30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
-				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getHpfCodes());
+				return DTAAccountingCode.getHpfCodes();
 			case 40://40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
-				return rFactory.getAccountingCodeRepository().findAllById(DTAAccountingCode.getTransportCodes());
+				return DTAAccountingCode.getTransportCodes();
 			default:
 				break;
 			}
 		}
-		return rFactory.getAccountingCodeRepository().findAllById(List.of(accountingCode));
+		return List.of(accountingCode);
 	}
 
 	/**

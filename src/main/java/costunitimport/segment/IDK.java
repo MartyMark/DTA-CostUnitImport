@@ -5,21 +5,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import costunitimport.exception.CostUnitAssigmentGroupingException;
+
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.address.Address;
-import costunitimport.model.address.AddressType;
 
 public class IDK extends Segment{
 	
@@ -165,58 +163,24 @@ public class IDK extends Segment{
         	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
         	
         	for(VKG vkg : vkgs) {
-				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions);
+				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions, institutionCode);
         		assignmentsByKindOfAssignment.add(assignment);
         		
         		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
         		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
-					List<DTAAccountingCode> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
+					List<Integer> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
 							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac))
+					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode()))
 							.collect(Collectors.toList());
-					assignment.setAccountingCodes(listRemainingdACs);
+					
+					List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
+					
+					assignment.setAccountingCodes(listRemainingdACsInts);
         		}
         	}
 			allAssignments.addAll(assignmentsByKindOfAssignment);
 		}
-		
-		Map<String, CostUnitAssignment> groupedAssignments = new HashMap<>();
-		for (CostUnitAssignment currentAssignment : allAssignments) {
-			String key = currentAssignment.getCompareKey();//Man könnte auch die Equals überschreiben und dann mit einem Set arbeiten
-
-			CostUnitAssignment existingAssignment = groupedAssignments.get(key);
-			
-			/* Hier werden die Verknüpfungen gemappt 
-			 * Somit wird aus :
-			 * VKG+03+101317004+5++07++++56
-			 * VKG+03+101317004+5++07++++57
-			 * 
-			 * diese Verknüpfung :			 
-			 * VKG+03+101317004+5++07++++56,57
-			 * 
-			 * Der Comparekey bezieht sich auf alle Attribute bis auf die Abrechungscodes
-			 * Sind zwei Datensätze gleich werden die Abrechnungscodes nach Verknüpfung gruppiert
-			 * */
-			if (existingAssignment == null) {
-				groupedAssignments.put(key, currentAssignment);
-			} else if (existingAssignment.getAccountingCodes() != null) {
-				if (currentAssignment.getAccountingCodes() == null) {
-					throw new CostUnitAssigmentGroupingException();
-				}
-				boolean exist = existingAssignment.getAccountingCodes().stream().anyMatch(a -> currentAssignment.getAccountingCodes().contains(a));
-				if (exist) {
-					throw new CostUnitAssigmentGroupingException();
-				}
-				existingAssignment.getAccountingCodes().addAll(currentAssignment.getAccountingCodes());
-			}
-		}
-		
-		CostUnitInstitution currentInstitution = institutions.get(getInstitutionCode());
-		
-		//Jede Verknüpfung erhält die InstitutionsId von der sie referenziert wird
-		groupedAssignments.values().forEach(x -> x.setParentInstitutionId(currentInstitution.getId()));
-		
-		return groupedAssignments.values().stream().collect(Collectors.toList());
+		return allAssignments;
 	}
 	
 	/**
@@ -224,26 +188,14 @@ public class IDK extends Segment{
 	 * 
 	 * @return Anschrift
 	 */
-	public Optional<Address> buildCostUnitAddress() {
-		Address addressZip = null;
-		Address addressPostCode = null;
-		if (nam.isPresent() && !nam.get().getANSs().isEmpty()) {//NAM-Segment: einmal obligatorisch und Adressen vorhanden
-			LocalDate validityFrom = getVDT().getValidityFrom();
-			LocalDate validityUntil = getVDT().getValidityUntil();
-			for (ANS ans : nam.get().getANSs()) {
-				Address addressTmp = ans.buildAddress(validityFrom, validityUntil);
-				if (ans.getKindOfAddress().intValue() == AddressType.STREET.getId()) { //Hausanschrift
-					addressZip  = addressTmp;
-				} else if (ans.getKindOfAddress().intValue() == AddressType.MAIL_BOX.getId()) { //Postfachanschrift
-					addressPostCode = addressTmp;
-				}
-			}
-			if (addressZip != null && addressPostCode != null) {
-				addressZip.setPostBox(addressPostCode.getPostBox());
-				return Optional.of(addressZip);
-			}
-		}
-		return addressZip != null ? Optional.of(addressZip) : Optional.ofNullable(addressPostCode);
+	public List<Address> buildCostUnitAddress() {
+		List<Address> addressList = new ArrayList<>();
+		
+		LocalDate validityFrom = getVDT().getValidityFrom();
+		LocalDate validityUntil = getVDT().getValidityUntil();
+		
+		nam.get().getANSs().forEach(x -> addressList.add(x.buildAddress(validityFrom, validityUntil)));
+		return addressList;
 	}
 	
 	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeparation) {
@@ -256,20 +208,24 @@ public class IDK extends Segment{
 		institution.setFirmName(buildFirmName());
 		institution.setInstitutionNumber(institutionCode);
 		institution.setVknr(vKNR);
-		institution.setAddress(buildCostUnitAddress().orElse(null));
+		
+		List<Address> addressList = buildCostUnitAddress(); 
+		
+		//FIXME
+		institution.setAddressfirst(addressList.get(0));
+		if(addressList.size() == 2) {
+			institution.setAddressSecond(addressList.get(1));
+		}
 		institution.setShortDescription(description);
 		return institution;
 	}
 	
 	private String buildFirmName() {
-		if (nam.isPresent()) {//NAM-Segment: einmal obligatorisch
-			String[] names = new String[] {nam.get().getName1(), nam.get().getName2(), nam.get().getName3(), nam.get().getName4()};
-			String collectedName = Arrays.stream(names).filter(s -> s!=null && !s.trim().isEmpty()).collect(Collectors.joining(" "));
-			if(collectedName!=null && !collectedName.isEmpty()) {
-				return collectedName;
-			}
+		String[] names = new String[] { nam.get().getName1(), nam.get().getName2(), nam.get().getName3(),nam.get().getName4() };
+		String collectedName = Arrays.stream(names).filter(s -> s != null && !s.trim().isEmpty()).collect(Collectors.joining(" "));
+		if (collectedName != null && !collectedName.isEmpty()) {
+			return collectedName;
 		}
 		return description;
 	}
-
 }

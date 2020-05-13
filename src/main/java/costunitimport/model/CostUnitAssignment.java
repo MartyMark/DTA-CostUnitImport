@@ -3,12 +3,12 @@ package costunitimport.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -40,9 +40,8 @@ public class CostUnitAssignment {
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
 	
-	@OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-	private List<DTAAccountingCode> accountingCodes;
+	@ElementCollection(targetClass=Integer.class)
+	private List<Integer> accountingCodes;
 	
 	private Integer careProverMethodId;
 	
@@ -142,11 +141,11 @@ public class CostUnitAssignment {
 		this.validityUntil = validityUntil;
 	}
 	
-	public List<DTAAccountingCode> getAccountingCodes() {
+	public List<Integer> getAccountingCodes() {
 		return accountingCodes;
 	}
 	
-	public void setAccountingCodes(List<DTAAccountingCode> accountingCodes) {
+	public void setAccountingCodes(List<Integer> accountingCodes) {
 		this.accountingCodes = accountingCodes;
 	}
 
@@ -158,23 +157,6 @@ public class CostUnitAssignment {
 		this.assignment = assignment;
 	}
 	
-	public String getCompareKey() {
-		StringBuilder keyBuilder = new StringBuilder();
-		keyBuilder.append("Id:").append(id);
-		keyBuilder.append("TypeAssignment:").append(typeAssignmentId);
-		keyBuilder.append("InstitutionId:").append(parentInstitutionId);
-		keyBuilder.append("InstitutionIdAssignment:").append(institutionIdAssignment);
-		keyBuilder.append("InstitutionIdAccounting:").append(institutionIdAccounting);
-		keyBuilder.append("TypeDataSupply:").append(typeDataSupply);
-		keyBuilder.append("TypeMedium:").append(typeMediumId);
-		keyBuilder.append("FederalStateClassificationId:").append(federalStateClassificationId);
-		keyBuilder.append("DistrictId:").append(districtId);
-		keyBuilder.append("RateCode:").append(rateCode);
-		keyBuilder.append("ValidityFrom:").append(validityFrom);
-		keyBuilder.append("ValidityUntil:").append(validityUntil);
-		return keyBuilder.toString();
-	}
-
 	public Integer getCareProverMethodId() {
 		return careProverMethodId;
 	}

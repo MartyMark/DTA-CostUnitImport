@@ -2,13 +2,9 @@ package costunitimport.model.address;
 
 import java.time.LocalDate;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -17,17 +13,14 @@ public class Address {
 	
 	private @Id @GeneratedValue Integer id;
     
-	private Integer ik;
+	private AddressType addressType;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "id")
-	private Zip zip;
-	
+	private String zipCode;
+	private String location;
 	private String street;
 	private String postBox;
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
-	private AddressType addressType;
 
 	public AddressType getAddressType() {
 		return addressType;
@@ -37,22 +30,6 @@ public class Address {
 		this.addressType = addressType;
 	}
 
-	public Integer getIk() {
-		return ik;
-	}
-	
-	public void setIk(Integer ik) {
-		this.ik = ik;
-	}
-	
-	public Zip getZip() {
-		return zip;
-	}
-	
-	public void setZip(Zip zip) {
-		this.zip = zip;
-	}
-	
 	public String getStreet() {
 		return street;
 	}
@@ -83,5 +60,29 @@ public class Address {
 	
 	public void setValidityUntil(LocalDate validityUntil) {
 		this.validityUntil = validityUntil;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }
