@@ -139,8 +139,7 @@ public class CostUnitFileImport {
 		List<IDK> filterdIDKs = filterIDKs(validityFrom, existingInstitutionMap);
 		
 		updateInstitutions(filterdIDKs, careProviderMethod, costUnitSeperation, existingInstitutionMap);
-		
-		
+
 		//*** Verknüpfungen
 		
 		/* Jetzt werden die aktualisierten Kasseninstitutionen geladen */
@@ -204,8 +203,7 @@ public class CostUnitFileImport {
 			if(existingInstitution != null) {
 				institutionFromFile.setId(existingInstitution.getId());
 			}
-			CostUnitInstitution x = rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
-			System.out.println(x);
+			rFactory.getCostUnitInstitutionRepository().save(institutionFromFile);
 		}
 	}
 	

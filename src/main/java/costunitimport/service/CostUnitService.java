@@ -35,6 +35,10 @@ public class CostUnitService {
 			return convertToCostUnitAddressData(filterdSubAssignments);
 		}
 		
+		if(filterdSubAssignments.size() > 1) {
+			throw new Exception();
+		}
+		
 		CostUnitAssignment ins = filterdSubAssignments.get(0);
 		
 		return findDAV(careProviderId, ins.getInstitutionIdAssignment(), accountingCode);

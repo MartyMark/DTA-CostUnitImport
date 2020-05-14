@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -23,11 +22,11 @@ public class CostUnitInstitution {
 	private String shortDescription;
 	private Integer vknr;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "id", nullable=true)
+	@OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "id", nullable=false)
 	private Address addressfirst;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
+	@OneToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "id", nullable=true)
 	private Address addressSecond;
 	

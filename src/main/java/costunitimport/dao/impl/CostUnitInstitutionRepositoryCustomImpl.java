@@ -63,6 +63,9 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) throws Exception {
 		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumber(institutionNumber);
 		
+		List<CostUnitInstitution> x = costUnitInstitutionRepository.findByInstitutionNumber(100167999);
+		System.out.println(x);
+		
 		institutions.sort(Comparator.comparing(o -> o.getValidityFrom()));
 		
 		return Optional.ofNullable(institutions.get(0));
