@@ -34,6 +34,6 @@ public interface CostUnitInstitutionRepositoryCustom {
 	 * 
 	 * @param careProviderMethodId Leistungsverfahren-ID
 	 */
-	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) throws Exception;
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber);
 
 }

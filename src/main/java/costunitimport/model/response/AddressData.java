@@ -1,6 +1,7 @@
 package costunitimport.model.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,9 +15,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
+import costunitimport.model.ASP_ContactPerson;
+import costunitimport.model.UEM_Transfer;
 import costunitimport.model.address.Address;
 
 /**
@@ -25,6 +30,7 @@ import costunitimport.model.address.Address;
 @JsonRootName(value = "AdressDaten")
 @XmlRootElement(name = "AdressDaten")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
 public class AddressData implements Serializable {
 
 	@JsonIgnore
@@ -49,34 +55,18 @@ public class AddressData implements Serializable {
 	@JsonProperty("Name3")
 	@XmlElement(name = "Name3", required = true)
 	private String name3;
-
-	@JsonProperty("StrasseHnr")
-	@XmlElement(name = "StrasseHnr", required = true)
-	private String street;
-
-	@JsonProperty("Plz")
-	@XmlElement(name = "Plz", required = true)
-	private String zipCode;
-
-	@JsonProperty("Ort")
-	@XmlElement(name = "Ort", required = true)
-	private String location;
-
-	@JsonProperty("Telefon")
-	@XmlElement(name = "Telefon", required = true)
-	private String phone;
-
-	@JsonProperty("Email")
-	@XmlElement(name = "Email", required = true)
-	private String email;
 	
-	@JsonProperty("Anschrift1")
-	@XmlElement(name = "Anschrift1", required = true)
-	private Address addressOne;
+	@JsonProperty("Anschriften")
+	@XmlElement(name = "Anschriften", required = true)
+	private List<Address> addressList;
 	
-	@JsonProperty("Anschrift2")
-	@XmlElement(name = "Anschrift2", required = true)
-	private Address addressTwo;
+	@JsonProperty("Ansprechpartner")
+	@XmlElement(name = "Ansprechpartner", required = true)
+	private List<ASP_ContactPerson> contactPersons;
+	
+	@JsonProperty("Übermittlungsdaten")
+	@XmlElement(name = "Übermittlungsdaten", required = true)
+	private List<UEM_Transfer> transferList;
 	
 	/**
 	 * IK-Nummer
@@ -127,64 +117,6 @@ public class AddressData implements Serializable {
 		return name3;
 	}
 
-	/**
-	 * Get strasseHnr
-	 *
-	 * @return strasseHnr
-	 **/
-	@JsonProperty("StrasseHnr")
-	@NotNull
-	@Size(max = 30)
-	public String getStreet() {
-		return street;
-	}
-
-	/**
-	 * Get plz
-	 *
-	 * @return plz
-	 **/
-	@JsonProperty("Plz")
-	@NotNull
-	@Size(max = 7)
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	/**
-	 * Get ort
-	 *
-	 * @return ort
-	 **/
-	@JsonProperty("Ort")
-	@NotNull
-	@Size(max = 25)
-	public String getLocation() {
-		return location;
-	}
-
-	/**
-	 * Get telefon
-	 *
-	 * @return telefon
-	 **/
-	@JsonProperty("Telefon")
-	@NotNull
-	public String getPhone() {
-		return phone;
-	}
-
-	/**
-	 * Get email
-	 *
-	 * @return email
-	 **/
-	@JsonProperty("Email")
-	@Size(max = 70)
-	public String getEmail() {
-		return email;
-	}
-
 	public Long getId() {
 		return id;
 	}
@@ -212,32 +144,7 @@ public class AddressData implements Serializable {
 	public void setName3(String name3) {
 		this.name3 = name3;
 	}
-
 	
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
-	
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-
-	
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	
-	public void setPhone(String phone) {
-		this.phone = phone;
-	}
-
-	
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getCostUnitType() {
 		return costUnitType;
 	}
@@ -246,20 +153,28 @@ public class AddressData implements Serializable {
 		this.costUnitType = costUnitType;
 	}
 
-	public Address getAddressOne() {
-		return addressOne;
+	public List<Address> getAddressList() {
+		return addressList;
 	}
 
-	public Address getAddressTwo() {
-		return addressTwo;
+	public void setAddressList(List<Address> addressList) {
+		this.addressList = addressList;
 	}
 
-	public void setAddressOne(Address addressOne) {
-		this.addressOne = addressOne;
+	public List<ASP_ContactPerson> getContactPersons() {
+		return contactPersons;
 	}
 
-	public void setAddressTwo(Address addressTwo) {
-		this.addressTwo = addressTwo;
+	public void setContactPersons(List<ASP_ContactPerson> contactPersons) {
+		this.contactPersons = contactPersons;
+	}
+
+	public List<UEM_Transfer> getTransferList() {
+		return transferList;
+	}
+
+	public void setTransmissionmedien(List<UEM_Transfer> transferList) {
+		this.transferList = transferList;
 	}
 }
 

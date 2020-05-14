@@ -10,7 +10,7 @@ public class UEM extends Segment {
 	private String charSet;
 	private String typeOfCompression;
 	
-	private List<DFU> costUnitFileDFUs= new ArrayList<>();
+	private List<DFU> dfuList= new ArrayList<>();
 
 	public UEM(String[] data) {
 		super(data);
@@ -66,12 +66,12 @@ public class UEM extends Segment {
 		return typeOfCompression;
 	}
 	
-	public List<DFU> getCostUnitFileDFUs() {
-		return costUnitFileDFUs;
+	public List<DFU> getDFUs() {
+		return dfuList;
 	}
 	
-	public void setCostUnitFileDFUs(List<DFU> costUnitFileDFUs) {
-		this.costUnitFileDFUs = costUnitFileDFUs;
+	public void setCostUnitFileDFUs(List<DFU> dfuList) {
+		this.dfuList = dfuList;
 	}
 
 }

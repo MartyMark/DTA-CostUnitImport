@@ -1,7 +1,5 @@
 package costunitimport.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import costunitimport.exception.CostUnitInstitutionNotFoundException;
+import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.response.AddressData;
 import costunitimport.service.CostUnitService;
 
@@ -19,6 +17,9 @@ public class CostUnitController {
 	@Autowired
 	private CostUnitService service;
 	
+	@Autowired
+	RepositoryFactory rFactory;
+	
 	public CostUnitService getService() {
 		return service;
 	}
@@ -26,9 +27,9 @@ public class CostUnitController {
 	/**
 	 * Beschafft alle Datenannhmestellen 
 	 */
-	@GetMapping(value = "/costUnit", produces = "application/json")
-	public ResponseEntity<List<AddressData>> findDAV(@RequestParam Integer careProviderMethodId, @RequestParam Integer ik, @RequestParam Integer accountingCode) throws CostUnitInstitutionNotFoundException, Exception {
-		List<AddressData> costUnits = service.findDAV(careProviderMethodId, ik, accountingCode);
+	@GetMapping(value = "/dav", produces = "application/json")
+	public ResponseEntity<AddressData> findDAV(@RequestParam Integer type, @RequestParam Integer careProviderMethodId, @RequestParam Integer ik, @RequestParam Integer accountingCode) {
+		AddressData costUnits = service.findDAV(type, careProviderMethodId, ik, accountingCode);
 		return new ResponseEntity<>(costUnits, HttpStatus.OK);
 	}
 }

@@ -60,11 +60,8 @@ public class CostUnitInstitutionRepositoryCustomImpl implements CostUnitInstitut
 	}
 	
 	@Override
-	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) throws Exception {
+	public Optional<CostUnitInstitution> findLatestCostUnitInstitutionByInstitutionNumber(Integer institutionNumber) {
 		List<CostUnitInstitution> institutions = costUnitInstitutionRepository.findByInstitutionNumber(institutionNumber);
-		
-		List<CostUnitInstitution> x = costUnitInstitutionRepository.findByInstitutionNumber(100167999);
-		System.out.println(x);
 		
 		institutions.sort(Comparator.comparing(o -> o.getValidityFrom()));
 		

@@ -6,27 +6,52 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlElement;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "KASSE_VERKNUEPFUNG")
+@JsonInclude(Include.NON_NULL)
 public class Address {
 	
+	@JsonIgnore
 	private @Id @GeneratedValue Integer id;
     
-	private AddressType addressType;
+	@JsonProperty("Typ")
+	@XmlElement(name = "Typ", required = true)
+	private String addressType;
 	
+	@JsonProperty("Plz")
+	@XmlElement(name = "Plz", required = true)
 	private String zipCode;
+	
+	@JsonProperty("Ort")
+	@XmlElement(name = "Ort", required = true)
 	private String location;
+	
+	@JsonProperty("Straße")
+	@XmlElement(name = "Straße", required = true)
 	private String street;
+	
+	@JsonProperty("Postanschrift")
+	@XmlElement(name = "Postanschrift", required = true)
 	private String postBox;
+	
+	@JsonIgnore
 	private LocalDate validityFrom;
+	
+	@JsonIgnore
 	private LocalDate validityUntil;
 
-	public AddressType getAddressType() {
+	public String getAddressType() {
 		return addressType;
 	}
 
-	public void setAddressType(AddressType addressType) {
+	public void setAddressType(String addressType) {
 		this.addressType = addressType;
 	}
 

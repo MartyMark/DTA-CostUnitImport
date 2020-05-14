@@ -61,7 +61,6 @@ public class VKG extends Segment {
 	
 	/**
 	 * Baut das Verknüpfungs-Objekt
-	 * @param parentInstitutionCode 
 	 */
 	public CostUnitAssignment buildCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Integer parentInstitutionCode) {
 		CostUnitAssignment assignment = new CostUnitAssignment();

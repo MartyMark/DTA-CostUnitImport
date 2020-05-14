@@ -69,7 +69,7 @@ public class CostUnitFileImport {
 		
 		switch (data[0]) {
 			case "IDK":
-				IDK idk = new IDK(data);
+				IDK idk = new IDK(data, rFactory);
 				listIDKs.add(idk);
 				break;
 			case "VDT":
@@ -96,7 +96,7 @@ public class CostUnitFileImport {
 				break;
 			case "DFU":
 				List<UEM> listUEMs = getLastIDK().getUEMs();
-				listUEMs.get(listUEMs.size() - 1).getCostUnitFileDFUs().add(new DFU(data));
+				listUEMs.get(listUEMs.size() - 1).getDFUs().add(new DFU(data));
 				break;
 			case "KTO":
 				getLastIDK().addKTO(new KTO(data));

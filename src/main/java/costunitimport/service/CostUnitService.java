@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.CostUnitInstitutionNotFoundException;
+import costunitimport.exception.DataNotFoundException;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.CostUnitTypeAssignment;
@@ -20,7 +21,7 @@ public class CostUnitService {
 	@Autowired
 	private RepositoryFactory rFactory;
 	
-	public List<AddressData> findDAV(Integer careProviderId, Integer institutionnumber, Integer accountingCode) throws Exception {
+	public AddressData findDAV(Integer kindOfAssignment, Integer careProviderId, Integer institutionnumber, Integer accountingCode) {
 		CostUnitInstitution parentInstitution = rFactory.getCostUnitInstitutionRepositoryCustom().findLatestCostUnitInstitutionByInstitutionNumber(institutionnumber).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionnumber));
 		
 		List<CostUnitAssignment> subAssignments = rFactory.getCostUnitAssignmentRepository().findByParentInstitutionIdAndCareProverMethodId(parentInstitution.getInstitutionNumber(), careProviderId);
@@ -32,16 +33,13 @@ public class CostUnitService {
 		/* Wenn die IDK-Institutionsnummer im VKG Segment vorhanden ist, findet eine Selbstreferenzierung statt. 
 		 * Die Jetzt vorhanden VKGs stellen die entgültigen Datenannahmestellen dar */
 		if(institutionsnumbers.contains(parentInstitution.getInstitutionNumber())) {
-			return convertToCostUnitAddressData(filterdSubAssignments);
-		}
-		
-		if(filterdSubAssignments.size() > 1) {
-			throw new Exception();
+			CostUnitAssignment finalAssignment = filterdSubAssignments.stream().filter(x -> x.getTypeAssignmentId() == kindOfAssignment).findFirst().orElseThrow(() -> new DataNotFoundException());
+			return convertToCostUnitAddressData(finalAssignment);
 		}
 		
 		CostUnitAssignment ins = filterdSubAssignments.get(0);
 		
-		return findDAV(careProviderId, ins.getInstitutionIdAssignment(), accountingCode);
+		return findDAV(kindOfAssignment, careProviderId, ins.getInstitutionIdAssignment(), accountingCode);
 	}
 
 	private List<CostUnitAssignment> filterByAccountingCode(List<CostUnitAssignment> subAssignments, Integer accountingCode) {
@@ -55,26 +53,19 @@ public class CostUnitService {
 		return filterdSubAssignments;
 	}
 	
-	private List<AddressData> convertToCostUnitAddressData(List<CostUnitAssignment> filterdSubAssignments) throws Exception{
-		List<AddressData> addressDatas = new ArrayList<>();
-		
-		for(CostUnitAssignment assignment : filterdSubAssignments) {
-			//Verknüpfung -> Verweis vom IK der Versichertenkarte zum Kostenträger wird ausgeschlossen
-			if(assignment.getTypeAssignmentId().intValue() != CostUnitTypeAssignment.ASSIGNMENT_IK_HEALTH_INSURANCE_CARD_TO_COST_UNIT) {
-				CostUnitInstitution institution = rFactory.getCostUnitInstitutionRepositoryCustom().findLatestCostUnitInstitutionByInstitutionNumber(assignment.getInstitutionIdAssignment()).orElseThrow();
-				CostUnitTypeAssignment assignmnetType = rFactory.getCostUnitTypeAssignmentRepository().findById(assignment.getTypeAssignmentId()).orElseThrow();
-				
-				AddressData address = new AddressData();
-			    address.setIk(institution.getInstitutionNumber());
-			    address.setName1(institution.getFirmName());
-			    address.setName2(institution.getShortDescription());
-			    address.setAddressOne(institution.getAddressfirst());
-			    address.setAddressTwo(institution.getAddressSecond());
-			    address.setCostUnitType(assignmnetType.getDescription());
-			    addressDatas.add(address);
-			}
-		}
-		return addressDatas;
+	private AddressData convertToCostUnitAddressData(CostUnitAssignment assignment) {
+		CostUnitInstitution institution = rFactory.getCostUnitInstitutionRepositoryCustom().findLatestCostUnitInstitutionByInstitutionNumber(assignment.getInstitutionIdAssignment()).orElseThrow();
+		CostUnitTypeAssignment assignmnetType = rFactory.getCostUnitTypeAssignmentRepository().findById(assignment.getTypeAssignmentId()).orElseThrow();
+
+		AddressData address = new AddressData();
+		address.setIk(institution.getInstitutionNumber());
+		address.setName1(institution.getFirmName());
+		address.setName2(institution.getShortDescription());
+		address.setAddressList(institution.getAddressList());
+		address.setCostUnitType(assignmnetType.getDescription());
+		address.setContactPersons(institution.getContactPersons());
+		address.setTransmissionmedien(institution.getTransferList());
+		return address;
 	}
     
 }

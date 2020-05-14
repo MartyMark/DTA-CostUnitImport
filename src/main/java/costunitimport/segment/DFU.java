@@ -2,6 +2,8 @@ package costunitimport.segment;
 
 import java.time.LocalTime;
 
+import costunitimport.model.Transmissiondays;
+
 public class DFU extends Segment {
 
 	private Integer sequentialNumber;
@@ -78,14 +80,25 @@ public class DFU extends Segment {
 		return transferTimeUntil;
 	}
 
-	/**
-	 * Übertragungstage <br>
-	 * Schlüssel Übertragungstage
-	 * 
-	 * @return Übertragungstage
-	 */
 	public Integer getTransferDays() {
 		return transferDays;
+	}
+	
+	public String getTransferDaysDescription() {
+		if(transferDays == null) {
+			return null;
+		}
+		
+		switch (transferDays) {
+			case 1:
+				return Transmissiondays.ALL_DAYS.getDescription();
+			case 2:
+				return Transmissiondays.MON_SAM.getDescription();
+			case 3:
+				return Transmissiondays.MON_FRI.getDescription();
+			default:
+				throw new IllegalArgumentException("");
+		}
 	}
 
 	/**

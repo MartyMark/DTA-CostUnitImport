@@ -12,11 +12,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
+import costunitimport.model.ASP_ContactPerson;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
+import costunitimport.model.UEM_Transfer;
+import costunitimport.model.DFU_Transmissionmedium;
 import costunitimport.model.address.Address;
 
 public class IDK extends Segment{
@@ -35,8 +39,11 @@ public class IDK extends Segment{
 	private List<ASP> listASPs = new ArrayList<>();
 	private List<UEM> listUEMs = new ArrayList<>();
 	
-	public IDK(String[] data) {
+	private RepositoryFactory rFactory;
+	
+	public IDK(String[] data, RepositoryFactory rFactory) {
 		super(data);
+		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -207,19 +214,49 @@ public class IDK extends Segment{
 		institution.setValidityUntil(getVDT().getValidityUntil());
 		institution.setFirmName(buildFirmName());
 		institution.setInstitutionNumber(institutionCode);
+		institution.setContactPersons(buildContactPersons());
+		institution.setTransferList(buildTransferList());
 		institution.setVknr(vKNR);
-		
-		List<Address> addressList = buildCostUnitAddress(); 
-		
-		//FIXME
-		institution.setAddressfirst(addressList.get(0));
-		if(addressList.size() == 2) {
-			institution.setAddressSecond(addressList.get(1));
-		}
+		institution.setAddressList(buildCostUnitAddress());
 		institution.setShortDescription(description);
 		return institution;
 	}
 	
+	private List<UEM_Transfer> buildTransferList() {
+		List<UEM_Transfer> transferList = new ArrayList<>(); 
+		
+		for(UEM uem : getUEMs()) {
+			UEM_Transfer transfer = new UEM_Transfer();
+			transfer.setKindOfDataMedium(rFactory.getCostUnitTypeMediumRepository().findById(uem.getKindOfDataMedium()).orElseThrow().getDescription());
+			
+			for(DFU dfu : uem.getDFUs()) {
+				DFU_Transmissionmedium medium = new DFU_Transmissionmedium();
+				medium.setCommuinicationChannel(dfu.getCommuinicationChannel());
+				medium.setTransferDays(dfu.getTransferDaysDescription());
+				medium.setTransferTimeFrom(dfu.getTransferTimeFrom());
+				medium.setTransferTimeUntil(dfu.getTransferTimeUntil());
+				medium.setUserName(dfu.getUserName());
+				transfer.addTransmissionmedien(medium);
+			}
+			transferList.add(transfer);
+		}
+		return transferList;
+	}
+
+	private List<ASP_ContactPerson> buildContactPersons() {
+		List<ASP_ContactPerson> contactPersons = new ArrayList<>(); 
+		
+		for(ASP asp : getASPs()) {
+			ASP_ContactPerson person = new ASP_ContactPerson();
+			person.setFax(asp.getFax());
+			person.setFieldOfActivity(asp.getFieldOfActivity());
+			person.setName(asp.getName());
+			person.setTelephone(asp.getTelephone());
+			contactPersons.add(person);
+		}
+		return contactPersons;
+	}
+
 	private String buildFirmName() {
 		String[] names = new String[] { nam.get().getName1(), nam.get().getName2(), nam.get().getName3(),nam.get().getName4() };
 		String collectedName = Arrays.stream(names).filter(s -> s != null && !s.trim().isEmpty()).collect(Collectors.joining(" "));

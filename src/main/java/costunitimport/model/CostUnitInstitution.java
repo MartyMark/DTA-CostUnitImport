@@ -2,13 +2,13 @@ package costunitimport.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import costunitimport.model.address.Address;
@@ -22,13 +22,8 @@ public class CostUnitInstitution {
 	private String shortDescription;
 	private Integer vknr;
 	
-	@OneToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "id", nullable=false)
-	private Address addressfirst;
-	
-	@OneToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(name = "id", nullable=true)
-	private Address addressSecond;
+	@OneToMany(cascade = {CascadeType.ALL})
+	private List<Address> addressList;
 	
 	private LocalDate validityFrom;
 	private LocalDate validityUntil;
@@ -36,6 +31,12 @@ public class CostUnitInstitution {
 	private LocalDateTime creationTime;
 	private Integer careProviderMethodId;
 	private Integer costUnitSeparationId;
+	
+	@OneToMany(cascade = {CascadeType.ALL})
+	private List<ASP_ContactPerson> contactPersons;
+	
+	@OneToMany(cascade = {CascadeType.ALL})
+	private List<UEM_Transfer> transferList;
 	
 	public Integer getInstitutionNumber() {
 		return institutionNumber;
@@ -117,19 +118,27 @@ public class CostUnitInstitution {
 		return careProviderMethodId;
 	}
 
-	public Address getAddressfirst() {
-		return addressfirst;
+	public List<Address> getAddressList() {
+		return addressList;
 	}
 
-	public Address getAddressSecond() {
-		return addressSecond;
+	public void setAddressList(List<Address> addressList) {
+		this.addressList = addressList;
 	}
 
-	public void setAddressfirst(Address addressfirst) {
-		this.addressfirst = addressfirst;
+	public List<ASP_ContactPerson> getContactPersons() {
+		return contactPersons;
 	}
 
-	public void setAddressSecond(Address addressSecond) {
-		this.addressSecond = addressSecond;
+	public void setContactPersons(List<ASP_ContactPerson> contactPersons) {
+		this.contactPersons = contactPersons;
+	}
+
+	public List<UEM_Transfer> getTransferList() {
+		return transferList;
+	}
+
+	public void setTransferList(List<UEM_Transfer> transferList) {
+		this.transferList = transferList;
 	}
 }

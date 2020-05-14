@@ -36,14 +36,14 @@ public class ANS extends Segment {
 		switch (kindOfAddress.intValue()) {
 			case 1://Hausanschrift
 				address.setStreet(street);
-				address.setAddressType(AddressType.STREET);
+				address.setAddressType(AddressType.STREET.getDescription());
 				break;
 			case 2://Postfachanschrift
 				address.setPostBox(street);
-				address.setAddressType(AddressType.MAIL_BOX);
+				address.setAddressType(AddressType.MAIL_BOX.getDescription());
 				break;
 			case 3://Großkundenanschrift
-				address.setAddressType(AddressType.MAJOR_CLIENT);
+				address.setAddressType(AddressType.MAJOR_CLIENT.getDescription());
 				break;
 			default:
 				throw new InternalServiceApplication("Unbekannte Art der Anschrift! Art: " + kindOfAddress); 
