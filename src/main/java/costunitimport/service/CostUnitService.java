@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.CostUnitInstitutionNotFoundException;
 import costunitimport.exception.DataNotFoundException;
+import costunitimport.exception.IncompleteException;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
 import costunitimport.model.CostUnitTypeAssignment;
@@ -35,6 +36,12 @@ public class CostUnitService {
 		if(institutionsnumbers.contains(parentInstitution.getInstitutionNumber())) {
 			CostUnitAssignment finalAssignment = filterdSubAssignments.stream().filter(x -> x.getTypeAssignmentId() == kindOfAssignment).findFirst().orElseThrow(() -> new DataNotFoundException());
 			return convertToCostUnitAddressData(finalAssignment);
+		}
+		
+		/* Es sollte immer nur eine Verknüpfung gefunden werden.
+		 * Falls es mehrere gibt ist die Abfrage nicht explizit genug */
+		if(institutionsnumbers.size() > 1) {
+			throw new IncompleteException(kindOfAssignment, careProviderId, parentInstitution.getInstitutionNumber(), accountingCode);
 		}
 		
 		CostUnitAssignment ins = filterdSubAssignments.get(0);
