@@ -7,20 +7,19 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import costunitimport.dao.factory.RepositoryFactory;
-import costunitimport.model.CareProviderMethod;
 import costunitimport.model.ASP_ContactPerson;
+import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
+import costunitimport.model.DFU_Transmissionmedium;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.UEM_Transfer;
-import costunitimport.model.DFU_Transmissionmedium;
 import costunitimport.model.address.Address;
 
 public class IDK extends Segment{
@@ -156,39 +155,64 @@ public class IDK extends Segment{
 	}
 	
 	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
-		List<CostUnitAssignment> allAssignments = new ArrayList<>();
-		
-		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
-		Map<Integer, List<VKG>> mapByKindOfAssignment = listVKG.stream().collect(Collectors.groupingBy(VKG::getKindOfAssignment));
-        
-		/* Iteriert durch jede Schlüsselart der Verknüpfung*/
-		for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
-        	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
-        	
-        	/* VKGs werden aufsteiged nach Leistungserbringerschlüssel sortiert, damit schon alle Abrechnungscodes bearbeitet worden sind, wenn eine
-        	 * Verknüpfung mit dem Abrechnungscode 99 eintrifft */
-        	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
-        	
-        	for(VKG vkg : vkgs) {
-				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions, institutionCode);
-        		assignmentsByKindOfAssignment.add(assignment);
-        		
-        		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-        		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
-					List<Integer> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
-							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode()))
-							.collect(Collectors.toList());
-					
-					List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
-					
-					assignment.setAccountingCodes(listRemainingdACsInts);
-        		}
-        	}
-			allAssignments.addAll(assignmentsByKindOfAssignment);
+		List<CostUnitAssignment> assignments = new ArrayList<>();
+
+		List<VKG> vkgs = listVKG.stream().sorted(Comparator.comparing(VKG::getAccountingCode))
+				.collect(Collectors.toList());
+
+		for (VKG vkg : vkgs) {
+			CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions, institutionCode);
+			assignments.add(assignment);
+
+			// 99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten
+			// Gruppen- und Einzelschlüssel
+			if (vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
+				List<Integer> listAllocatedACs = assignments.stream().filter(v -> v.getAccountingCodes() != null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+				
+				List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode())).collect(Collectors.toList());
+				
+				List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
+
+				assignment.setAccountingCodes(listRemainingdACsInts);
+			}
 		}
-		return allAssignments;
+		return assignments;
 	}
+	
+//	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
+//		List<CostUnitAssignment> allAssignments = new ArrayList<>();
+//		
+//		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
+//		Map<Integer, List<VKG>> mapByKindOfAssignment = listVKG.stream().collect(Collectors.groupingBy(VKG::getKindOfAssignment));
+//        
+//		/* Iteriert durch jede Schlüsselart der Verknüpfung*/
+//		for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
+//        	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
+//        	
+//        	/* VKGs werden aufsteiged nach Leistungserbringerschlüssel sortiert, damit schon alle Abrechnungscodes bearbeitet worden sind, wenn eine
+//        	 * Verknüpfung mit dem Abrechnungscode 99 eintrifft */
+//        	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
+//        	
+//        	for(VKG vkg : vkgs) {
+//				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions, institutionCode);
+//        		assignmentsByKindOfAssignment.add(assignment);
+//        		
+//        		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
+//        		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
+//					List<Integer> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
+//							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+//					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode()))
+//							.collect(Collectors.toList());
+//					
+//					List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
+//					
+//					assignment.setAccountingCodes(listRemainingdACsInts);
+//        		}
+//        	}
+//			allAssignments.addAll(assignmentsByKindOfAssignment);
+//		}
+//		return allAssignments;
+//	}
 	
 	/**
 	 * Ermittelt anhand den eingelesenen Daten die mögliche Anschrift
@@ -208,7 +232,7 @@ public class IDK extends Segment{
 	public CostUnitInstitution buildCostUnitInstitution(CareProviderMethod careProviderMethod, DTACostUnitSeparation costUnitSeparation) {
 		CostUnitInstitution institution = new CostUnitInstitution();
 		institution.setCostUnitSeparation(costUnitSeparation.getId());
-		institution.setCareProviderMethodId(careProviderMethod.getId());//wird gesetzt aus den Informationen aus dem UNB-Segment
+		institution.setCareProviderMethodId(careProviderMethod.getId());
 		institution.setCreationTime(LocalDateTime.now());
 		institution.setValidityFrom(getVDT().getValidityFrom());
 		institution.setValidityUntil(getVDT().getValidityUntil());

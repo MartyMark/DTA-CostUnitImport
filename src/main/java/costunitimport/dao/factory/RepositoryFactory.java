@@ -67,7 +67,7 @@ public class RepositoryFactory {
 		return sAGSRepository;
 	}
 	
-	public CostUnitFileRepository getCostUnitFileRepository() {
+	public CostUnitFileRepository getFileRepository() {
 		return costUnitFileRepository;
 	}
 	

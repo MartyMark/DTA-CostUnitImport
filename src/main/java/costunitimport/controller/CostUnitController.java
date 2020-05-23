@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.response.AddressData;
 import costunitimport.service.CostUnitService;
 
@@ -16,13 +15,6 @@ public class CostUnitController {
 	
 	@Autowired
 	private CostUnitService service;
-	
-	@Autowired
-	RepositoryFactory rFactory;
-	
-	public CostUnitService getService() {
-		return service;
-	}
 	
 	/**
 	 * Beschafft alle Datenannhmestellen 

@@ -27,7 +27,7 @@ public class CostUnitFile {
 
     private LocalDate validityFrom;
     private Integer version;
-    private String fileName;
+    private String name;
     private LocalDateTime creationTime;
 	
 	public DTACostUnitSeparation getDtaCostUnitSeparation() {
@@ -55,11 +55,11 @@ public class CostUnitFile {
 	}
 	
 	public String getFileName() {
-		return fileName;
+		return name;
 	}
 	
 	public void setFileName(String fileName) {
-		this.fileName = fileName;
+		this.name = fileName;
 	}
 	
 	public LocalDateTime getCreationTime() {

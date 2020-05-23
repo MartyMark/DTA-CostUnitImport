@@ -1,10 +1,11 @@
 package costunitimport.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Optional;
+
 import javax.xml.bind.JAXBException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.exception.InternalServiceApplication;
-import costunitimport.fileimport.CostUnitFileImport;
+import costunitimport.fileimport.FileImport;
 import costunitimport.model.CostUnitFile;
 import costunitimport.rssfeed.CostUnitRSSFeed;
 import costunitimport.rssfeed.CostUnitRSSFeedItem;
@@ -52,23 +54,17 @@ public class ImportCostUnitFilesController {
 
 	private void importCostUnitFiles() {
 		try {
-			RSSFeedParser rssFeedParser = new RSSFeedParser(rssfeedUrl);
-			CostUnitRSSFeed rssFeed = rssFeedParser.readFeed();
+			CostUnitRSSFeed rssFeed = new RSSFeedParser(rssfeedUrl).readFeed();
 			
 			for (CostUnitRSSFeedItem feedItem : rssFeed.getChannel().getFilterdItems()) {
-				String filename = new File(feedItem.getLink()).getName().replace(".", "");
-				List<CostUnitFile> costUnitFile = rFactory.getCostUnitFileRepository().findByFileName(filename);
-				if (costUnitFile.isEmpty()) {
-					log.info("Started import of CostUnitFile " + filename + " " + feedItem.getTitle());
-					String httpsLink = feedItem.getLink().replaceFirst("http:", "https:");
-					Path path = ImportUtil.downloadAndSaveTempFile(httpsLink, filename);
+				Optional<CostUnitFile> file = rFactory.getFileRepository().findByName(feedItem.getFileName());
+				if (file.isEmpty()) {
+					Path path = feedItem.download();
 
-					CostUnitFileImport costUnitImport = new CostUnitFileImport(path, rFactory, feedItem.getValidityFrom());
-					costUnitImport.start();
-					
-					log.info("Finished import of CostUnitFile " + filename);
+					FileImport fileImp = new FileImport(path, rFactory, feedItem.getValidityFrom());
+					fileImp.start();
+
 					ImportUtil.deleteFiles(path);
-					break; //Zu Testzwecken soll nur die erste Datei importiert werden
 				}
 			}
 		} catch (JAXBException | IOException e) {

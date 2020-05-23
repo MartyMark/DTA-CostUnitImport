@@ -1,5 +1,13 @@
 package costunitimport.rssfeed;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -29,7 +37,11 @@ public class CostUnitRSSFeedItem {
 	public String getLink() {
 		return link;
 	}
-
+	
+	public String getFileName() {
+		return new File(link).getName().replace(".", "");
+	}
+	
 	@XmlElement
 	public void setLink(String link) {
 		this.link = link;
@@ -52,6 +64,37 @@ public class CostUnitRSSFeedItem {
 	@XmlJavaTypeAdapter(DateAdapter.class)
 	public void setPubDate(LocalDateTime pubDate) {
 		this.pubDate = pubDate;
+	}
+	
+	public Path download() throws IOException {
+		File tempDir = createTempDir();
+		File tempFile = File.createTempFile(getFileName(), "", tempDir);
+
+		Path path = Paths.get(tempFile.getAbsolutePath());
+		try (InputStream in = new URL(link.replaceFirst("http:", "https:")).openStream()) {
+			Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
+		}
+		return path;
+	}
+	
+	/**
+	 * Erstellt ein Temp-Verzeichnis
+	 *
+	 * @return ein <code>File</code>-Objekt, das auf das Temp-Verzeichnis verweist.
+	 */
+	public static File createTempDir() {
+		final int tempDirAttempts = 10000;
+
+		File baseDir = new File(System.getProperty("java.io.tmpdir"));
+		String baseName = System.currentTimeMillis() + "-";
+
+		for (int counter = 0; counter < tempDirAttempts; counter++) {
+			File tempDir = new File(baseDir, baseName + counter);
+			if (tempDir.mkdir()) {
+				return tempDir;
+			}
+		}
+		throw new IllegalStateException("Failed to create directory within " + tempDirAttempts + " attempts (tried " + baseName + "0 to " + baseName + (tempDirAttempts - 1) + ')');
 	}
 	
 	/**
