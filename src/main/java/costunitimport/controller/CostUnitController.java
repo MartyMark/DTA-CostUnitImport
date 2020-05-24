@@ -19,9 +19,13 @@ public class CostUnitController {
 	/**
 	 * Beschafft alle Datenannhmestellen 
 	 */
-	@GetMapping(value = "/dav", produces = "application/json")
-	public ResponseEntity<AddressData> findDAV(@RequestParam Integer type, @RequestParam Integer careProviderMethodId, @RequestParam Integer ik, @RequestParam Integer accountingCode) {
-		AddressData costUnits = service.findDAV(type, careProviderMethodId, ik, accountingCode);
-		return new ResponseEntity<>(costUnits, HttpStatus.OK);
+	@GetMapping(value = "/costUnit", produces = "application/json")
+	public ResponseEntity<AddressData> findCostUnit(@RequestParam Integer type,
+			@RequestParam Integer careProviderMethodId, @RequestParam Integer ik,
+			@RequestParam Integer accountingCode) {
+
+		AddressData costUnit = service.findCostUnit(type, careProviderMethodId, ik, accountingCode);
+
+		return new ResponseEntity<>(costUnit, HttpStatus.OK);
 	}
 }

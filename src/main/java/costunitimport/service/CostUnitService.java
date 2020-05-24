@@ -22,31 +22,45 @@ public class CostUnitService {
 	@Autowired
 	private RepositoryFactory rFactory;
 	
-	public AddressData findDAV(Integer kindOfAssignment, Integer careProviderId, Integer institutionnumber, Integer accountingCode) {
-		CostUnitInstitution parentInstitution = rFactory.getCostUnitInstitutionRepositoryCustom().findLatestCostUnitInstitutionByInstitutionNumber(institutionnumber).orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionnumber));
-		
-		List<CostUnitAssignment> subAssignments = rFactory.getCostUnitAssignmentRepository().findByParentInstitutionIdAndCareProverMethodId(parentInstitution.getInstitutionNumber(), careProviderId);
-		
+	public AddressData findCostUnit(Integer kindOfAssignment, Integer careProviderId, Integer institutionnumber,
+			Integer accountingCode) {
+		CostUnitInstitution parentInstitution = rFactory.getCostUnitInstitutionRepositoryCustom()
+				.findLatestCostUnitInstitutionByInstitutionNumber(institutionnumber)
+				.orElseThrow(() -> new CostUnitInstitutionNotFoundException(institutionnumber));
+
+		List<CostUnitAssignment> subAssignments = rFactory.getCostUnitAssignmentRepository()
+				.findByParentInstitutionIdAndCareProverMethodId(parentInstitution.getInstitutionNumber(),
+						careProviderId);
+
 		List<CostUnitAssignment> filterdSubAssignments = filterByAccountingCode(subAssignments, accountingCode);
-		
-		List<Integer> institutionsnumbers = filterdSubAssignments.stream().map(CostUnitAssignment::getInstitutionIdAssignment).collect(Collectors.toList());
-		
-		/* Wenn die IDK-Institutionsnummer im VKG Segment vorhanden ist, findet eine Selbstreferenzierung statt. 
-		 * Die Jetzt vorhanden VKGs stellen die entgültigen Datenannahmestellen dar */
-		if(institutionsnumbers.contains(parentInstitution.getInstitutionNumber())) {
-			CostUnitAssignment finalAssignment = filterdSubAssignments.stream().filter(x -> x.getTypeAssignmentId() == kindOfAssignment).findFirst().orElseThrow(() -> new DataNotFoundException());
+
+		List<Integer> institutionsnumbers = filterdSubAssignments.stream()
+				.map(CostUnitAssignment::getInstitutionIdAssignment).collect(Collectors.toList());
+
+		/*
+		 * Wenn die IDK-Institutionsnummer im VKG Segment vorhanden ist, findet eine
+		 * Selbstreferenzierung statt. Die Jetzt vorhanden VKGs stellen die entgültigen
+		 * Datenannahmestellen dar
+		 */
+		if (institutionsnumbers.contains(parentInstitution.getInstitutionNumber())) {
+			CostUnitAssignment finalAssignment = filterdSubAssignments.stream()
+					.filter(x -> x.getTypeAssignmentId() == kindOfAssignment).findFirst()
+					.orElseThrow(() -> new DataNotFoundException());
 			return convertToCostUnitAddressData(finalAssignment);
 		}
-		
-		/* Es sollte immer nur eine Verknüpfung gefunden werden.
-		 * Falls es mehrere gibt ist die Abfrage nicht explizit genug */
-		if(institutionsnumbers.size() > 1) {
-			throw new IncompleteException(kindOfAssignment, careProviderId, parentInstitution.getInstitutionNumber(), accountingCode);
+
+		/*
+		 * Es sollte immer nur eine Verknüpfung gefunden werden. Falls es mehrere gibt
+		 * ist die Abfrage nicht explizit genug
+		 */
+		if (institutionsnumbers.size() > 1) {
+			throw new IncompleteException(kindOfAssignment, careProviderId, parentInstitution.getInstitutionNumber(),
+					accountingCode);
 		}
-		
+
 		CostUnitAssignment ins = filterdSubAssignments.get(0);
-		
-		return findDAV(kindOfAssignment, careProviderId, ins.getInstitutionIdAssignment(), accountingCode);
+
+		return findCostUnit(kindOfAssignment, careProviderId, ins.getInstitutionIdAssignment(), accountingCode);
 	}
 
 	private List<CostUnitAssignment> filterByAccountingCode(List<CostUnitAssignment> subAssignments, Integer accountingCode) {

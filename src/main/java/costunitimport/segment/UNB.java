@@ -72,7 +72,7 @@ public class UNB extends Segment {
 		this.creationTime = creationTime;
 	}
 
-	public CostUnitFile getCostUnitFile() {
+	public CostUnitFile buildCostUnitFile() {
 		CostUnitFile file = new CostUnitFile();
 		file.setCreationTime(creationTime);
 		file.setFileName(fileName);

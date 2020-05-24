@@ -19,7 +19,6 @@ import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitFile;
 import costunitimport.model.CostUnitInstitution;
-import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.segment.ANS;
 import costunitimport.segment.ASP;
@@ -122,49 +121,27 @@ public class FileImport {
 	}
 
 	private void insertCostUnitFile() {
-		CostUnitFile file = rFactory.getFileRepository().save(unb.getCostUnitFile());
+		// Baut die Kostenträgerdatei
+		CostUnitFile file = unb.buildCostUnitFile();
+		
+		// Leistungserbringergruppe (z.B 5 -> für sonstige Leistungserbringer)
 		CareProviderMethod cpm = file.getCareProviderMethod();
+		
+		// Kassentrennung (z.B AOK)
 		DTACostUnitSeparation costUnitSeperation = file.getDtaCostUnitSeparation();
-
-		/*
-		 * Sucht alle Kasseninstitutionen nach Leistungserbringerschlüssel (Bsp: 5 für
-		 * Sonstige Leistungserbringer) und Kassentrennung (Bsp: AOK))
-		 */
-		Map<Integer, CostUnitInstitution> existingInstitutionMap = rFactory.getCostUnitInstitutionRepositoryCustom()
-				.findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(cpm.getId(),
-						costUnitSeperation.getId());
-
+		
+		List<IDK> filterdIDKs = filterIDKs(validityFrom, cpm, costUnitSeperation);
+		
 		// *** Institutionen
-		closeInstitutions(listIDKs, validityFrom, existingInstitutionMap);
-
-		List<IDK> filterdIDKs = filterIDKs(validityFrom, existingInstitutionMap);
-
-		updateInstitutions(filterdIDKs, cpm, costUnitSeperation, existingInstitutionMap);
+		updateInstitutions(filterdIDKs, cpm, costUnitSeperation);
 
 		// *** Verknüpfungen
-		/* Jetzt werden die aktualisierten Kasseninstitutionen geladen */
-		Map<Integer, CostUnitInstitution> refreshedInstitutionMap = rFactory.getCostUnitInstitutionRepositoryCustom()
-				.findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(cpm.getId(),
-						costUnitSeperation.getId());
-
-		/*
-		 * Zu den sonsitgen Leistungserbringern 5 - alle Abrechnungscodes beschaffen
-		 * (Abrechnungscode identifiziert eine Leistungserbringerart)
-		 */
-		Map<Integer, DTAAccountingCode> idToAccountoungCode = rFactory.getAccountingCodeRepositoryCustom()
-				.findIDToDTAAccountingCodesByCareProviderMethodId(cpm.getId());
-
 		for (IDK idk : filterdIDKs) {
-			List<CostUnitAssignment> assignmentsFromFile = idk.getCostUnitAssignment(validityFrom,
-					refreshedInstitutionMap, idToAccountoungCode);
-
-			CostUnitInstitution currentInstitution = refreshedInstitutionMap.get(idk.getInstitutionCode());
-
-			List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository()
-					.findByParentInstitutionIdAndValidityFrom(currentInstitution.getId(), validityFrom);
-			closeAssignments(exisitingAssignments, validityFrom);
-			updateAssignments(assignmentsFromFile, exisitingAssignments);
-		} // ***
+			List<CostUnitAssignment> assignmentsFromFile = idk.buildCostUnitAssignment(validityFrom, cpm,
+					costUnitSeperation);
+			updateAssignments(assignmentsFromFile, idk.getInstitutionCode());
+		}
+		rFactory.getFileRepository().save(file);
 	}
 
 	/**
@@ -182,9 +159,16 @@ public class FileImport {
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei
 	 * @return IDKs die bearbeitet werden müssen
 	 */
-	private List<IDK> filterIDKs(LocalDate importFileValidityFrom,
-			Map<Integer, CostUnitInstitution> existingInstitutionMap) {
+	private List<IDK> filterIDKs(LocalDate importFileValidityFrom, CareProviderMethod cpm, DTACostUnitSeparation costUnitSeperation) {
 		List<IDK> filterdIDKs = new ArrayList<>();
+		
+		/*
+		 * Sucht alle Kasseninstitutionen nach Leistungserbringerschlüssel (Bsp: 5 für
+		 * Sonstige Leistungserbringer) und Kassentrennung (Bsp: AOK))
+		 */
+		Map<Integer, CostUnitInstitution> existingInstitutionMap = rFactory.getCostUnitInstitutionRepositoryCustom()
+				.findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(cpm.getId(),
+						costUnitSeperation.getId());
 
 		for (IDK idk : listIDKs) {
 			LocalDate validityUntil = idk.getVDT().getValidityUntil();
@@ -204,12 +188,39 @@ public class FileImport {
 		}
 		return filterdIDKs;
 	}
+	
+	/**
+	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei)<br>
+	 * alle Kasseninstitutionen die sich in der Datenbank befinden aber nicht mehr<br>
+	 * in der Importdatei.<br>
+	 * Prüft danach, ob die Institution aus der Datei schon in der Datenbank vorhanden ist.<br>
+	 * Falls dies der Fall ist, ID der Instituition aus der Datenbank auf die
+	 * Instituition in der Datei übertragen.<br>
+	 * Somit muss kein neuer Datensatz erstellt werden.
+	 * 
+	 * @param listIDKs Kasseninstitutionen der Importdatei
+	 */
+	private void updateInstitutions(List<IDK> filterdIDKs, CareProviderMethod cpm, DTACostUnitSeparation costUnitSeperation) {
+		/*
+		 * Sucht alle Kasseninstitutionen nach Leistungserbringerschlüssel (Bsp: 5 für
+		 * Sonstige Leistungserbringer) und Kassentrennung (Bsp: AOK))
+		 */
+		Map<Integer, CostUnitInstitution> existingInstitutionMap = rFactory.getCostUnitInstitutionRepositoryCustom()
+				.findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(cpm.getId(),
+						costUnitSeperation.getId());
+		
+		for (CostUnitInstitution existingInstitution : existingInstitutionMap.values()) {
+			List<Integer> idkIKs = listIDKs.stream().map(IDK::getInstitutionCode).collect(Collectors.toList());
 
-	private void updateInstitutions(List<IDK> filterdIDKs, CareProviderMethod careProviderMethod,
-			DTACostUnitSeparation costUnitSeperation, Map<Integer, CostUnitInstitution> existingInstitutionMap) {
+			if (!idkIKs.contains(existingInstitution.getInstitutionNumber())) {
+				existingInstitution.setValidityUntil(validityFrom);
+				rFactory.getCostUnitInstitutionRepository().save(existingInstitution);
+			}
+		}
+		
 		for (IDK idk : filterdIDKs) {
 			CostUnitInstitution existingInstitution = existingInstitutionMap.get(idk.getInstitutionCode());
-			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(careProviderMethod,
+			CostUnitInstitution institutionFromFile = idk.buildCostUnitInstitution(cpm,
 					costUnitSeperation);
 
 			if (existingInstitution != null) {
@@ -220,38 +231,27 @@ public class FileImport {
 	}
 
 	/**
-	 * Schließt (setzt das GültigBis-Datum auf das GültigAb-Datum der Importdatei)
-	 * aller Kasseninstitutionen die sich in der Datenbank befinden aber nicht mehr
-	 * in der Importdatei.
-	 * 
-	 * @param listIDKs               Kasseninstitutionen der Importdatei
-	 * @param importFileValidityFrom GültigAb-Datum der Importdatei
-	 * @param existingInstitutionMap alle Institutionen aus der Datenbank
-	 */
-	private void closeInstitutions(List<IDK> listIDKs, LocalDate importFileValidityFrom,
-			Map<Integer, CostUnitInstitution> existingInstitutionMap) {
-		for (CostUnitInstitution existingInstitution : existingInstitutionMap.values()) {
-			List<Integer> idkIKs = listIDKs.stream().map(IDK::getInstitutionCode).collect(Collectors.toList());
-
-			if (!idkIKs.contains(existingInstitution.getInstitutionNumber())) {
-				existingInstitution.setValidityUntil(importFileValidityFrom.minusDays(1));
-				rFactory.getCostUnitInstitutionRepository().save(existingInstitution);
-			}
-		}
-	}
-
-	/**
-	 * Prüft, ob die Verknüpfung schon in der Datenbank vorhanden ist.<br>
+	 * Schließt erst alle Verknüpfungen auf der Datenbank.<br>
+	 * Prüft danach, ob die Verknüpfung aus der Datei schon in der Datenbank vorhanden ist.<br>
 	 * Falls dies der Fall ist, ID der Verknüpfung aus der Datenbank auf die
 	 * Verknüpfung in der Datei übertragen.<br>
 	 * Somit muss kein neuer Datensatz erstellt werden.
 	 * 
 	 * @param assignmentsFromFile    alle Verknüpfungen der Datei
-	 * @param exisitingAssignments   alle Verknüpfungen aus der Datenbank
+	 * @param currentInstitution 
 	 * @param importFileValidityFrom GültigAb-Datum der Importdatei
 	 */
-	private void updateAssignments(List<CostUnitAssignment> assignmentsFromFile,
-			List<CostUnitAssignment> exisitingAssignments) {
+	private void updateAssignments(List<CostUnitAssignment> assignmentsFromFile, Integer institutionCode) {
+		CostUnitInstitution currentInstitution = rFactory.getCostUnitInstitutionRepositoryCustom()
+				.findLatestCostUnitInstitutionByInstitutionNumber(institutionCode).orElseThrow();
+		
+		List<CostUnitAssignment> exisitingAssignments = rFactory.getCostUnitAssignmentRepository()
+				.findByParentInstitutionIdAndValidityFrom(currentInstitution.getId(), validityFrom);
+		
+		LocalDate validityUntil = validityFrom.minusDays(1);
+		exisitingAssignments.stream().forEach(x -> x.setValidityUntil(validityUntil));
+		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
+		
 		for (CostUnitAssignment assignmentFromFile : assignmentsFromFile) {
 
 			String assignmentFromFileCompareString = getCompareString(assignmentFromFile);
@@ -263,19 +263,6 @@ public class FileImport {
 			}
 		}
 		rFactory.getCostUnitAssignmentRepository().saveAll(assignmentsFromFile);
-	}
-
-	/**
-	 * Schließt alle Verknüpfungen der Datenbank.<br>
-	 * Diese werden später durch die Verknüpfungen der Datei aktualisiert.
-	 * 
-	 * @param exisitingAssignments   alle Verknüpfungen aus der Datenbank
-	 * @param importFileValidityFrom GültigAb-Datum der Importdatei
-	 */
-	private void closeAssignments(List<CostUnitAssignment> exisitingAssignments, LocalDate importFileValidityFrom) {
-		LocalDate validityUntil = importFileValidityFrom.minusDays(1);
-		exisitingAssignments.stream().forEach(x -> x.setValidityUntil(validityUntil));
-		rFactory.getCostUnitAssignmentRepository().saveAll(exisitingAssignments);
 	}
 
 	// Man könnte auch die CompareKey-Methode in der CostUnitAssignment verwenden,

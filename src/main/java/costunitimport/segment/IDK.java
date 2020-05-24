@@ -154,9 +154,21 @@ public class IDK extends Segment{
 		this.vdt = vdt;
 	}
 	
-	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
+	public List<CostUnitAssignment> buildCostUnitAssignment(LocalDate validityFrom, CareProviderMethod cpm, DTACostUnitSeparation costUnitSeperation){
 		List<CostUnitAssignment> assignments = new ArrayList<>();
 
+		/*
+		 * Zu den sonsitgen Leistungserbringern 5 - alle Abrechnungscodes beschaffen
+		 * (Abrechnungscode identifiziert eine Leistungserbringerart)
+		 */
+		Map<Integer, DTAAccountingCode> idToAccountoungCode = rFactory.getAccountingCodeRepositoryCustom()
+				.findIDToDTAAccountingCodesByCareProviderMethodId(cpm.getId());
+		
+		/* Jetzt werden die aktualisierten Kasseninstitutionen geladen */
+		Map<Integer, CostUnitInstitution> institutions = rFactory.getCostUnitInstitutionRepositoryCustom()
+				.findIKToLatestInstituinMapByCareProviderIdAndCostUnitSeparationId(cpm.getId(),
+						costUnitSeperation.getId());
+		
 		List<VKG> vkgs = listVKG.stream().sorted(Comparator.comparing(VKG::getAccountingCode))
 				.collect(Collectors.toList());
 
@@ -169,7 +181,7 @@ public class IDK extends Segment{
 			if (vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
 				List<Integer> listAllocatedACs = assignments.stream().filter(v -> v.getAccountingCodes() != null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
 				
-				List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode())).collect(Collectors.toList());
+				List<DTAAccountingCode> listRemainingdACs = idToAccountoungCode.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode())).collect(Collectors.toList());
 				
 				List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
 
