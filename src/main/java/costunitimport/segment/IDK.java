@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.ASP_ContactPerson;
 import costunitimport.model.CareProviderMethod;
@@ -154,7 +153,8 @@ public class IDK extends Segment{
 		this.vdt = vdt;
 	}
 	
-	public List<CostUnitAssignment> buildCostUnitAssignment(LocalDate validityFrom, CareProviderMethod cpm, DTACostUnitSeparation costUnitSeperation){
+	public List<CostUnitAssignment> buildCostUnitAssignment(LocalDate validityFrom, CareProviderMethod cpm, 
+			DTACostUnitSeparation costUnitSeperation){
 		List<CostUnitAssignment> assignments = new ArrayList<>();
 
 		/*
@@ -179,11 +179,14 @@ public class IDK extends Segment{
 			// 99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten
 			// Gruppen- und Einzelschlüssel
 			if (vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
-				List<Integer> listAllocatedACs = assignments.stream().filter(v -> v.getAccountingCodes() != null).map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
+				List<Integer> listAllocatedACs = assignments.stream().filter(v -> v.getAccountingCodes() != null).
+						map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
 				
-				List<DTAAccountingCode> listRemainingdACs = idToAccountoungCode.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode())).collect(Collectors.toList());
+				List<DTAAccountingCode> listRemainingdACs = idToAccountoungCode.values().stream().
+						filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode())).collect(Collectors.toList());
 				
-				List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
+				List<Integer> listRemainingdACsInts = listRemainingdACs.
+						stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
 
 				assignment.setAccountingCodes(listRemainingdACsInts);
 			}
