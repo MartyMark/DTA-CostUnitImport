@@ -24,7 +24,7 @@ import costunitimport.model.CostUnitFile;
 import costunitimport.rssfeed.CostUnitRSSFeed;
 import costunitimport.rssfeed.CostUnitRSSFeedItem;
 import costunitimport.rssfeed.RSSFeedParser;
-import costunitimport.util.ImportUtil;
+import costunitimport.tools.ImportUtil;
 
 @RestController
 public class ImportCostUnitFilesController {
