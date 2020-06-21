@@ -65,6 +65,7 @@ public class ImportCostUnitFilesController {
 					fileImp.start();
 
 					ImportUtil.deleteFiles(path);
+					break;
 				}
 			}
 		} catch (JAXBException | IOException e) {

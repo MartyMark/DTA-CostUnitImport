@@ -50,27 +50,27 @@ public class DTAAccountingCode {
 	 * 10-Gruppenschlüssel Hilfsmittellieferant (Schlüssel 11-19)
 	 */
 	public static List<Integer> getHimiCodes(){
-		return List.of(11, 12, 13, 14, 15, 16, 17, 19);
+		return List.of(10, 11, 12, 13, 14, 15, 16, 17, 19);
 	}
 	
 	/**
 	 * 20-Gruppenschlüssel Heilmittelerbringer (Schlüssel 21-29)
 	 */
 	public static List<Integer> getHeimiCodes(){
-		return List.of(21, 22, 23, 24, 25, 26, 27, 29);
+		return List.of(20, 21, 22, 23, 24, 25, 26, 27, 29);
 	}
 	
 	/**
 	 * 30-Gruppenschlüssel Häusliche Krankenpflege (Schlüssel 31-34)
 	 */
 	public static List<Integer> getHpfCodes(){
-		return List.of(31, 32, 33, 34);
+		return List.of(30, 31, 32, 33, 34);
 	}
 	
 	/**
 	 * 40-Gruppenschlüssel Krankentransportleistungen (Schlüssel 41-49)
 	 */
 	public static List<Integer> getTransportCodes(){
-		return List.of(41, 42, 43, 44, 45, 46, 47, 48, 49);
+		return List.of(40, 41, 42, 43, 44, 45, 46, 47, 48, 49);
 	}
 }

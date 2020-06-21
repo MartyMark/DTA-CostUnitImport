@@ -15,6 +15,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @JsonRootName(value = "Übermittlungssegment")
 @XmlRootElement(name = "Übermittlungssegment")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonInclude(Include.NON_NULL)
 public class UEM_Transfer {
 	@JsonIgnore
 	private @Id @GeneratedValue Integer id;
@@ -35,6 +38,14 @@ public class UEM_Transfer {
 	@JsonProperty("Übermittlungsdaten")
 	@XmlElement(name = "Übermittlungsdaten")
 	private List<DFU_Transmissionmedium> transmissionmedien;
+	
+	@JsonProperty("Übermittlungsmedium-Parameter")
+	@XmlElement(name = "Übermittlungsmedium-Parameter")
+	private String transferParameter;
+	
+	@JsonProperty("Übermittlungszeichensatz")
+	@XmlElement(name = "Übermittlungszeichensatz")
+	private String charSet;
 	
 	public List<DFU_Transmissionmedium> getTransmissionmedien() {
 		return transmissionmedien;
@@ -53,5 +64,13 @@ public class UEM_Transfer {
 
 	public void setKindOfDataMedium(String kindOfDataMedium) {
 		this.kindOfDataMedium = kindOfDataMedium;
+	}
+
+	public void setParameter(String transferParameter) {
+		this.transferParameter = transferParameter;
+	}
+
+	public void setCharSet(String charSet) {
+		this.charSet = charSet;
 	}
 }

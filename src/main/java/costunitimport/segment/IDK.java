@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.ASP_ContactPerson;
 import costunitimport.model.CareProviderMethod;
 import costunitimport.model.CostUnitAssignment;
 import costunitimport.model.CostUnitInstitution;
-import costunitimport.model.DFU_Transmissionmedium;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
 import costunitimport.model.UEM_Transfer;
@@ -194,41 +194,6 @@ public class IDK extends Segment{
 		return assignments;
 	}
 	
-//	public List<CostUnitAssignment> getCostUnitAssignment(LocalDate validityFrom, Map<Integer, CostUnitInstitution> institutions, Map<Integer, DTAAccountingCode> mapAccountingCodesCareProviderMethod){
-//		List<CostUnitAssignment> allAssignments = new ArrayList<>();
-//		
-//		/* Mappt die VKGs nach Schlüssel Art der Verknüpfung. Bswp -> 02 - Verweis auf eine Datenannahmestelle*/
-//		Map<Integer, List<VKG>> mapByKindOfAssignment = listVKG.stream().collect(Collectors.groupingBy(VKG::getKindOfAssignment));
-//        
-//		/* Iteriert durch jede Schlüsselart der Verknüpfung*/
-//		for (Entry<Integer, List<VKG>> entry : mapByKindOfAssignment.entrySet()) {
-//        	List<CostUnitAssignment> assignmentsByKindOfAssignment = new ArrayList<>();
-//        	
-//        	/* VKGs werden aufsteiged nach Leistungserbringerschlüssel sortiert, damit schon alle Abrechnungscodes bearbeitet worden sind, wenn eine
-//        	 * Verknüpfung mit dem Abrechnungscode 99 eintrifft */
-//        	List<VKG> vkgs = entry.getValue().stream().sorted(Comparator.comparing(VKG::getAccountingCode)).collect(Collectors.toList());
-//        	
-//        	for(VKG vkg : vkgs) {
-//				CostUnitAssignment assignment = vkg.buildCostUnitAssignment(validityFrom, institutions, institutionCode);
-//        		assignmentsByKindOfAssignment.add(assignment);
-//        		
-//        		//99-Sonderschlüssel, gilt für alle in der Kostenträgerdatei nicht aufgeführten Gruppen- und Einzelschlüssel
-//        		if(vkg.getAccountingCode() != null && vkg.getAccountingCode().intValue() == 99) {
-//					List<Integer> listAllocatedACs = assignmentsByKindOfAssignment.stream().filter(v -> v.getAccountingCodes() != null)
-//							.map(CostUnitAssignment::getAccountingCodes).flatMap(List::stream).collect(Collectors.toList());
-//					List<DTAAccountingCode> listRemainingdACs = mapAccountingCodesCareProviderMethod.values().stream().filter(ac -> !listAllocatedACs.contains(ac.getAccountingCode()))
-//							.collect(Collectors.toList());
-//					
-//					List<Integer> listRemainingdACsInts = listRemainingdACs.stream().map(DTAAccountingCode::getAccountingCode).collect(Collectors.toList());
-//					
-//					assignment.setAccountingCodes(listRemainingdACsInts);
-//        		}
-//        	}
-//			allAssignments.addAll(assignmentsByKindOfAssignment);
-//		}
-//		return allAssignments;
-//	}
-	
 	/**
 	 * Ermittelt anhand den eingelesenen Daten die mögliche Anschrift
 	 * 
@@ -264,21 +229,8 @@ public class IDK extends Segment{
 	private List<UEM_Transfer> buildTransferList() {
 		List<UEM_Transfer> transferList = new ArrayList<>(); 
 		
-		for(UEM uem : getUEMs()) {
-			UEM_Transfer transfer = new UEM_Transfer();
-			transfer.setKindOfDataMedium(rFactory.getCostUnitTypeMediumRepository().findById(uem.getKindOfDataMedium()).orElseThrow().getDescription());
-			
-			for(DFU dfu : uem.getDFUs()) {
-				DFU_Transmissionmedium medium = new DFU_Transmissionmedium();
-				medium.setCommuinicationChannel(dfu.getCommuinicationChannel());
-				medium.setTransferDays(dfu.getTransferDaysDescription());
-				medium.setTransferTimeFrom(dfu.getTransferTimeFrom());
-				medium.setTransferTimeUntil(dfu.getTransferTimeUntil());
-				medium.setUserName(dfu.getUserName());
-				transfer.addTransmissionmedien(medium);
-			}
-			transferList.add(transfer);
-		}
+		listUEMs.forEach(uem -> transferList.add(uem.buildTransfer()));
+		
 		return transferList;
 	}
 

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import costunitimport.dao.AccountingCodeRepository;
 import costunitimport.dao.CareProviderMethodRepository;
+import costunitimport.dao.CharSetRepoistory;
 import costunitimport.dao.CostUnitAddressRepository;
 import costunitimport.dao.CostUnitAssignmentRepository;
 import costunitimport.dao.CostUnitFileRepository;
@@ -15,6 +16,7 @@ import costunitimport.dao.CostUnitTypeDataSupplyRepository;
 import costunitimport.dao.CostUnitTypeMediumRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyAccountinCodeRepository;
 import costunitimport.dao.DTAAccumulativeGroupKeyRepository;
+import costunitimport.dao.TransferParameterRepository;
 import costunitimport.dao.impl.AccountingCodeRepositoryCustom;
 import costunitimport.dao.impl.CostUnitInstitutionRepositoryCustom;
 
@@ -62,6 +64,12 @@ public class RepositoryFactory {
 	
 	@Autowired
 	private CostUnitInstitutionRepositoryCustom costUnitInstitutionRepositoryCustom;
+	
+	@Autowired
+	private TransferParameterRepository transferParameterRepository;
+	
+	@Autowired
+	private CharSetRepoistory charSetRepoistory;
 	
 	public DTAAccumulativeGroupKeyRepository getSAGSRepository() {
 		return sAGSRepository;
@@ -117,5 +125,13 @@ public class RepositoryFactory {
 
 	public DTAAccumulativeGroupKeyAccountinCodeRepository getAccumulativeGroupKeyAccountingCodeRepository() {
 		return accumulativeGroupKeyAccountingCodeRepository;
+	}
+
+	public TransferParameterRepository getTransferParameterRepository() {
+		return transferParameterRepository;
+	}
+
+	public CharSetRepoistory getCharSetRepoistory() {
+		return charSetRepoistory;
 	}
 }

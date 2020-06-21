@@ -91,7 +91,7 @@ public class FileImport {
 			getLastIDK().addASP(new ASP(data));
 			break;
 		case "UEM":
-			getLastIDK().addUEM(new UEM(data));
+			getLastIDK().addUEM(new UEM(data, rFactory));
 			break;
 		case "DFU":
 			List<UEM> listUEMs = getLastIDK().getUEMs();

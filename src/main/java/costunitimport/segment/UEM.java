@@ -2,6 +2,11 @@ package costunitimport.segment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import costunitimport.dao.factory.RepositoryFactory;
+import costunitimport.model.TransferParameter;
+import costunitimport.model.UEM_Transfer;
 
 public class UEM extends Segment {
 
@@ -11,9 +16,12 @@ public class UEM extends Segment {
 	private String typeOfCompression;
 	
 	private List<DFU> dfuList= new ArrayList<>();
+	
+	private RepositoryFactory rFactory;
 
-	public UEM(String[] data) {
+	public UEM(String[] data, RepositoryFactory rFactory) {
 		super(data);
+		this.rFactory = rFactory;
 	}
 
 	@Override
@@ -23,6 +31,19 @@ public class UEM extends Segment {
 		parameter = getData(position++, Integer.class);
 		charSet = getData(position++, String.class);
 		typeOfCompression = getData(position, String.class);
+	}
+	
+	public UEM_Transfer buildTransfer() {
+		UEM_Transfer transfer = new UEM_Transfer();
+		transfer.setKindOfDataMedium(rFactory.getCostUnitTypeMediumRepository().findById(kindOfDataMedium).orElseThrow().getDescription());
+		
+		Optional<TransferParameter> transferParameter = rFactory.getTransferParameterRepository().findById(parameter);
+		if(transferParameter.isPresent()) {
+			transfer.setParameter(transferParameter.get().getDescription());
+			transfer.setCharSet(rFactory.getCharSetRepoistory().findByCharSetId(charSet).orElseThrow().getDescription());
+		}
+		dfuList.forEach(x -> transfer.addTransmissionmedien(x.buildTransmissionMedium()));
+		return transfer;
 	}
 
 

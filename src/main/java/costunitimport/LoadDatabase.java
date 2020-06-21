@@ -8,11 +8,13 @@ import org.springframework.context.annotation.Configuration;
 
 import costunitimport.dao.factory.RepositoryFactory;
 import costunitimport.model.CareProviderMethod;
+import costunitimport.model.CharSet;
 import costunitimport.model.CostUnitTypeAssignment;
 import costunitimport.model.CostUnitTypeDataSupply;
 import costunitimport.model.CostUnitTypeMedium;
 import costunitimport.model.DTAAccountingCode;
 import costunitimport.model.DTACostUnitSeparation;
+import costunitimport.model.TransferParameter;
 import costunitimport.model.sags.DTAAccumulativeGroupKey;
 import costunitimport.model.sags.DTAAccumulativeGroupKeyAccountinCode;
 
@@ -422,6 +424,26 @@ public class LoadDatabase {
 			rFactory.getSAGSRepository().save(sags24);
 			rFactory.getSAGSRepository().save(sags25);
 			rFactory.getSAGSRepository().save(sags26);
+			
+			log.info("TransferParameter - ÜBERMITTLUNGSPARAMETER");
+			rFactory.getTransferParameterRepository().save(new TransferParameter(1, "Magnetband 1600 bpi"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(2, "Magnetband 6250 bpi"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(3, "Magnetbandkassette 3480"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(4, "Magnetbandkassette 3490 -18 Spur"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(5, "Magnetbandkassette 3490 -36 Spur"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(6, "Magnetbandkassette DAT"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(7, "Magnetbandkassette 8 mm"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(8, "Diskette 3,5\"-720 KB -DOS-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(9, "Diskette 3,5\"-1,44 MB -DOS-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(10, "Diskette 3,5\"-2,88 MB -DOS-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(11, "Diskette 3,5\"-2,88 MB -DOS-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(12, "Diskette 5,25\"-1,2 MB -DOS-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(13, "Diskette 3,5\"-1,44 MB -UNIX-TAR-Format"));
+			rFactory.getTransferParameterRepository().save(new TransferParameter(14, "CD-ROM, 12 cm, 650 MB"));
+			
+			log.info("CharSet - ZEICHENSATZ");
+			rFactory.getCharSetRepoistory().save(new CharSet("I7", "ASCII 7-Bit"));
+			rFactory.getCharSetRepoistory().save(new CharSet("I8", "ASCII 8-Bit"));
 		};
 	}
 }

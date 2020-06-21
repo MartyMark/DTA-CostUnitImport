@@ -19,7 +19,7 @@ public class CostUnitController {
 	/**
 	 * Beschafft alle Datenannhmestellen 
 	 */
-	@GetMapping(value = "/costUnit", produces = "application/json")
+	@GetMapping(value = "/costUnit", produces = {"application/json; charset=UTF-8"})
 	public ResponseEntity<AddressData> findCostUnit(@RequestParam Integer type,
 			@RequestParam Integer careProviderMethodId, @RequestParam Integer ik,
 			@RequestParam Integer accountingCode) {

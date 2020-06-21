@@ -2,6 +2,7 @@ package costunitimport.segment;
 
 import java.time.LocalTime;
 
+import costunitimport.model.DFU_Transmissionmedium;
 import costunitimport.model.Transmissiondays;
 
 public class DFU extends Segment {
@@ -28,6 +29,16 @@ public class DFU extends Segment {
 		transferTimeUntil = getData(position++, LocalTime.class);
 		transferDays = getData(position++, Integer.class);
 		commuinicationChannel = getData(position, String.class);
+	}
+	
+	public DFU_Transmissionmedium buildTransmissionMedium() {
+		DFU_Transmissionmedium medium = new DFU_Transmissionmedium();
+		medium.setCommuinicationChannel(getCommuinicationChannel());
+		medium.setTransferDays(getTransferDaysDescription());
+		medium.setTransferTimeFrom(getTransferTimeFrom());
+		medium.setTransferTimeUntil(getTransferTimeUntil());
+		medium.setUserName(getUserName());
+		return medium;
 	}
 
 	/**
