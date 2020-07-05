@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Daten des RSS-Feeds. Es sind hier die eigentlichen aktuellen und zukünftigen Kostenträgerdateien<br>
@@ -60,6 +61,7 @@ public class CostUnitRSSFeedItem {
 	}
 
 	@XmlElement
+	@XmlJavaTypeAdapter(DateAdapter.class)
 	public void setPubDate(LocalDateTime pubDate) {
 		this.pubDate = pubDate;
 	}
